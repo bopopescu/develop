@@ -831,6 +831,10 @@ Aborting
 57：安装upx时
 
     先安装macports，然后 port selfupdate进行更新，然后 sudo port search upx，最后 sudo port install upx-version
+    安装完macports，另起终端才能验证macports是否安装。
+
+
+
 
 58：代码优化：
 
@@ -900,7 +904,7 @@ Aborting
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-	'switch_branch',    #这个地方只是应用名，没有工程名
+	'switch_branch',    #这个地方只是应用名，没有工程名（好像可以都没有工程名）
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
@@ -944,6 +948,9 @@ urlpatterns = patterns('switch_branch.views',#这个地方也是只有应用名，没有工程名
     a = 1
     ((a and [x]) or [y])[0]
     这样就可以确保a为真时，输出x的值；a为假时，输出y的值。
+
+    当 a为真时，输出x的值；a为假时，输出y的值
+    ((a and [x]) or [y])[0]   注：这样写[x]是防止x为假造成结果有错误，这样写[y]是防止当y是整型(int)时，表达式出错。
 
 
 
@@ -1109,6 +1116,31 @@ LOGGING = {
     step3: 启动salt-minion
     #salt-minion --user zyd_vm 
     或#salt-minion --user  zyd_vm  -d
+
+
+73：文本框点击文字消失，鼠标离开文字复现。
+
+    a: 用的是 onfocus 和 onblur
+
+       <input type="text" value="点击文字消失" onfocus="if (value ==defaultValue){value =''}" onblur="if (value ==''){value=defaultValue}" />
+
+    b: 用的是 onclick 和 onblur
+
+       <input type = "text" value = "当前步骤" onclick="if(value==defaultValue){value='';this.style.color='#000'}" onBlur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" />
+
+
+
+74：Linux下杀死进程的命令： kill -s 9 pid
+
+
+
+
+
+
+
+
+
+
 
 
 
