@@ -1,0 +1,52 @@
+<title>Restore SafeDVDCopy</title>
+<h1 align= "center">Restore SafeDVDCopy</h1>
+<span style = "font-size:1.5em;float:left"><a href = "/display_safedvdcopy_information/?platform_name=Win">Win</a>
+</span><span style ="float:right; font-size:1.5em"><a href = "/display_safedvdcopy_information/?platform_name=Mac">Mac</a></span>
+
+<form action = "/backup_safedvdcopy/" method = "POST" name = "Form1">
+{% csrf_token %}
+<table style = "font-size:1.0em" width = "100%" align = "center" id = "table" border = "solid 1px green">
+<tr align = "center" style = "background-color:#d1d1d1">
+<!--<td>Platform</td><td>Package</td><td>svn version</td><td>include version</td><td>bluray version</td><td>common version</td><td>DVDFabQxLibs version</td><td>mobile2 version</td><td>backup path</td><td>flag</td><td>description</td>
+
+-->
+<td></td>
+<td>SafeDVDCopy</td>
+<td>include branch</td>
+<td>bluray branch</td>
+<td>common branch</td>
+<td>DVDFabQxLibs branch</td>
+<td>mobile2 branch</td>
+<!--<td>backup path</td>-->
+<td>flag</td>
+<td>description</td>
+</tr>
+{% for record in res %}
+<tr align = "center" style = "background-color:{% cycle '#b7ddf7' '#def1ff'%}">
+<!--<td>{{record.11}}</td>-->
+<td>
+<input type = "checkbox" name = "checkbox" value = "{{record.0}}" style = "float:left"/>
+</td>
+<td onclick = "window.open('/display_all_safedvdcopy_information/{{record.0}}')">{{record.1}}</td>
+
+
+<td onclick = "window.open('/display_all_safedvdcopy_information/{{record.0}}')">{{record.13}}</td>
+<td onclick = "window.open('/display_all_safedvdcopy_information/{{record.0}}')">{{record.14}}</td>
+<td onclick = "window.open('/display_all_safedvdcopy_information/{{record.0}}')">{{record.15}}</td>
+<td onclick = "window.open('/display_all_safedvdcopy_information/{{record.0}}')">{{record.16}}</td>
+<td onclick = "window.open('/display_all_safedvdcopy_information/{{record.0}}')">{{record.17}}</td>
+
+<td onclick = "window.open('/display_all_safedvdcopy_information/{{record.0}}')">{{record.9}}</td>
+<td onclick = "window.open('/display_all_safedvdcopy_information/{{record.0}}')">{{record.10}}</td>
+</tr>
+{% endfor %}
+</table>
+<br />
+<br />
+<br />
+<div align = "center"><input type = "Submit" value = "Submit"/></div>
+
+</form>
+<span style = "font-size:1.5em;float:left"><a href = "/display_all_safedvdcopy_record/?platform_name=Win">Display All Win</a>
+</span><span style ="float:right; font-size:1.5em"><a href = "/display_all_safedvdcopy_record/?platform_name=Mac">Display All Mac</a></span>
+

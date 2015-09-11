@@ -1,0 +1,32 @@
+﻿<html>
+	<head>
+		<title>Find Password</title>
+	</head>
+	<body style = "background-color:#77ac98">
+		<br />
+		<h1 align = "center">找回密码</h1>
+		<form action = "/get_passwd/" method = "POST">
+			{% csrf_token %}
+			<table height = "20%" align = "center">
+				<tr>
+					<td align = "right">用户名:</td>
+					<td><input type = "text" name = "username" id = "username" required = "required"/></td>
+				</tr>
+				<tr>
+					<td align = "right">邮箱:</td>
+					<td><input type = "text" name = "email"  id = "email" required = "required"/></td>
+				</tr>
+			</table>
+			<p align = "center"><input type = "submit" value = "找回密码"/></p>
+		</form>
+		<p align = "center"><a href = "/login/"><input type = "submit" value = "直接登录" onClick = "window.open('/login/')" /></a></p>
+	</body>
+</html>
+<script>
+function prompt(){
+var username = document.getElementById("username");
+var email = document.getElementById("email");
+if (username.value != "" and email.value != "")
+alert("请点击确定，以保证发送密码");
+}
+</script>

@@ -1,0 +1,21 @@
+<title>All Backup Information</title>
+<h1 align= "center">All Backup Information</h1>
+<table width = "100%" align = "center" id = "table" border = "solid 5px green">
+<tr align = "center" style = "background-color:gray">
+<td>Package</td><td>svn version</td><td>include version</td><td>bluray version</td><td>common version</td><td>DVDFabQxLibs version</td><td>mobile2 version</td><td>backup path</td><td>flag</td><td>description</td>
+</tr>
+{% for record in res %}
+<tr align = "center" style = "background-color:{% cycle '#4ff5f4' '#E0ffff'%}">
+<td>
+<input type = "checkbox" name = "checkbox" value = "{{record.1}}" style = "float:left"/>
+
+{{record.1}}
+</td>
+
+<td>{{record.2}}</td><td>{{record.3}}</td><td>{{record.4}}</td><td>{{record.5}}</td><td>{{record.6}}</td><td>{{record.7}}</td><td>{{record.8}}</td><td>{{record.9}}</td><td>{{record.10}}</td>
+</tr>
+{% endfor %}
+</table>
+<br />
+<br />
+<h3><a href = "/display_information/">return</a></h3>

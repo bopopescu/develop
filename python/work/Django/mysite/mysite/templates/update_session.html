@@ -1,0 +1,176 @@
+<style>
+#tr_id{background-color:#4ff5f4}
+</style>
+<title>DVDFab Update Session</title>
+{% extends 'base.html'%}
+{% block content%}
+
+<h1 align = 'center'>Update DVDFab session Info</h1>
+<div align = 'center'>
+<span><a href = 'javascript:window.histroy.back(-1)'>Back</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span><a href = '/download_log_folder/{{param1}}/'>Download log folder</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span><a href= '/display_log/{{param1}}/'>Go internal log</a></span>
+</div>
+<div align = 'center' style = 'background-color:gray; float:centr'>
+<form action = '/update_session/{{param1}}/' method = 'GET'> 
+<table width = '800'>
+
+	<tr>
+	<td align = 'right'>Index:</td><td><input type = 'text' name = 'id' value = '{{session.id}}' readonly = readonly, style = 'width :800px'/>
+	</tr>
+
+	<tr>
+	<td align = 'right'>Flag:</td><td><input type = 'text' name = 'Flag' value = '{{session.Flag}}' style = 'width :800px'/><td>
+	</tr>
+    
+	<tr>
+	<td align = 'right'>Test_result&Failed_reason:</td><td><input type = 'text' name = 'Result' value = '{{session.Result}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+    <td align = 'right'>Developer feedback:</td><td><input type = 'text' name = 'Developer' value = '{{session.Developer}}' style = 'width :800px'/></td>
+    </tr>
+
+	<tr>
+	<td align = 'right'>Num:</td><td><input type = 'text' name = 'Num' value = '{{session.Num}}' style = 'width :800px'/></td>
+    </tr>
+
+	<tr>
+	<td align = 'right'>Sub_num:</td><td><input type = 'text' name ='Sub_num' value = '{{session.Sub_num}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+    <td align = 'right'>Iso_type:</td><td><input type = 'text' name = 'Iso_type' value = '{{session.Iso_type}}' style = 'width :800px'/></td>
+    </tr>
+	<tr>
+    <td align = 'right'>Mode:</td><td><input type = 'text' name = 'Mode' value = '{{session.Mode}}' style = 'width :800px'/></td>
+    </tr>
+	<tr>
+	<td align = 'right'>Src_path:</td><td><input type = 'text' name = 'Src_path' value = '{{session.Src_path}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+    <td align = 'right'>PC_name:</td><td><input type = 'text' name = 'PC_name' value = '{{session.PC_name}}' style = 'width : 800px' /></td>
+    </tr>
+    <tr>
+    <td align = 'right'>Dest_path:</td><td><input type = 'text' name = 'Dest_path' value = '{{session.Dest_path}}' style = 'width :800px'/></td>
+    </tr>
+	<tr>
+	<td align = 'right'>Current_src_path:</td><td><input type = 'text' name = 'Current_src_path' value = '{{session.Current_src_path}}' style = 'width :800px'/></td>
+    </tr>
+    <tr>	
+	<td align = 'right'>Dvdfab_path:</td><td><input type = 'text' name = 'Dvdfab_path' value = '{{session.Dvdfab_path}}' style = 'width :800px'/></td>
+	</tr>
+	
+	<tr>
+    <td align = 'right'>Audio:</td><td><input type = 'text' name = 'Audio' value = '{{session.Audio}}' style = 'width :800px'/></td>
+    </tr>
+	
+	<tr>
+    <td align = 'right'>Audio_type:</td><td><input type = 'text' name = 'Audio_type' value = '{{session.Audio_type}}' style = 'width :800px'/></td>
+    </tr>
+
+	<tr>
+    <td align = 'right'>Change_play_order:</td><td><input type = 'text' name = 'Change_play_order' value = '{{session.Change_play_order}}' style = 'width :800px'/></td>
+    </tr>
+	
+	<tr>
+	<td align = 'right'>Copy_IFO:</td><td><input type = 'text' name = 'Copy_IFO' value = '{{session.Copy_IFO}}' style = 'width :800px'/></td>
+	</tr>
+	
+	<tr>
+	<td align = 'right'>Display_forced_sub:</td><td><input type = 'text' name = 'Display_forced_sub' value = '{{session.Display_forced_sub}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Jump_menu:</td><td><input type = 'text' name = 'Jump_menu' value = '{{session.Jump_menu}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Jump_main:</td><td><input type = 'text' name = 'Jump_main' value = '{{session.Jump_main}}' style = 'width :800px'/></td>
+	</tr> 
+	
+	<tr>
+	<td align = 'right'>Out_disc:</td><td><input type = 'text' name = 'Out_disc' value = '{{session.Out_disc}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Path_player:</td><td><input type = 'text' name = 'Path_player' value = '{{session.Path_player}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Profile:</td><td><input type = 'text' name = 'Profile' value = '{{session.Profile}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>	
+	<td align = 'right'>Remove_DTS:</td><td><input type = 'text' name = 'Remove_DTS' value = '{{session.Remove_DTS}}' style = 'width :800px'/></td>
+    </tr>
+	
+	<tr>
+	<td align = 'right'>Remove_HD_audio:</td><td><input type = 'text' name = 'Remove_HD_audio' value = '{{session.Remove_HD_audio}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Remove_menu:</td><td><input type = 'text' name = 'Remove_menu' value = '{{session.Remove_menu}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Remove_PGC:</td><td><input type = 'text' name = 'Remove_PGC' value = '{{session.Remove_PGC}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Rewind:</td><td><input type = 'text' name = 'Rewind' value = '{{session.Rewind}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Subtitle:</td><td><input type = 'text' name = 'Subtitle' value = '{{session.Subtitle}}' style = 'width :800px'/></td>
+    </tr>
+	
+	<tr>
+	<td align = 'right'>Title:</td><td><input type = 'text' name = 'Title' value = '{{session.Title}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Volume:</td><td><input type = 'text' name = 'Volume' value = '{{session.Volume}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Video_decoder_H264:</td><td><input type = 'text' name = 'Video_decoder_H264' value = '{{session.Video_decoder_H264}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Video_decoder_VC1:</td><td><input type = 'text' name = 'Video_decoder_VC1' value = '{{session.Video_decoder_VC1}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Video_decoder_MPEG2:</td><td><input type = 'text' name = 'Video_decoder_MPEG2' value = '{{session.Video_decoder_MPEG2}}' style = 'width :800px'/></td>
+    </tr>
+	<tr>
+	<td align = 'right'>Video_encoder_H264:</td><td><input type = 'text' name = 'Video_encoder_H264' value = '{{session.Video_encoder_H264}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>DVDFab_description:</td><td><input type = 'text' name = 'DVDFab_description' value = '{{session.DVDFab_description}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Start_time:</td><td><input type = 'text' name = 'Start_time' value = '{{session.Start_time}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>End_time:</td><td><input type = 'text' name = 'End_time' value = '{{session.End_time}}' style = 'width :800px'/></td>
+    </tr> 
+	
+	<tr>
+	<td align = 'right'>Total_time:</td><td><input type = 'text' name = 'Total_time' value = '{{session.Total_time}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Folder_size:</td><td><input type = 'text' name = 'Folder_size' value = '{{session.Folder_size}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Init_time:</td><td><input type = 'text' name = 'Init_time' value = '{{session.Init_time}}' style = 'width :800px'/></td><br />
+    </tr>
+	<tr>
+	<td align = 'right'>Web_log_path:</td><td><input type = 'text' name = 'Web_log_path' value = '{{session.Web_log_path}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Log_folder_path:</td><td><input type = 'text' name = 'Log_folder_path' value = '{{session.Log_folder_path}}' style = 'width :800px'/></td>
+	</tr>
+	<tr>
+	<td align = 'right'>Enable_2Dto3D:</td><td><input type = 'text' name = 'Enable_2Dto3D' value = '{{session.Enable_2Dto3D}}' style = 'width :800px'/></td>
+    </tr>
+	<tr>
+	<td align = 'right'>BD3D_convert_type:</td><td><input type = 'text' name = 'BD3D_convert_type' value = '{{session.BD3D_convert_type }}' style = 'width :800px'/></td>
+    </tr>
+    
+	<tr>	
+	<td align = 'right'>Compress_to_AC3:</td><td><input type = 'text' name = 'Compress_to_AC3' value = '{{session.Compress_to_AC3}}' style = 'width :800px'/></td>
+    </tr>
+    
+</table>
+**<input type = 'submit' value = 'Update_session'/>**
+</form>
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

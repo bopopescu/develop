@@ -1,0 +1,155 @@
+﻿<style>
+.class_size {width:80%}
+.left_position {width:20%}
+</style>
+
+<title>Auto Create Build</title>
+
+<table width = "100%">
+	<tr>
+		<td width = "20%" style = "background-color:grey">&nbsp;</td>
+		<td>
+		   <h1 align = "center"><b>Auto Create Build</b></h1>
+		   <p align= ""><a href = "display_all_records" target = _blank><strong>所有记录</strong></a></p>
+		   <form action = "/create_new_build/" method = "POST">
+		   
+		   {% csrf_token %}
+			<table align = "center" width = "100%">
+				<tr>
+					<td width = "20%"><span style = "color:red">*</span>master ip:</td>
+
+					<td width = "80%">
+						 <select name = "masterip" class = "class_size">
+							<option value = "10.10.2.201">10.10.2.201 Win</option>
+							<option value = "10.10.2.170">10.10.2.170 Mac</option>
+							<option value = "10.10.2.141">10.10.2.141 Ubuntu</option>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td width = "20%"><span style = "color:red">*</span>slave ip:</td>
+
+					<td width = "80%">
+						 <input type = "text" name = "slaveip"  class = "class_size"/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td width = "20%"><span style = "color:red">*</span>slave platform:</td>
+					<td width = "80%">
+						<select name = "slave_platform" class = "class_size">
+							<option value = "Win">Win</option>
+							<option value = "Mac">Mac</option>
+							<option value = "Ubuntu">Ubuntu</option>
+						</select>
+						<!-- <input type = "text"width = "40%" name = "slaveip"/>-->
+					</td>
+				</tr>
+					
+				<tr>
+					<td width = "20%"><span style = "color:red">*</span>slavename:</td>
+					<td width = "80%">
+						 <input type = "text" name = "slavename" class = "class_size"/>
+					</td>
+				</tr>
+					
+				<tr>
+					<td><span style = "color:red">*</span>buildername:</td>
+					<td>
+						<input type = "text" name = "buildername" class = "class_size"/>
+					</td>
+				</tr>
+					
+				<tr>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td><span style = "color:red">*</span>启动方式:</td>
+					<td>
+						定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method"/>
+						触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method"/>
+					</td>
+				</tr>
+					
+				<tr>
+					<td>&nbsp;</td>
+				</tr>
+
+				<tr>
+					<td><span style = "color:red">*</span>script_contents1:</td>
+					<td>
+						<textarea rows = 8% class = "class_size" name = "script_contents1"></textarea>
+					</td>
+				</tr>
+					
+				<tr>
+					<td><span style = "color:red">*</span>work_dir1:</td>
+					<td>
+						<input type = "text" name = "work_dir1"class = "class_size"/>
+					</td>
+				</tr>
+					
+				<tr>
+					<td><span style = "color:red">*</span>description1:</td>
+					<td>
+						<input type = "text" name = "description1"class = "class_size"/>
+					</td>
+				</tr>
+
+				<tr>
+					<td>&nbsp;</td>
+				</tr>
+					
+				<tr>
+					<td><span style = "color:red">*</span>script_contents2:</td>
+					<td>
+						<textarea rows = 8% class = "class_size" name = "script_contents2"></textarea>
+					</td>
+				</tr>
+					
+				<tr>
+					<td><span style = "color:red">*</span>work_dir2:</td>
+					<td>
+						<input type = "text" name = "work_dir2"class = "class_size"/>
+					</td>
+				</tr>
+					
+				<tr>
+					<td><span style = "color:red">*</span>description2:</td>
+					<td>
+						<input type = "text" name = "description2"class = "class_size"/>
+					</td>
+				</tr>
+
+				<tr>
+					<td>&nbsp;</td>
+				</tr>
+					
+				<tr>
+					<td><span style = "color:red">*</span>script_contents3:</td>
+					<td>
+						<textarea rows = 8% class = "class_size" name = "script_contents3"></textarea>
+					</td>
+				</tr>
+					
+				<tr>
+					<td><span style = "color:red">*</span>work_dir3:</td>
+					<td> <input type = "text" name = "work_dir3"class = "class_size"/></td>
+				</tr>
+					
+				<tr>
+					<td><span style = "color:red">*</span>description3:</td>
+					<td>
+						<input type = "text" name = "description3"class = "class_size"/>
+					</td>
+				</tr>
+					
+			</table>
+			<div align = "center"><input type = "submit" value = "Submit" /></div>
+			</form>
+		</td>
+	
+		<td width = "20%" style = "background-color:grey">&nbsp;</td>
+	</tr>
+</table>	

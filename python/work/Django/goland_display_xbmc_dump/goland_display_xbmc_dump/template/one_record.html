@@ -1,0 +1,45 @@
+<title>VidOn Dump Info</title>
+<h1 align = "center">VidOn Dump Info</h1>
+<br />
+<table width = "100%" align = "center" border="solid red 5px" style = "font-size:0.8em">
+<tr align = "center">
+<td><a href = "?param=id">id</a></td>
+<td><a href = "?param=version">version</a></td>
+<td><a href = "?param=software_title">software title</a></td>
+<td><a href = "?param=filepath">filepath</a></td>
+<td><a href = "?param=record_type">record_type</a></td>
+<td><a href = "?param=username">username</a></td>
+<td><a href = "?param=useremail">useremail</a></td>
+<td><a href = "?param=subject">chipid</a></td>
+<td><a href = "?param=logname1">logname1</a></td>
+<td><a href = "?param=logname2">logname2</a></td>
+<td><a href = "?param=logname3">logname3</a></td>
+<td><a href = "?param=logname4">logname4</a></td>
+<td><a href = "?param=stack_file">stack_file</a></td>
+<td><a href = "?param=stack_file1">stack_file1</a></td>
+<td><a href = "?param=filename">filename</a></td>
+<td><a href = "?param=status">status</a></td>
+<td><a href = "?param=upload_time">upload_time</a></td>
+</tr>
+
+<tr align = "center"  style = "background-color:{% cycle '#b7ddf7' '#def1ff'%}">
+<td>{{dump_info.id}}</td>
+<td>{{dump_info.version}}</td>
+<td>{{dump_info.software_title}}</td>
+<td>{{dump_info.filepath}}</td>
+<td>{{dump_info.record_type}}</td>
+<td>{{dump_info.username}}</td>
+<td>{{dump_info.useremail}}</td>
+<td>{{dump_info.subject}}</td>
+<td><a href = "/display_log_content/{{dump_info.id}}?logname={{dump_info.logname1}}"  target = view_window>{{dump_info.logname1}}</a></td>
+<td><a href = "/display_log_content/{{dump_info.id}}?logname={{dump_info.logname2}}"  target = view_window>{{dump_info.logname2}}</a></td>
+<td><a href = "/display_log_content/{{dump_info.id}}?logname={{dump_info.logname3}}"  target = view_window>{{dump_info.logname3}}</a></td>
+<td><a href = "/display_log_content/{{dump_info.id}}?logname={{dump_info.logname4}}"  target = view_window>{{dump_info.logname4}}</a></td>
+<td><a href = "/display_log_content/{{dump_info.id}}?logname={{dump_info.stack_file}}" target = view_window>{{dump_info.stack_file}}</a></td>
+<td><a href = "/display_log_content/{{dump_info.id}}?logname={{dump_info.stack_file1}}" target = view_window>{{dump_info.stack_file1}}</a></td>
+<td>{{dump_info.filename}}</td>
+<td>{{dump_info.status}}</td>
+<td>{{dump_info.upload_time}}</td>
+</tr>
+
+</table>

@@ -1,0 +1,26 @@
+<title>Backup DVDFab</title>
+
+<h1>Begin to backup DVDFab Source Code! This needs some minutes!</h1>
+<hr />
+<!--<h1>This is the DVDFab Source Code Backup Path: {{res_backup_path.0}}</h1>
+-->
+
+<h1><a href = "/display_information/">return</a></h1>
+<!--checkbox:  {{checkbox}}<br />
+-->
+
+<h4 id = 'time1'><a href = "http://10.10.2.170:8888/display_information">5秒钟之后,将自动跳转到上一页面, 或者点击返回...</a></h4>
+<script>
+var t=4
+function delay()
+{var ob=document.getElementById('time1');
+ ob.innerHTML = '<a href = "http://10.10.2.170:8888/display_information">'+t+'秒钟之后,将自动跳转到上一页面, 或者点击返回...</a>' ;
+ t--;
+ if (t==-1)
+ {ob.innerHTML='';
+ clearInterval(b);}
+}
+
+setTimeout("javascript:location.href='http://10.10.2.170:8888/display_information'", 5000);
+b=setInterval('delay()',1000);
+</script>

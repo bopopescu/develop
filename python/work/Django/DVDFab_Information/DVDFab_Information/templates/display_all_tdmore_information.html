@@ -1,0 +1,67 @@
+<title>Detail Information</title>
+<h1 align  = "center">Detail Information</h1>
+<div align = "center" style = "background-color:#d1d1d1">
+<table style = "font-size:1.5em" width = '100%' border = "5px solid black">
+{% for record in res%}
+<tr>
+<td>Id</td><td>{{record.0}}</td>
+</tr>
+<tr>
+<td>TDMore</td><td>{{record.1}}</td>
+</tr>
+<tr>
+<td>Svn Version</td><td>{{record.2}}</td>
+</tr>
+<tr>
+<td>Include</td><td><span style = "float:left">{{record.3}}</span><span style = "float:right">{{record.13}}</span></td>
+</tr>
+<tr>
+<td>Bluray</td><td><span style = "float:left">{{record.4}}</span><span style = "float:right">{{record.14}}</span></td>
+</tr>
+<tr>
+<td>Common</td><td><span style = "float:left">{{record.5}}</span><span style = "float:right">{{record.15}}</span></td>
+</tr>
+<tr>
+<td>DVDFabQxLibs</td><td><span style = "float:left">{{record.6}}</span><span style = "float:right">{{record.16}}</span></td>
+</tr>
+<tr>
+<td>Mobile2</td><td><span style = "float:left">{{record.7}}</span><span style = "float:right">{{record.17}}</span></td>
+</tr>
+<tr>
+<td>Flag</td><td>{{record.9}}</td>
+</tr>
+<tr>
+<td>Description</td><td>{{record.10}}</td>
+</tr>
+<tr>
+<td>Platform</td><td>{{record.11}}</td>
+</tr>
+<tr>
+<td>TDMore Source Code Backup Path</td><td>{{record.8}}</td>
+</tr>
+<tr>
+<td>TDMore Package Backup Path</td><td>{{record.12}}</td>
+</tr>
+
+
+<!--
+<tr style = "font-size:1.5em">
+<td>Include Branch</td><td>{{record.13}}</td>
+</tr>
+<tr style = "font-size:1.5em">
+<td>Bluray Branch</td><td>{{record.14}}</td>
+</tr>
+<tr style = "font-size:1.5em">
+<td>Common Branch</td><td>{{record.15}}</td>
+</tr>
+
+<tr style = "font-size:1.5em">
+<td>DVDFabQxLibs Branch</td><td>{{record.16}}</td>
+</tr>
+<tr style = "font-size:1.5em">
+<td>Mobile2 Branch</td><td>{{record.17}}</td>
+</tr>
+-->
+{%endfor%}
+</table>
+</div>

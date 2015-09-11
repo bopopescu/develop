@@ -1,0 +1,32 @@
+<title>DVDFab Media Player Analysis Report</title>
+
+<table width = "100%" style = "background-color:#CCFFFF">
+	<tr>
+		<td width=50>
+			<img src="/site_media/logo.png" mce_src="site_media/logo.png">
+		</td>
+		<td style="font-size:1.8em">
+		<strong>
+			DVDFab Media Player Analysis Report
+		</strong>
+		</td>
+	</tr>
+</table>
+<!--
+<div>{{cur_url}}</div>
+<div>{{cur_url1}}</div>-->
+{% ifequal  cur_url "/"%}
+<table width = "100%" style = "background-color:grey"><tr><td><strong>Home</strong></td></tr></table>
+{% else %}
+{% ifequal other_url "" %}
+<table width = "100%" style = "background-color:grey"><tr><td><a href = "/"><strong>Home</strong></a>&nbsp;&raquo;&nbsp;{{last_url}}</td></tr></table>
+{% else %}
+<table width = "100%" style = "background-color:grey"><tr><td><a href = "/"><strong>Home</strong></a>&nbsp;&raquo;&nbsp;<a href = "/{{other_url}}"><strong>{{other_url}}</strong></a>&nbsp;&raquo;&nbsp;{{last_url}}</td></tr></table>
+{% endifequal %}
+{% endifequal %}
+<br /><br />
+
+{% block content %}
+{% endblock %}
+{% block footer %}
+{% endblock %}

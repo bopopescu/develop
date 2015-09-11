@@ -1,0 +1,353 @@
+<style>
+    #tr_id{background-color:#4ff5f4}
+	a{text-decoration:none}
+	a:hover{text-decoration:none; color:#999}
+	#menu{width:900px; margin:0 auto; text-align:center; font-size:12px; align:center}
+	ul{ padding: 0;  margin: 0;  list-style: none; }
+	li{ position:relative;  float: left;  width: 80px; }
+	li ul{position:absolute; display: none; top: 20px; left:0; }
+	li:hover ul{ display: block;}
+	li.over ul{ display: block;}
+	ul li a{ display:block;	font-size:12px;	 border: 1px solid #ccc; padding:3px; margin-right:1px;	 text-decoration: none;	 color:#4f4ff4; background:#bbbbbb;}
+	ul li a:hover{ background-color:#f4f4f4; }
+	#nav li ul li{ float:left; width:80px;}
+	#popimg2{width:770px; margin:0 auto; text-align:center; z-index:-1;}
+	#test{ clear:both;  width:769px; height:100px; margin:0 auto;}
+</style>
+<title>DVDFab case</title>
+{% extends 'base.html'%}
+{% block content%}
+<h1 align = 'center'>Display DVDFab CASE Info</h1>
+<div align = 'center'>
+	<form action = '/search_type/' method = 'POST'>
+	{% csrf_token %}
+		<select name = 'search_type'>
+			<option value = 'Mode'>Mode</option>
+			<option value = 'Src_iso'>Src_iso</option>
+			<option value = 'Out_disc'>Out_disc</option>
+			<option value = 'Profile'>Profile</option>
+		</select>
+	    <input type = 'text' name = 'type_context' />
+	    <input type = 'submit' value = 'Search' />
+	</form>
+</div>	
+
+
+<!--  <table border='solid 1px ' align = 'center' style='color :black; font-size:1.0em; background-color:#000000' width = '50%'> -->
+<div align = 'center'>
+	<div id = "menu" >
+		<ul id = "nav">
+			<li><a href = "/case/?case_type=Blu_Copy">Blu_Copy</a>
+				<ul>
+					<li><a href = "/case/?case_type=BC_P0_1">BC_P0_1</a></li>
+					<li><a href = "/case/?case_type=BC_P0_2">BC_P0_2</a></li>
+					<li><a href = "/case/?case_type=BC_P1_1">BC_P1_1</a></li>
+					<li><a href = "/case/?case_type=BC_P1_2">BC_P1_2</a></li>
+					<li><a href = "/case/?case_type=BC_P1_3">BC_P1_3</a></li>
+					<li><a href = "/case/?case_type=BC_P2">BC_P2</a></li>
+					<li><a href = "/case/?case_type=BC_P3">BC_P3</a></li>
+				</ul>
+			   </li>
+			<li><a href = "/case/?case_type=Blu_Ripper">Blu_Ripper</a>
+				<ul>
+					<li><a href = "/case/?case_type=BR_P0">BR_P0</a></li>
+					<li><a href = "/case/?case_type=BR_P1">BR_P1</a></li>
+					<li><a href = "/case/?case_type=BR_P2">BR_P2</a></li>
+				</ul></li>
+			<li><a href = "/case/?case_type=DVD_Copy">DVD_Copy</a>
+				<ul>
+				<li><a href = "/case/?case_type=DC_P0">DC_P0</a></li>
+				</ul></li>
+			<li><a href = "/case/?case_type=DVD_Ripper">DVD_Ripper</a>
+				<ul>
+					<li><a href = "/case/?case_type=DR_P0">DR_P0</a></li>
+					<li><a href = "/case/?case_type=DR_P1">DR_P1</a></li>
+				</ul></li>
+			<li><a href = "/case/?case_type=Blu_DVD">Blu_DVD</a>
+				<ul>
+					<li><a href = "/case/?case_type=BD_P0">BD_P0</a></li>
+					<!--<li><a href = "/case/?case_type=BD_P1">BD_P1</a></li>
+					<li><a href = "/case/?case_type=BD_P2">BD_P2</a></li>-->
+				</ul></li>
+				
+			<!--<li><a href = "/case/?case_type=Blu_3D">Blu_3D</a>
+				<ul>
+					<li><a href = "/case/?case_type=B3_P0">B3_P0</a></li>
+					<li><a href = "/case/?case_type=B3_P1">B3_P1</a></li>
+				</ul></li> -->
+				
+			<li><a href = "/case/?case_type=VideoConverter">VideoConverter</a>
+				<ul>
+					<li><a href = "/case/?case_type=VC_P0">VC_P0</a></li>
+					<!--<li><a href = "/case/?case_type=VC_P1">VC_P1</a></li>-->
+				</ul></li>
+			<li><a href = "/case/?case_type=BDCreator">BDCreator</a>
+				<ul>
+					<li><a href = "/case/?case_type=BDC_P0">BD_P0</a></li>
+					<!--<li><a href = "/case/?case_type=BDC_P1">BD_P1</a></li>-->
+				</ul></li>
+				
+			<li><a href = "/case/?case_type=DVDCreator">DVDCreator</a>
+				<ul>
+					<li><a href = "/case/?case_type=DVD_DVD5">DVD_DVD5</a></li>
+					<li><a href = "/case/?case_type=DVD_DVD9">DVD_DVD9</a></li>
+				</ul></li>
+				
+			<!--<li><a href = "/case/?case_type=2Dto3D">2Dto3D</a>
+				<ul>
+					<li><a href = "/case/?case_type=2T3_DR">2T3_DR</a></li>
+					<li><a href = "/case/?case_type=2T3_BR">2T3_BR</a></li>
+					<li><a href = "/case/?case_type=2T3_VC">2T3_VC</a></li>
+				</ul></li>-->
+				
+			<li><a href = "/case/?case_type=Mini_test_set">Mini_test_set</a>
+					<ul>
+					<li><a href = "/case/?case_type=3D_Anaglyph">3D_Anaglyph</a></li>
+					<li><a href = "/case/?case_type=3D_Split">3D_Split</a></li>
+					<li><a href = "/case/?case_type=3D_TwoFiles">3D_TwoFiles</a></li>
+					<li><a href = "/case/?case_type=3D_TwoVideos">3D_TwoVideos</a></li>
+					<li><a href = "/case/?case_type=3D_Device">3D_Device</a></li>
+					<li><a href = "/case/?case_type=DTS/LPCM_AC3">DTS/LPCM_AC3</a></li>
+					<li><a href = "/case/?case_type=BD_SBS">BD_SBS</a></li>
+					<li><a href = "/case/?case_type=BD_Blu">BD_Blu</a></li>
+				</ul></li>
+		</ul>
+	</div>  
+</div>
+<!-- </table> -->
+<br /><br />
+<form action = '/insert_session/' method = 'POST'>
+{% csrf_token %}
+<div style='color:red'>
+	<table border='solid  5px green' align = 'center' style='color :black; font-size:0.9em' width = '100%'>
+				<tr align = 'center' style = "font-size:1.0em; background-color :gray; width = '100%' ;height = '30px'">
+						<td>PC&DVDFab path</td>
+						<td>Version</td>
+						<td>Num</td>
+						<td>Num_test_link</td>
+						<td>Iso_type</td>
+						<td>Mode</td>
+						<td>D_type</td>
+						<td>Outdisc</td>
+						<td>R_HD</td>
+						<td>3D_Tp</td> 
+						<td>DL_AC3</td>
+						<td>2T3D</td>
+						<td>D-H2</td>
+						<td>D-VC</td>
+						<td>D-M2</td>
+						<td>E-H2</td>
+						<td>Profile</td>
+						<td>Src_iso</td>
+				</tr> 
+	{% for i in case %}		
+		<tr  id = 'tr_id' align = 'center' style = "background-color: {% cycle '#4ff5f4' '#E0ffff'%} ; height = '40px'" >
+			
+				<td >
+					<input type = 'checkbox'   name = 'checkbox' id = "all_case_pc" value = '{{i.Num}}'  style = 'float:left'/>
+					<select name = 'pc_name' id = 'DVDFab_path' class = 'is_s'>			
+						{% for i in client %}				
+						<option value = '{{i.PC_name}}' id = 'DVDFab_path1'>{{i.PC_name}}</option>
+						{% endfor %}				
+					</select>
+					<select name = 'dvdfab_path' value = '{{Dvafab_path}}'>
+						<option value = ''></option>
+						{% for dvdfab_path in dvdfab_path_list %}
+						<option value = '{{dvdfab_path}}'>{{dvdfab_path}}</option>
+						{% endfor %}
+					</select>
+					<input type = 'hidden' name = 'num' id = 'case_num_for_case_range' value = '{{i.Num}}'>
+					<input type = 'hidden' name = 'index' value = 'case' />	 
+				</td>
+									
+				<td>
+					<select name = 'select_version'>
+					{%  for i in version %}
+					<option value = '{{i.Version}}'>{{i.Version}}</option>	
+					{% endfor %}				
+					</select>			
+				</td>
+				<div >
+				 
+				   <!-- <a href = 'javascript:' onClick = "window.open('/update_case_page/{{i.id}}/')">	  -->
+	
+				    <!-- <a href = '/update_case_page/{{i.id}}/'>   -->	
+					<td name = 'Num' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Num}}</td>
+					<td name = 'Num_test_link' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Num_test_link}}</td>
+					<td name = 'Iso_type' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Iso_type}}</td>
+					<td name = 'Mode' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Mode}}</td>
+					<td name = 'Dest_type' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Dest_type}}</td>
+					<td name = 'Out_disc' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Out_disc}}</td>
+					<td name = 'Remove_HD_audio' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Remove_HD_audio}}</td>
+					<td name = 'BD3D_convert_type' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.BD3D_convert_type}}</td>
+					<td name = 'Compress_to_AC3' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Compress_to_AC3}}</td>
+					<td name = 'Enable_2Dto3D' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Enable_2Dto3D}}</td>
+					<td name = 'Video_decoder_H264' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Video_decoder_H264}}</td>
+					<td name = 'Video_decoder_VC1' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Video_decoder_VC1}}</td>
+					<td name = 'Video_decoder_MPEG2' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Video_decoder_MPEG2}}</td>
+					<td name = 'Video_encoder_H264' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Video_encoder_H264}}</td>
+					<td name = 'Profile' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Profile}}</td>
+					<td name = 'Src_iso' onClick = "window.open('/update_case_page/{{i.id}}/')">{{i.Src_iso}}</td>
+					
+			<!--	<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Num'>{{i.Num}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Num_test_link'>{{i.Num_test_link}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Mode'>{{i.Mode}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Dest_type'>{{i.Dest_type}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Out_disc'>{{i.Out_disc}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Remove_HD_audio'>{{i.Remove_HD_audio}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'BD3D_convert_type'>{{i.BD3D_convert_type}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Compress_to_AC3'>{{i.Compress_to_AC3}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Enable_2Dto3D'>{{i.Enable_2Dto3D}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Video_decoder_H264'>{{i.Video_decoder_H264}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Video_decoder_VC1'>{{i.Video_decoder_VC1}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Video_decoder_MPEG2'>{{i.Video_decoder_MPEG2}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Video_encoder_H264'>{{i.Video_encoder_H264}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Profile'>{{i.Profile}}</td></a>
+					<a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'"><td name = 'Src_iso'>{{i.Src_iso}}</td></a>	   -->
+					
+		<!--			
+					<td name = 'Num'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">&nbsp;{{i.Num}}</a></td>
+					<td name = 'Num_test_link'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">&nbsp;{{i.Num_test_link}}</a></td>
+					<td name = 'Mode'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">	{{i.Mode}}</a></td>
+					<td name = 'Dest_type'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Dest_type}}</a></td>
+					<td name = 'Out_disc'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">	{{i.Out_disc}}</a></td>
+					<td name = 'Remove_HD_audio'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Remove_HD_audio}}</a></td>
+					<td name = 'BD3D_convert_type'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.BD3D_convert_type}}</a></td> 
+					<td name = 'Compress_to_AC3'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Compress_to_AC3}}</a></td>
+					<td name = 'Enable_2Dto3D'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Enable_2Dto3D}}</a></td>
+					<td name = 'Video_decoder_H264'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Video_decoder_H264}}</a></td>
+					<td name = 'Video_decoder_VC1'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Video_decoder_VC1}}</a></td>
+					<td name = 'Video_decoder_MPEG2'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Video_decoder_MPEG2}}</a></td>
+					<td name = 'Video_encoder_H264'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Video_encoder_H264}}</a></td>
+					<td name = 'Profile'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Profile}}</a></td>
+					<td name = 'Src_iso'><a href = "javascript: window.location.href = '/update_case_page/{{i.id}}/'">{{i.Src_iso}}</a></td>	  ->>
+				 <!--   </a>  -->
+		
+				</div>
+			
+		</tr>
+	{% endfor %}
+	</table>
+</div>
+<br />
+
+<input type = 'submit' value = 'add cases' />
+<select id="all_case_id" name = "all_case_pc_name" >
+
+{% for i in client %}
+<option value = '{{i.PC_name}}'>{{i.PC_name}}</option>  
+{% endfor %}
+
+</select>
+
+ <!-- <input type="checkbox" value="all" onClick="Select_all()" /> Select_all
+	   <input type = "checkbox" value = "select all" onClick = "Select_opposite_all()" />Select_opposite_all  -->
+ <input type="checkbox" value="all" onClick="select_all(this)" /> Select_all
+</form>
+
+
+
+
+<script>
+
+function select_all(chkObj) {
+  
+  var chk = chkObj.checked;
+  
+  // suo you fu xuan kuang dui xiang
+  var allbox = document.getElementsByName("checkbox");
+  
+  //qu xiao gou xuan
+  if(!chk){
+      for(var i=0; i<allbox.length; i++){
+        allbox[i].checked = false;
+      }
+      return false;
+  }
+  
+  var chkid = chkObj.id;
+  
+  //select xia la cai dan value
+  var svalue = document.getElementById('all_case_id').value;
+  
+  // suo you xia la cai dan dui xiang
+  var allselect = document.getElementsByName("pc_name");
+  
+  //all xia la cai dan xuan zhong zhi ding de zhi
+  for(var i=0; i<allselect.length; i++){
+    var ops = allselect[i].options;
+    for(var j=0; j<ops.length; j++){
+        var ovalue = ops[j].value;
+        if(ovalue == svalue){
+            ops[j].selected = true;
+        }
+    }
+  }
+  
+  // suo you fu xuan kuang gou xuan
+  for(var i=0; i<allbox.length; i++){
+    allbox[i].checked = true;
+  }
+    
+}
+</script>
+
+
+
+<!--
+
+<script>
+	function  Select_all(obj){
+	    var checkObj = document.all("all_case_pc");
+		var Obj1 = document.getElementById("all_case_id");
+		var Obj2 = document.all("DVDFab_path1");
+	
+		for(var i = 0;i<checkObj.length;i++){
+			checkObj[i].checked = true;
+		    Obj2[i].innerHTML = Obj1.value;
+			if(checkObj[i].checked == false) 
+			checkObj[i].checked = true;  
+		}	
+	}	
+	function Select_opposite_all(){
+		
+	    var checkObj = document.all("all_case_pc");
+		for(var i = 0;i<checkObj.length;i++){
+			if(checkObj[i].checked == true) checkObj[i].checked = false;
+			else checkObj[i].checked = true;
+		}
+	}	
+</script>  
+ -->
+
+<script type=text/javascript>
+	startList = function() {
+		if (document.all&&document.getElementById) {
+		navRoot = document.getElementById("nav");
+		for (i = 0; i < navRoot.childNodes.length; i++) {
+		node = navRoot.childNodes[i];
+		if (node.nodeName == "LI") {
+		node.onmouseover = function() {
+		this.className += "over";
+		}
+		node.onmouseout = function() {
+		this.className = this.className.replace("over", "");
+		}
+		}
+		}
+		}
+		}				
+		window.onload=startList;	
+		function bd_case(type_name){	
+	}
+</script>     
+
+
+{% endblock %}
+{% block footer %}{% endblock %}
+
+
+
+
+
+

@@ -1,0 +1,10 @@
+﻿<title>添加产品</title>
+<p align = 'center'><img src="/site_media/logo.png"  mce_src="site_media/logo.png" /></p> 
+<hr style = 'color:red'/>
+<h2>添加DVDFab产品名字</h2>
+<form action = '.' method = 'POST'>
+{% csrf_token %}
+<input type = 'text' name = 'name'/>
+<input type = 'submit' value = 'Submit' />
+</form>
+<div><a href = '/index/'>INDEX页面</a></div>

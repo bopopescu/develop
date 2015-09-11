@@ -1,0 +1,19 @@
+{% extends 'base.html'%}
+{% block content %}
+<div><strong>File:</strong></div>
+{% for onefile in file_list %}
+<div><a href = "{{http_path}}/{{param1}}/{{param2}}/{{num}}/{{onefile.0}}">{{onefile.0}}</a></div>
+<hr />
+{% endfor %}
+
+<br />
+<div><strong>MiniDump:</strong></div>
+
+<br />
+{% ifequal jpg_file "" %}
+{% else %}
+<div><strong>ScreenShot:</strong></div>
+<div><a href = "{{http_path}}/{{param1}}/{{param2}}/{{num}}/{{jpg_file}}">ScreenShot</a></div>
+{% endifequal %}
+<!--{{content}}-->
+{% endblock %}

@@ -1,0 +1,1117 @@
+1:新建master和slave
+   
+  (a):  buildbot create-master d:\buildbot_master
+  
+  (b):  buildslave create-slave d:\buildbot_slave 10.10.2.11:9989 slave_name slave_passwd
+
+
+
+2:python写拷贝函数时用到shutil模块.它有以下几种方法.
+
+  a: shutil.copy(src, dst)复制一个文件到一个文件或目录.
+
+  b: shutil.copyfile(src, dst)从源src复制到dst中去。当然前提是目标地址是具备可写权限。只复制内容。
+     例：shutil.copyfile('/home/1/11.txt', '/home/2/22.txt' ) 把11.txt的内容复制到22.txt
+
+  c：shutil.copymode(src, dst)只是会复制其权限其它的东西是不会被复制的， 不改内容。
+
+  d：shutil.copystat(src, dst)只是复制权限， 最后访问时间，最后修改时间， 不改内容。
+
+  e：shutil.copy2(src, dst)在copy的基础上再复制文件最后访问时间与修改时间，权限不改。
+  
+  f：shutil.copytree(src, dst)复制文件夹树，包括权限，最后的访问时间，最后修改时间。
+  
+     注：copytree可以将某一文件夹下的所有文件和子目录子文件拷贝过去， 前提是dst之前是不存在的。
+
+  
+  删除文件夹：shutil.rmtree(folder)可以删除文件夹以及文件夹下的所有子文件夹和子文件。
+
+
+
+
+3：http配置     （注：注意斜杠，和python里面斜杠问题一致就行）
+
+
+   这些都是在安装了mod_python以后才开始进行的.
+  步骤:
+
+  ####################################################################################
+  1:apache配置文件C:\Apache2.2\conf\httpd.conf作如下改动:
+  监听多个端口:
+
+  Listen  9002
+  LoadModule python_module modules/mod_python.so
+
+  ####################################################################################
+  2:配置多个虚拟机, 如下所示
+
+
+  注:
+      D:/develop/work_python/mydisplay_files  是你的工程项目所在路径
+      d:/develop/work_python/mydisplay_files/mydisplay_files/media  是静态文件所在路径
+
+
+  NameVirtualHost 10.10.2.201:9002
+  <VirtualHost 10.10.2.201:9002>
+      DocumentRoot D:/develop/work_python/mydisplay_files
+      <Location "/">
+          SetHandler python-program
+          PythonHandler django.core.handlers.modpython
+          SetEnv DJANGO_SETTINGS_MODULE mydisplay_files.settings
+          PythonDebug On
+          PythonPath "['D:/develop/work_python/mydisplay_files'] + sys.path"
+          PythonInterpreter mydisplay_files
+      </Location>
+      Alias /site_media 'd:/develop/work_python/mydisplay_files/mydisplay_files/media'
+      <Directory />           
+            Order deny,allow      
+            Allow from all     
+      </Directory>  
+ 
+       <Directory /apache>      
+            Allow from all      
+       </Directory>
+       <LocationMatch "\.(jpg|gif|png|txt|ico|pdf|css|jpeg)$"> 
+           SetHandler None 
+       </LocationMatch>
+  </VirtualHost>
+
+  ++++
+      这些也可以写在C:\Apache2.2\conf\extra\httpd-vhosts.conf里.
+
+      则httpd.conf里需加一句    Include conf/extra/httpd-vhosts.conf 
+  ++++
+
+  ####################################################################################
+
+如果上面两步操作完之后，还是不能正常显示页面，就执行第三步。
+  3:把C:\Python26\Lib\site-packages\django\core\files\locks.py文件中相关部分注释掉即可.
+  如下所示
+
+  __all__ = ('LOCK_EX','LOCK_SH','LOCK_NB','lock','unlock')
+  system_type = None
+
+# try:
+#     import win32con
+#     import win32file
+#     import pywintypes
+#     LOCK_EX = win32con.LOCKFILE_EXCLUSIVE_LOCK
+#     LOCK_SH = 0
+#     LOCK_NB = win32con.LOCKFILE_FAIL_IMMEDIATELY
+#     __overlapped = pywintypes.OVERLAPPED()
+#     system_type = 'nt'
+# except (ImportError, AttributeError):
+#     pass
+
+  try:
+      import fcntl
+      LOCK_EX = fcntl.LOCK_EX
+      LOCK_SH = fcntl.LOCK_SH
+      LOCK_NB = fcntl.LOCK_NB
+      system_type = 'posix'
+  except (ImportError, AttributeError):
+      pass
+
+
+
+
+4： svn 基本操作：
+
+    svn up --accept 后面跟下列参数的结果：
+
+      postpone：  C  结果是生成几个文件
+   
+      working：   G  会有.mine .r120等扩展名的文件
+
+      base：          用上一版本的
+
+      mine-conflict：   G 用自己的   
+
+      theirs-conflict：  G 用他们的   
+
+      mine-full：    G 用自己的   
+
+      theirs-full：   G 用他们的  
+
+
+      svn up working ： 1：本地文件与svn上的合并(修改不同行的结果)
+
+                        2：修改相同行就会出现.mine   .r120类似的内容,
+                           <<<<<<< .mine
+                           111[Path]
+                           =======
+                           111ppppppp33333[Path] 
+                           >>>>>>> .r120
+
+      theirs-full    无论修改是否是相同行,结果都用他人的
+
+      theirs-conflict  如果修改的是相同行 就用他人的,  不同行就用自己的
+
+
+
+5：buildbot超时问题：
+      
+   (1) Python26/site-packages/buildbot-0.8.7p1-py26egg/buildbot/process/buildstep.py文件里
+       class  RemoteShellCommand(RemoteCommand):
+         def __init__(.....timeout=20*60,.....)     355行
+       修改timeout的值就可以控制超时的问题了。
+
+   (2) 也可以在每一步里的ShellCommand里添加timeout参数就可以将超时进行控制了.
+  
+
+
+6：python发邮件的程序在以字符串的形式拼接发送者时拼接成dedong.xu@goland.cn这样即可， dedong.xu[dedong.xu@goland.cn]这样是不对的。
+
+   否则会出现(454, '5.7.3 Client does not have permission to Send As this sender.')这样的异常。
+
+
+
+7：生成patch文件的命令svn diff -r revision-1:revision filename（这个filename为svn上的具体路径）
+
+
+
+8：有关curl上传下载文件的配置以及使用方法。
+   
+   A：配置：
+
+      a：需要在apache配置文件里加载dav模块：
+         LoadModule dav_module modules/mod_dav.so
+         LoadModule dav_fs_module modules/mod_dav_fs.so
+
+      b：配置虚拟主机：
+         DavLockDB "C:/Apache2.2/DavLock"
+         ServerName 10.10.2.30:8989
+         NameVirtualHost 10.10.2.30:8989
+         <VirtualHost 10.10.2.30:8989>
+           DocumentRoot "D:/test"
+           <Directory "D:/test"> 
+             Dav On 
+             Options Indexes FollowSymLinks
+             Order Allow,Deny
+             AllowOverride all
+             Allow from all 
+          </Directory>
+        </VirtualHost> 
+   其中DavLockDB "C:/Apache2.2/DavLock" 和 Dav On是和dav模块有关。如果没有这两句，将会出现 500 inter server error错误。
+
+
+   B：使用方法：
+      
+      说明:  下载curl包并解压.将curl的路径添加到环境变量里面.或者写绝对路径也行.
+
+      上传文件:
+         通过运行curl -T localfile URL 命令即可将本地文件上传到服务器指定地址中去。localfile为当前目录下的文件,也可以是其它路径下的文件(此时需要绝对路径).
+         例如: curl -T test.txt http://10.10.2.201:9003/
+         也可以上传到它的子目录下.例如:curl -T test.txt http://10.10.2.201:9003/DVDFab
+
+         如果想要重命名上传后的文件的话,运行如下类似命令即可。
+         例如:curl -T test.txt http://10.10.2.30:8989/test_rename.txt  切记test_rename.txt后面不可跟"/"
+
+
+      下载文件, 两种方式:
+         1:  curl -o filename http://10.10.2.201:9003/readme_first.txt    (参数o是小写字母o， 其中filename是自己指定的,就是将下载下来的readme_first.txt文件重命名)
+         2:  curl -O  http://10.10.2.201:9003/readme_first.txt    (参数O是大写字母O， 下载下来的文件名不变,还是服务器上的名字)
+
+  
+  
+9：将py文件改为pyw文件，可以使程序在后台运行。只是执行过程中会有黑窗口闪过。
+
+
+
+10：读配置文件时，可以有cf.get(field, key), cf.items(field)。
+    其中cf.get(field, key)可以读出等号右边的值，
+    cf.items(field)可以读出field下所有等号两边的值，以列表的形式显示出来，列表中每一个元素都是一个元组。
+
+    import ConfigParser
+    def read_ini(filepath, field, key):
+        cf = ConfigParser.ConfigParser()
+        cf.read(filepath)
+        value = cf.get(field, key)
+        return value
+
+
+
+11："asdfghj"为一字符串，则"asdfghj".count("f")就可以统计出"asdfghj"中“f”的个数。
+
+
+
+12：如果配置apache虚拟机时一直报错，则首先检查下是否是没有关闭防火墙。
+
+
+
+13：Buildbot-0.8.7.p1 如果Force Build 需要用户认证，除了authz， auth方法之外，还需要ForceScheduler方法。
+
+    from buildbot.schedulers.forcesched import ForceScheduler
+    
+    c['schedulers'].append(ForceSchler(name = 'all', builderNames = ["builderName"]))      才可以。
+
+
+
+14：Buildbot及其相关程序的安装：
+
+    a: 安装 python, pywin32, setuptools
+
+    b:下载buildbot, buildslave的安装包, 解压后进入目录到 setup.py一级,使用python setup.py install 命令进行安装.
+
+    c: 安装twisted: easy_install twisted, 此时连带zope.interface一起安装了.
+    安装Jinja2和Python-Dateutil easy_install Jinja2, easy_install Python-Dateutil
+
+    d: SQLAlchemy, SQLAlchemy-Migrate这两个里面至少有一个是通过下载安装包来正确安装的.否则会出现导入exceptions错误.
+    建议这两个软件都通过下载安装包来安装比较稳妥.
+
+    e: 下载最新版本的sqlite3安装包进行安装.
+
+
+
+
+11：python第三方模块chardet可以用来检测字符串的编码，
+
+    chardet.detect(str)返回的结果是字典类型的。
+
+
+
+12：锚点功能的实现
+    <a name = 'header' href = '#header1'></a>
+    <p align = 'center'><a href = '#header' name = 'header1'>回到顶部<hr /></a></p>
+    如果header1改为header，则这两个可以互相跳转
+
+
+
+
+13: 使用Django编写下载文件的程序.
+    from django.http import HttpResponse
+    from django.utils.http import urlquote
+
+    f=open(file_name, 'rb')
+    data=f.read()
+    f.close()
+    file_name = os.path.split(url1)[1]
+    response = HttpResponse(data,content_type='application/octet-stream') 
+    response['Content-Disposition'] = 'attachment; filename=%s' % urlquote(file_name)
+    return response
+
+    这种下载是直接下载,就是下载的文件本身是什么类型就以什么类型下载.
+    其中urlquote可以实现中文文件名的下载, 其中打开文件的模式时rb,以二进制模式打开.
+
+
+
+14: SQL基本语句
+
+    一: a: 跨表拷贝: insert into new_table select * from old_table. 前提是字段数应该一致.
+        b:增加一个列:alter table tablename add column column_name 属性
+        c:删除一个列:alter table tablename drop column_name
+        d:仿照已存在的表创建新的表: create table new_table like old_table. 创建以后new_table只是一个空表,没有任何数据.
+        e:create table new_table as select * from old_able 这相当于拷贝了一个表.
+
+
+    二: 备份数据库:
+        a: mysqldump -uroot -p19890612 mysite > d:/wenjian/mysql_data_20130227/mysite.sql                  mysite是数据库的名字
+        b: mysqldump -uroot -p19890612 mysite blog_case > d:/wenjian/mysql_data_20130227/blog_case.sql      mysite是数据库的名字, blog_case是表的名字
+
+  
+    三: 导入数据库:
+        sql语句:
+        直接导入库:
+        source d:/wenjian/mysql_data_20130227/mysite.sql
+        导入表:
+        source d:/wenjian/mysql_data_20130227/blog_case.sql
+
+
+
+15: 在苹果系统下杀死进程时使用的是killall  processname, 使用kill  pid可能会有错误,到用的时候再验证.
+
+
+
+16: 在苹果下创建快捷方式的命令:  ln -s 文件路径  快捷方式路径
+
+
+
+17: 使用getpass.getuser()可以获得当前主机的用户名.
+
+
+
+18:在使用time模块获得时间时,尽量使用time.mktime(time.localtime()),这样计算出来的时间是比较准确的.
+
+
+
+19: ps -ef | grep processname 可以获得进程名.
+
+
+
+20:在苹果系统下用subprocess.Popen调用DVDFab时,需有shell=True,表示前面的传入的命令将在shell下执行.
+
+
+
+21:Django-1.4版本在使用POST获取数据时较Django-1.3有了新的改变.
+
+  如若使用POST方法,则在form表单这样写<form action = '.' method = 'POST'>{% csrf_token %}</form>
+  views.py文件里导入from django.views.decorators.csrf import csrf_exempt
+  再在使用到POST的函数前面加上@csrf_exempt就可以了
+
+
+
+22:在Django数据库进行复杂的查询时可以使用Q对象.
+
+    例:qs = Case.objects.filter(Q(Mode__iexact = "fulldisc") | Q(Mode__iexact = "mainmovie")).order_by("Num")
+
+       qs1 = Case.objects.filter(Q(Mode__icontains = "Ripper") & Q(Iso_type = "DVD")).order_by("Num")
+       case = qs1.filter(Q(Num__gte = "401") & Q(Num__lte = "600")).order_by("Num") 
+
+    ******       | 代表或运算,  &代表与运算.
+
+    类型 描述
+    exact 精确匹配: polls.get_object(id__exact=14).
+    iexact 忽略大小写的精确匹配: polls.objects.filter(slug__iexact="foo") 匹配 foo, FOO, fOo, 等等.
+   
+    contains 大小写敏感的内容包含测试: polls.objects.filter(question__contains="spam") 返回question 中包含 "spam" 的所有民意测验.(仅PostgreSQL 和 MySQL支持. SQLite 的LIKE 语句不支持大小写敏感特性. 对Sqlite 来说, contains 等于 icontains.)
+    icontains 大小写不敏感的内容包含测试:
+    
+    gt 大于: polls.objects.filter(id__gt=4).
+    gte 大于等于.
+    lt 小于.
+    lte 小于等于.
+    ne 不等于.
+    
+    in 位于给定列表中: polls.objects.filter(id__in=[1, 3, 4]) 返回一个 polls 列表(ID 值分别是 1或3或4).
+    
+    startswith 大小写敏感的 starts-with: polls.objects.filter(question__startswith="Would").(仅PostgreSQL 和MySQL支持. SQLite 的LIKE 语句不支持大小写敏感特性. 对Sqlite 来说,``startswith`` 等于 istartswith)
+    endswith 大小写敏感的 ends-with. (仅PostgreSQL 和 MySQL)
+    istartswith 大小写不敏感的 starts-with.
+    iendswith 大小写不敏感的 ends-with.
+    
+    range 范围测试: polls.objects.filter(pub_date__range=(start_date, end_date)) 返回 pub_date 位于 start_date 和 end_date (包括)之间的所有民意测验
+    
+    year 对 date/datetime 字段, 进行精确的 年 匹配: polls.get_count(pub_date__year=2005).
+    month 对 date/datetime 字段, 进行精确的 月 匹配:
+    day 对 date/datetime 字段, 进行精确的 日 匹配:
+
+    isnull True/False; 做 IF NULL/IF NOT NULL 查询: polls.objects.filter(expire_date__isnull=True).
+
+
+
+
+23: 使用socket模块可以获得主机名和ip地址.
+    主机名: pc_name = socket.gethostname()
+    IP地址: pc_ip = socket.gethostbyname(pc_name)
+
+
+
+24: python读取注册表, 使用到_winreg模块.
+
+    def get_registry_value(regpath, regkey):    
+        import _winreg
+        value_path = ''
+        key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, regpath, 0, _winreg.KEY_READ)
+        try: 
+            (value_path, valuetype) = _winreg.QueryValueEx(key, regkey)
+        except Exception, e:
+            initlog('failed to get registry value; ' + str(e))  
+     
+        return value_path
+
+
+
+
+25:python记录log使用到logging模块.
+    import logging
+
+    def initlog(info):     
+        #logging.basicConfig(filename = yourlogfile, level = logging.NOTSET, filemode = 'a', format = '%(asctime)s - %(levelname)s: %(message)s') 
+        logging.basicConfig(filename = yourlogfile, level = logging.NOTSET, filemode = 'a', format = '%(asctime)s : %(message)s')      
+        logging.info(info)
+
+
+
+26:apache + Django + mod_wsgi配置.
+    首先：安装apache， Django， mod_wsgi。
+    然后：新建一个.wsgi文件.例如: d:/develop/mod.wsgi
+    内容:
+        import os,sys
+        sys.path.append("d:/develop/myproject")  #其中myproject是我的工程名.
+        os.environ["DJANGO_SETTINGS_MODULE"] = "myproject.settings"  #此处的myproject是我的工程myproject下面的一个目录名,它是settings.py文件的父目录，如果我的工程下直接是settings.py文件，则此处直接写settings即可。
+        import django.core.handlers.wsgi
+        application = django.core.handlers.wsgi.WSGIHandler()
+
+    最后：在apache的配置文件里添加如下代码：
+        Listen 8080
+        <VirtualHost 10.10.2.11:8080>
+        DocumentRoot d:/develop/myproject
+        <Directory "d:/develop/myproject">
+            AllowOverride all
+            Options -MultiViews
+        </Directory>
+        WSGIScriptAlias / d:/develop/mod.wsgi
+        </VirtualHost>
+
+
+
+
+27: Svn Update报错:Server sent unexpected return value (403 Forbidden) in response to OPTIONS
+    解决方法一般是将本地目录删除,再从svn上CheckOut下来即可.
+
+
+28: 使用python 的 hashlib库判断文件的MD5值.
+    相关的函数脚本在10.10.2.50机器上 d:\Develop\trunk\offcial\DVDFab_9_mobile2\Signature.py文件。
+
+
+29：使用pascal脚本拷贝文件夹。
+    相关文件在10.10.2.30机器上，X:\build\trunk\VDMC\VDM_center_center.iss文件。
+    拷贝函数如下：
+
+
+    function DirCopy(SourceDir, DestDir:String; const recurisive: Boolean):Boolean;
+    var
+      FindRec: TFindRec;
+    begin
+      SourceDir := AddBackslash(SourceDir);
+      DestDir := AddBackslash(DestDir);
+      if not DirExists(DestDir) then CreateDir(DestDir);
+      if FindFirst(SourceDir + '*', FindRec) then
+      begin
+      try
+      repeat
+      if FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY = 0 then          //not directory
+      begin
+        if SourceDir <> ExpandConstant('{userappdata}')+'\XBMC\' then
+        begin
+        FileCopy(SourceDir + FindRec.Name,DestDir + FindRec.Name, False);
+        end
+      end
+      else if (FindRec.Name <> '.') and (FindRec.Name <> '..') then        //is directory
+      begin 
+        CreateDir(DestDir + FindRec.Name);
+        if recurisive then     //recurisively
+        DirCopy(SourceDir + FindRec.Name, DestDir + FindRec.Name, True);
+      end;
+      until not FindNext(FindRec);
+      finally
+      FindClose(FindRec);
+      end;
+      end;
+      Result := True;
+    end;
+
+
+30：Linux机器远程连接Linux的命令：
+    ssh  username@ip
+ 
+    Linux机器远程连接windows机器的命令：
+    1:挂载命令
+ 
+    <a>:sudo mount -t cifs -o username=username,password=password //10.10.2.58/nas_nas_download /mnt/share
+       其中username和password是windows机器的.
+
+
+    
+    <b>:两个参数uid  gid
+        sudo mount -t cifs -o username=username,password=password,uid=1000,gid=1000 //10.10.2.58/nas_nas_download /mnt/share
+
+        逗号后面不能有空格
+
+        如果没有这两个参数，挂载后的共享文件夹所有者是root，权限太高。
+        加上这两个参数，挂载后的共享文件夹所有者是当前用户。
+
+        id  username可以查出数字uid和gid。
+
+        141抓取XBMC盒子log的工具连接nas时需要以www-data用户来连接，先使用id www-data来查看uid和gid，再连接
+
+    2：smbfs也可以连windows
+
+
+
+31:配置ssh服务方便远程登陆Ubuntu系统：
+   SSH安装容易、使用简单，而且比较常见，一般的Unix系统、Linux系统、FreeBSD系统都附带有支持SSH的应用程序包。ubuntu是以桌面应用为主的linux操作系统，而Ubuntu系统必须开启ssh服务后，XP或者其他的主机才可以远程登陆到Ubuntu系统。
+
+   (1)，安装软件包，执行
+   sudo apt-get install openssh-server 
+   Ubuntu缺省安装了openssh-client，如果你的系统没有安装的话，再用apt-get install openssh-client安装上即可。
+
+   (2)，然后确认sshserver是否启动，执行
+   ps -e |grep ssh  
+   如果只有ssh-agent那ssh-server还没有启动，如果看到sshd那说明ssh-server已经启动了。
+
+   (3)，ssh-server配置文件位于/ etc/ssh/sshd_config，可以cat查看。可以定义SSH的服务端口，默认端口是22，也可以改成其他端口。
+
+   (4)，然后重启SSH服务
+   sudo /etc/init.d/ssh restart 
+
+   (5)，XP机上选用熟悉的远程登录工具，设置Ubuntu的IP地址、开放的用户名和密码、协议是SSH2、端口22，即可。
+
+
+
+
+32:win7远程控制Ubuntu桌面：
+
+    一： Ubuntu下操作：
+
+  　(1)、首先你要有Ubuntu10.10，其他版本类似。 
+
+　　(2)、Win7远程连接上Ubuntu，所使用的协议是xrdp，所以我们要装这个东西。打开终端： 
+
+ 　　sudo apt-get install xrdp 
+
+ 　 (3)、装上xrdp之后，再： 
+
+ 　　sudo apt-get install vnc4server tightvncserver 
+
+　　(4)、都装上了之后，在“首选项—远程桌面”那里，设置好，允许远程桌面，允许控制等。 
+
+    详细步骤如下：
+
+    需要安装GNOME，登陆的时候选择以GNOME界面模式登录。
+    
+    sudoapt-get install gnome-panel
+    
+    安装完成后注销用户，因为借助于GNOME界面中才有远程访问设置的选项。
+    
+    服务器侧设置，点击自己用户的右上角的图标，选择GNOMECLASSIC模式
+    
+    后退，正常输入密码登录即可。进入GNOME界面，在左上角进入系统-》首选项-》桌面共享进行如下设置： 选择允许其他人查看您的桌面。设置完成OK，接下来的工作在windows访问即可。
+
+    (5)、安装完毕之后执行以下命令（该命令的作用是由于安装了gnome桌面，ubuntu12.04中同时存在unity、GNOME多个桌面管理器，需要启动的时候指定一个，不然即使远程登录验证成功以后也只是背景，什么也没有）
+
+    cd /home/youruser(youruser是你的用户名)
+
+    echo "gnome-session --session=ubuntu-2d" > .xsession
+
+    sudo /etc/init.d/xrdp restart
+
+
+
+　　二： Windows下的操作： 
+
+　　打开“远程桌面连接”，在“计算机”那一栏里，填上你要连接的Ubuntu的IP地址即可。在Ubuntu下可以通过“ifconfig”获得本机网络连接的概况，其中包括IP地址。 
+
+　　填上正确的IP地址回车，会出现一个登陆框，我们选择“sessman-xvnc”这个，然后输入你的Ubuntu的用户名和密码，OK！ 
+
+　　后记： 
+
+　　使用这种方法连上Ubuntu还有个问题，就是键盘的快捷键会有点小混乱。此时断开远程桌面，在Ubuntu的实体机器上，打开 系统/首选项/键盘快捷键，将带有“隐藏所有正常窗口并将桌面设置为焦点”的快捷键组合删掉即可
+
+
+
+    注：
+        缺点：这种方法进行远程桌面访问的时候，只能单用户访问，而且一旦再ubuntu主机上注销该用户之后就无法再访问了。
+
+
+33:buildbot的锁机制：
+
+locks参数
+在master.cfg文件里添加或修改以下代码：
+from buildbot import locks
+from buildbot.steps import source, shell
+from buildbot.process import factory
+
+db_lock = locks.MasterLock("database")
+build_lock = locks.SlaveLock("slave_builds",
+                             maxCount = 1,
+                             maxCountForSlave = { 'fast': 1, 'new': 2 })
+
+f = factory.BuildFactory()
+f.addStep(source.SVN(svnurl="http://example.org/svn/Trunk"))
+f.addStep(shell.ShellCommand(command="make all"))
+f.addStep(shell.ShellCommand(command="make test",
+                             locks=[db_lock.access('exclusive')]))
+
+b1 = {'name': 'full1', 'slavename': 'fast',  'builddir': 'f1', 'factory': f,
+       'locks': [build_lock.access('counting')] }
+
+b2 = {'name': 'full2', 'slavename': 'new',   'builddir': 'f2', 'factory': f,
+       'locks': [build_lock.access('counting')] }
+
+b3 = {'name': 'full3', 'slavename': 'old',   'builddir': 'f3', 'factory': f,
+       'locks': [build_lock.access('counting')] }
+
+b4 = {'name': 'full4', 'slavename': 'other', 'builddir': 'f4', 'factory': f,
+       'locks': [build_lock.access('counting')] }
+
+c['builders'] = [b1, b2, b3, b4]
+
+其中：db_lock = locks.MasterLock("database")
+build_lock = locks.SlaveLock("slave_builds",
+                             maxCount = 1,
+                             maxCountForSlave = { 'fast': 1, 'new': 2 })
+分别是master 锁和slave 锁。再将参数locks加到c['builders']里，以计数模式(counting)使用即可
+
+
+34:buildbot的锁机制：
+  MasterLock为master锁，SlaveLock为slave 锁，只要你需要，他们可以实例化成很多对象。
+
+  A: 如果SlaveLock是独占模式（exclusive）的话，不管其他参数如何设置，则同一slave的所有build只能启动一个。不同slave之间互不影响。
+
+  B: 如果SlaveLock是计数模式（counting）的话，则由maxCountForSlave参数来控制同时可以启动同一slave的几个build，如果没有设置maxCountForSlave的话，则由maxCount来控制build的个数。
+
+  C: 如果用的是MasterLock且只实例化了一个master锁，不管模式是独占还是计数，所有slave的所有build里只能启动一个。
+
+  D: 如果用的是MasterLock且实例化了多个master锁，比如一台机器上的slave共享一个锁， 则不管模式是独占还是计数，同一机器上的所有slave的所有build只能启动一个。
+     如果是一个slave用一个锁，则同一slave的所有build只能启动一个，不同slave之间互不影响。
+
+  
+
+  
+35:sql文件导入数据库
+
+   导入数据库
+   mysql -u root -p databasename < *.sql
+
+36:python的platform模块可以获取windows当前操作系统的信息.
+   
+  import platform
+  platform.platform()
+  可以判断 windows系统的具体信息。  
+  例如 win7 还是xp。
+  
+
+37:Django使用logging模块记录日志与python中调用logging模块方法一样.
+
+38:在Django试图函数里调用svn命令时,如果是通过Dajngo自带的runserver的话,直接用平常的命令行即可,不用加任何的附加参数.
+
+如果是通过apache在别的机器上访问服务器并调用服务器上的svn时,这时需要在svn的命令行里添加两个参数,前提是在客户端机器需要记住svn的用户名和密码.
+这两个参数分别是--non-interactive 意思是不需要交互提示,  --trust-server-cert 指的是信任来自未知的证书机构的SSL服务器证书而不提示.
+(这里的服务器指的是有Django环境的那台机器)
+
+39:a = '9'
+   a.zfill(3) = '009'
+
+
+40:Linux命令分别改变某一目录下的文件和文件夹。
+   
+   只改变目录的权限： 将目录权限改为755
+   sudo find /Users/user/Desktop -type d -exec chmod 755 {} \;
+    
+   只改变文件的权限： 将文件权限改为644
+   sudo find /Users/user/Desktop -type f -exec chmod 644 {} \;
+
+
+
+41: buildbot在执行git pull操作 遇到这种问题时  fatal: could not read Username for 'http://10.10.2.31': Device not configured， 而在git目录直接执行git pull时没问题的时候，重启下buildbot的master和slave即可。
+
+
+42:查看apache版本号可以使用  apachectl -v  命令
+
+
+43：Ubuntu + Apache + Django + modwsgi的配置:
+    
+    a:
+      需要一个wsgi的脚本放在工程名字下面即可。
+      内容如下：(文件名字django.wsgi)
+      import os, sys
+      path = "/home/goland/test_crash_log"
+      if path not in sys.path:
+          sys.path.append(path)
+      os.environ['DJANGO_SETTINGS_MODULE'] = 'test_crash_log.settings'
+      import django.core.handlers.wsgi
+      application = django.core.handlers.wsgi.WSGIHandler()
+
+
+
+    b:
+    Apache的配置文件内容：
+      prots.conf文件内容：
+        Listen 9002
+        NameVirtualHost 10.10.2.141:9002
+
+      httpd.conf文件内容：
+        LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so        
+
+      apache2.conf文件内容：
+        <VirtualHost 10.10.2.141:9002>
+        DocumentRoot "/home/goland/test_crash_log"
+        <Directory "/home/goland/test_crash_log">
+            AllowOverride all
+            Options -MutilViews
+        </Directory>
+        WSGIScriptAlias / /home/goland/test_crash_log/django.wsgi
+        </VirtualHost>
+    
+
+
+44： 安装mod_python
+
+同样两种方法
+
+一：sudo apt-get install libapache2-mod-python
+    以及手动安装：
+
+
+    cd ~/downloads
+    wget http://archive.apache.org/dist/httpd/modpython/mod_python-3.3.1.tgz
+    tar xzvf mod_python-3.3.1.tgz
+    cd mod_python-3.3.1
+    ./configure --with-apxs=/usr/local/apache/bin/apxs --with-python=/usr/local/python251/bin/python --with-max-locks=32 --with-python-src=/soft/Python-2.5.1/ --with-flex=/usr/bin/flex
+    make
+    make install
+
+
+二：Ubuntu下安装mod_python (2012-07-30 12:45:54)
+    分类： python
+    在Ubuntu中，采用 sudo apt-get install apache2 安装apache服务后，是不会带Apxs，需要安装 apache2-dev。其命令是：sudo apt-get install apache2-dev
+    安装完后查看安装的路径: whereis apxs2
+    如果在安装Mod_pythond的make过程出现这样到错误：fatal error: Python.h: No such file or directory，可以安装python2.7-dev（装的是V2.7）解决，命令为：sudo apt-get install python2.7-dev
+    Apxs的默认位置：usr/bin/apxs，但在ubuntu11版本中已经是usr/bin/apxs2
+    Mod_python模块的安装：
+
+    现在可以正式安装Mod_python模块了。
+       1.首先从Mod_pythod（http://modpython.org/）官网上下载文件，其文件名为：mod_python-3.3.1.tgz（我下的是3.3.1版本的）。然后，对这个文件进行解压操作：tar -zxvf  /home/cosmos/mod_python-3.3.1.tgz  （其中的目录可以自己放置）。
+       2.解压后通过cd mod_python-3.3.1命令进入mod_python-3.3.1这个文件夹。
+       3.进行Apxs目录配置， 命令为：./configure --with-apxs=/usr/bin/apxs2。
+       4.进行Python本地配置，命令为：./configure --with-python=/usr/bin/python2.7（自己装的Python是2.7版本的）。
+       5.make编译，命令为：make，如果在编译的过程中出现了：
+         connobject.c:142: error: request for member ‘next’ in something not a structure or union
+         apxs:Error: Command failed with rc=65536
+         make[1]: *** [mod_python.so] Error 1
+        需要修改/mod_python-3.3.1/src/connobject.c这个文件，将其中的“!(b == APR_BRIGADE_SENTINEL(b) ” 
+        修改为   “!(b == APR_BRIGADE_SENTINEL(bb)”  （如果还有提示“python.h” no find,那么还要安装python-dev,命令为:sudo apt-get install python-dev）
+      6.用sudo -s切换为root用户，然后再进行make install的安装
+      7.安装完成后会在/usr/lib/apache2/modules/生成mod_python.so这个文件，需要把它加载到apache2的配置文件中。修改/etc/apache2/httpd.conf文件，增加这么一行内容：LoadModule python_module /usr/lib/apache2/modules/mod_python.so。然后，再重启apache服务就可以了。
+
+
+45：python中调用可执行文件的时候，要写全路径。
+
+46： Ubuntu下使用Django拷贝时遇到权限问题，需要把目的路径的用户名改为www-data.
+
+47：svn commit时：如果遇到conflict ，直接revert一下就可以了。
+
+48：git reset --hard  git版本号   可以获得指定版本号的代码。
+
+49：kill -9 pid 用来绝杀进程
+
+50：ssh: connect to host 10.10.2.31 port 22: Bad file number
+    一般这种情况可以重启机器来解决。
+
+51：在本地配置git公钥
+
+   (1): 　git config --global user.name "dedong.xu"
+
+   (2)：　git config --global user.email "dedong.xu@goland.cn"
+
+   (3)：　ssh-keygen -t rsa -C "dedong.xu@goland.cn"
+
+  　      执行这条命令之后，为公钥key指定目录，然后将生成的文件拷贝到Git的安装目录下的.ssh目录里，在页面上添加SSH Key,将公钥加进去。然后执行下面的命令
+         
+          如果在mac下的话，将.pub里的内容复制下来，去掉邮箱，然后在当前目录新建known_hosts文件，保存下来。
+
+   (4)：　ssh -T git@10.10.2.31就可以了。
+
+
+52：From 10.10.2.31:vdm/av500demo
+   7f286a2..3f94e93  dev        -> origin/dev
+error: Your local changes to the following files would be overwritten by merge:
+	xbmc/tools/android/packaging/xbmc/AndroidManifest.xml
+Please, commit your changes or stash them before you can merge.
+Aborting
+
+
+一般这个错误使用 git checkout + 本地冲突文件的路径   就可以解决。
+
+
+
+53：cmd.exe /c && d:/MSYS_DDFab/bin/sh.exe --login -i -c "cd /d/projects/ffmpeg/vidonme/ffmpeg && clean.sh"
+    cmd.exe /c && d:/MSYS_DDFab/bin/sh.exe --login -i -c "cd /d/projects/ffmpeg/vidonme/ffmpeg && build.sh"
+
+
+
+54：如果以后再出现fabio.kext无法安装的话，手动执行安装fabio.kext的命令。
+
+
+
+55：git删除服务器上的文件
+
+    git rm filename
+
+    git commit filename -m "delete it"
+
+    git push origin
+
+
+
+56：升级buildbot master版本的时候，先停掉master的服务，然后安装高版本的master，最后执行buildbot upgrade-master path/to/master命令即可。
+
+
+57：安装upx时
+
+    先安装macports，然后 port selfupdate进行更新，然后 sudo port search upx，最后 sudo port install upx-version
+
+58：代码优化：
+
+    a: 对成员的查找访问等操作字典要比list更快。
+
+    b: 如果涉及到求list交集，并集或者差的问题可以转换为set来操作。
+
+    c: 对循环的优化所遵循的原则是尽量减少循环过程中的计算量，有多重循环的尽量将内层的计算提到上一层。
+
+    d：字符串的优化
+
+        i):   在字符串连接的使用尽量使用join()而不是+
+
+        ii):  当对字符串可以使用正则表达式或者内置函数来处理的时候，选择内置函数。
+
+        iii): 对字符进行格式化比直接串联读取要快
+
+
+    e: 列表解析要比在循环中重新构建一个新的list更为高效，因此我们可以利用这一特性来提高运行的效率。
+
+    f: 其他优化技巧：
+      
+       A: 如果需要交换两个变量的值使用a,b=b,a而不是借助中间变量t=a;a=b;b=t；
+       
+       B: 在循环的时候使用xrange而不是range；使用xrange可以节省大量的系统内存，因为xrange()在序列中每次调用只产生一个整数元素。而range()將直接返回完整的元素列表，用于循环时会有不必要的开销。在Python3中xrange不再存在，里面range提供一个可以遍历任意长度的范围的iterator。
+ 
+       C: 使用局部变量，避免“global”关键字。Python访问局部变量会比全局变量要快得多，因此可以利用这一特性提升性能。
+    
+       D: if done is not None比语句if done!=None更快，读者可以自行验证；
+
+       E: 在耗时较多的循环中，可以把函数的调用改为内联的方式
+
+       F: 使用级联比较 “x < y < z”而不是“x < y and y < z”；
+
+       G: while 1要比while True更快（当然后者的可读性更好）
+ 
+       H: build in函数通常较快，add(a,b)要优于a+b
+
+
+
+58：高并发web框架基本设计思路:
+      
+      a: 提供HTML静态访问
+
+      b: 使用独立的图片服务器
+
+      c: 配置多台数据库服务器，多个数据库集群
+
+      d: 使用缓存
+
+
+
+59: 高并发使用nginx， 缓存使用memcache， redis
+
+60: 这是在pyinstaller解压后的目录下执行的：
+    python pyinstall.py -F --onefile -w pyfile_path
+
+
+61:10.10.2.35机器死机，需要将10.10.2.33机器重启。
+
+62:Django 1.3和1.4配置中有些不一样的地方，1.3在settings文件和urls文件配置中有些地方不带工程名，例如：settings文件中：INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    # Uncomment the next line to enable the admin:
+    'django.contrib.admin',
+	'switch_branch',    #这个地方只是应用名，没有工程名
+    # Uncomment the next line to enable admin documentation:
+    # 'django.contrib.admindocs',
+)
+
+urls文件里：
+urlpatterns = patterns('switch_branch.views',#这个地方也是只有应用名，没有工程名。
+    url(r"^$", "index"),
+    url(r"^index/$","index"),
+    url(r"^add_branch/$","add_branch"),
+    url(r"^modify_branch/$", "modify_branch"),
+    # Examples:
+    # url(r'^$', 'goland_switch_branch.views.home', name='home'),
+    # url(r'^goland_switch_branch/', include('goland_switch_branch.foo.urls')),
+
+    # Uncomment the admin/doc line below to enable admin documentation:
+    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+    # Uncomment the next line to enable the admin:
+    # url(r'^admin/', include(admin.site.urls)),
+)
+
+
+63：lambda函数优缺点：
+
+    构成     g = lambda x,y : y-x+x**4     注：冒号后面的表达式是要能够返回值的。
+             print g(3,4)
+
+             lambda语句中，冒号前是参数，可以有多个，用逗号隔开，冒号右边的是返回值。lambda语句构建的其实是一个函数对象。
+
+    缺点：lambda和普通的函数相比，就是省去了函数名称而已，同时这样的匿名函数，又不能共享在别的地方调用。
+          其实说的没错，lambda在Python这种动态的语言中确实没有起到什么惊天动地的作用，因为有很多别的方法能够代替lambda。
+          同时，使用lambda的写法有时显得并没有那么pythonic。甚至有人提出之后的Python版本要取消lambda。
+          会在一定程度上降低代码的可读性，也不会带来程序运行效率的提高
+
+    优点：1. 使用Python写一些执行脚本时，使用lambda可以省去定义函数的过程，让代码更加精简。
+          2. 对于一些抽象的，不会别的地方再复用的函数，有时候给函数起个名字也是个难题，使用lambda不需要考虑命名的问题。
+          3. 使用lambda在某些时候让代码更容易理解。
+
+
+64：短路特性
+    a = 1
+    ((a and [x]) or [y])[0]
+    这样就可以确保a为真时，输出x的值；a为假时，输出y的值。
+
+
+
+
+65：git 提交
+
+    git add .   （.表示所有的都add）
+
+    git commit -a -m "new compiled from daily build 168"
+
+    git pull
+
+    git push origin master
+
+
+    或者
+ 
+    git add  filename
+
+    git commit filename -m "new compiled from daily build 168"
+
+    git pull
+
+    git push origin master
+
+
+
+
+66：新建分支
+    
+    本地新建： git branch branch_name
+
+    推送到服务器： git push origin branch_name
+
+
+    删除分支
+
+    本地删除：git branch -d branch_name
+
+    服务器删除： git push origin :branch_name
+
+
+
+
+67：页面自动跳转
+
+<title>success</title>
+<head>
+</head>
+
+<h1>创建成功</h1>
+
+<h4 id = 'time1'><a href = "http://127.0.0.1:8000">3秒钟之后,将自动跳转到上一页面...</a></h4>
+<script>
+var t=2
+function delay()
+{var ob=document.getElementById('time1');
+ ob.innerHTML = '<a href = "http://127.0.0.1:8000">'+t+'秒钟之后,将自动跳转到上一页面...</a>' ;
+ t--;
+ if (t==-1)
+ {ob.innerHTML='';
+ clearInterval(b);}
+}
+
+setTimeout("javascript:location.href='http://127.0.0.1:8000'", 3000); 
+b=setInterval('delay()',1000);
+
+</script>
+
+
+
+68：数据库备份:
+
+a:导出数据库:
+  非SQL语句:
+
+  一次只能备份一个表.
+  mysqldump -uroot -p19890612 mysite blog_case > d:/wenjian/mysql_data_20130227/blog_case.sql
+
+  直接备份库:
+  mysqldump -uroot -p19890612 mysite > d:/wenjian/mysql_data_20130227/mysite.sql
+
+
+还有一种导出的方法:
+ mysql -u root -p 123456 -e "select * from database.table" > d:\test\table.sql
+也可以导出为别的扩展名。
+
+
+
+b: 导入数据库:
+   在mysql里执行:
+   SQL语句:
+   直接导入库:
+   source d:/wenjian/mysql_data_20130227/mysite.sql     
+
+   导入表:
+   source d:/wenjian/mysql_data_20130227/blog_case.sql
+
+
+
+导入数据库
+mysql -u root -p databasename < *.sql
+
+
+
+69：Django配置log
+
+
+
+LOGGING = {  
+    'version': 1,  
+    'disable_existing_loggers': True,  
+    'formatters': {  
+        'standard': {  
+  
+            #'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(levelname)s]- %(message)s'  
+			'format': '%(asctime)s [%(levelname)s]- %(message)s'  
+        },  
+    },  
+    'filters': {  
+    },  
+    'handlers': {  
+        'mail_admins': {  
+            'level': 'ERROR',  
+            'class': 'django.utils.log.AdminEmailHandler',  
+            'include_html': True,  
+        },  
+        'default': {  
+            'level':'DEBUG',  
+            'class':'logging.handlers.RotatingFileHandler',  
+            'filename': "d:/log/log.txt", 
+            'maxBytes': 1024*1024*5, # 5 MB  
+            'backupCount': 5,  
+            'formatter':'standard',  
+        },   
+    },  
+    'loggers': {  
+        'django': {  
+            'handlers': ['default'],  
+            'level': 'INFO',  
+            'propagate': False  
+        },  
+       
+    }  
+}  
+
+70 列表解析
+
+   map和列表解析是在解释器中以c语言的速度来运行，比python的for循环代码在pvm中运行要快的多
+
+
+
+71：apache2: Could not reliably determine the server’s fully qualified domain name, using 127.0.1.1 for ServerName
+则找到liusai@liusai-laptop:~$ sudo gedit /etc/apache2/apache2.conf
+在其后添加ServerName 127.0.0.1
+
+
+72：普通用户启动salt-minion
+
+    step1：修改salt-minion配置文件，#user：username
+    step2: 修改相关文件夹权限。
+    #sudo chown -R zyd_vm:zyd_vm /etc/salt /var/cache/salt /var/log/salt /var/run/salt
+    step3: 启动salt-minion
+    #salt-minion --user zyd_vm 
+    或#salt-minion --user  zyd_vm  -d
+
+
+
+
+
+

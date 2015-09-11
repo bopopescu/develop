@@ -1,0 +1,216 @@
+function select_pc(pc_name)
+			{var obj = document.getElementsByTagName("select");
+			for(var i=0; i<obj.length; i++)
+			{if(obj[i].name == pc_name)
+			{obj[i].value = document.getElementById("all_case_pc").value;							
+			if (obj[i].options.value == obj[i].value)
+			{obj[i].options.selected = true;
+			}
+			}
+			}				
+			}
+			
+			function check_all(name)
+			{var obj = document.getElementsByTagName("input");
+			for(var i=0; i<obj.length; i++)
+			{if((obj[i].type == "checkbox") && (obj[i].name == name))
+			{obj[i].checked = true;
+			}
+			}
+		    }
+			
+			function clear_all(name)
+			{var obj = document.getElementsByTagName("input");
+			for(var i=0; i<obj.length; i++)
+			{if((obj[i].type == "checkbox") && (obj[i].name == name))
+			{obj[i].checked = false;
+			}
+			}
+			}
+
+
+
+<style>
+			.td{width:10%; overflow:hidden;  height:auto; font-size:12px; nowrap}
+			.th{width:10%; overflow:hidden;  height:auto; font-size:12px; nowrap}
+			.table{word-break:break-all; word-wrap:break-word; table-layout:fixed;}
+			a{text-decoration:none}
+			a:hover{text-decoration:none; color:#999}
+			
+			#menu{width:900px; margin:0 auto; text-align:center; font-size:12px;}
+			ul{ padding: 0;  margin: 0;  list-style: none; }
+			li{ position:relative;  float: left;  width: 100px; }
+			li ul{position:absolute; display: none; top: 20px; left:0; }
+			li:hover ul{ display: block;}
+			li.over ul{ display: block;}
+			ul li a{ display:block;	font-size:12px;	 border: 1px solid #ccc; padding:3px; margin-right:1px;	 text-decoration: none;	 color:#777; background:#eee;}
+			ul li a:hover{ background-color:#f4f4f4; }
+			#nav li ul li{ float:left; width:90px;}
+			
+			#popimg2{width:770px; margin:0 auto; text-align:center; z-index:-1;}
+			#test{ clear:both;  width:769px; height:100px; margin:0 auto;}
+		</style>
+        
+        <script type=text/javascript>
+   			startList = function() {
+				 if (document.all&&document.getElementById) {
+					  navRoot = document.getElementById("nav");
+					  for (i=0; i<navRoot.childNodes.length; i++) {
+						   node = navRoot.childNodes[i];
+						   if (node.nodeName=="LI") {
+								node.onmouseover=function() {
+									this.className+="over";
+								}
+								node.onmouseout=function() {
+									this.className=this.className.replace("over", "");
+								}
+							}
+					  }
+				 }
+			}
+				function select_pc(pc_name)
+				{var el = document.getElementsByTagName("select");
+					var len = el.length;
+					for(var i=0; i<len; i++)
+					{if(el[i].name == pc_name)
+						{el[i].value = document.getElementById("all_case_pc").value;							
+							if (el[i].options.value == el[i].value)
+							{el[i].options.selected = true;
+							}
+						}
+					}				
+				}
+			function check_all(name)
+			{var el = document.getElementsByTagName("input");
+				var len = el.length;
+				for(var i=0; i<len; i++)
+				{if((el[i].type == "checkbox") && (el[i].name == name))
+					{el[i].checked = true;
+					}
+				}
+			}
+			
+			function clear_all(name)
+			{var el = document.getElementsByTagName("input");
+				var len = el.length;
+				for(var i=0; i<len; i++)
+				{if((el[i].type == "checkbox") && (el[i].name == name))
+					{el[i].checked = false;
+					}
+				}
+			}
+					
+			window.onload=startList;
+	</script>     
+
+<div id="menu">
+        <ul id="nav">
+        	<li><a href="#" onclick="case_type('BC')">Blu-Copy</a>
+            	<uL>
+                	<li><a href="#" onclick="case_type('BC-P0-1')">BC-P0-1</a></li>
+                    <li><a href="#" onclick="case_type('BC-P0-2')">BC-P0-2</a></li>
+                    <li><a href="#" onclick="case_type('BC-P1-1')">BC-P1-1</a></li>
+                    <li><a href="#" onclick="case_type('BC-P1-2')">BC-P1-2</a></li>
+                    <li><a href="#" onclick="case_type('BC-P1-3')">BC-P1-3</a></li>
+                    <li><a href="#" onclick="case_type('BC-P2')">BC-P2</a></li>
+                </uL>
+               </li>
+            <li><a href="#" onclick="case_type('BR')">Blu-Ripper</a>
+            	<ul>
+                	<li><a href="#" onclick="case_type('BR-P0')">BR-P0</a></li>
+                    <li><a href="#" onclick="case_type('BR-P1')">BR-P1</a></li>
+                   	<li><a href="#" onclick="case_type('BR-P2')">BR-P2</a></li>
+                </ul></li>
+           	<li><a href="#" onclick="case_type('DC')">DVD-Copy</a>
+            	<ul>
+                	<li><a href="#" onclick="case_type('DC-P0')">DC-P0</a></li>
+              
+                </ul></li>
+            <li><a href="#" onclick="case_type('DR')">DVD-Ripper</a>
+            	<ul>
+                	<li><a href="#" onclick="case_type('DR-P0')">DR-P0</a></li>
+                    <li><a href="#" onclick="case_type('DR-P1')">DR-P1</a></li>
+                </ul></li>
+            <li><a href="#" onclick="case_type('BD')">Blu-DVD</a>
+            	<ul>
+                	<li><a href="#" onclick="case_type('BD-P0')">BD-P0</a></li>
+                    <li><a href="#" onclick="case_type('BD-P1')">BD-P1</a></li>
+                    <li><a href="#" onclick="case_type('BD-P2')">BD-P2</a></li>
+                </ul></li>
+            <li><a href="#" onclick="case_type('B3')">Blu-3D</a>
+            	<ul>
+                	<li><a href="#" onclick="case_type('B3-P0')">B3-P0</a></li>
+                    <li><a href="#" onclick="case_type('B3-P1')">B3-P1</a></li>
+                </ul></li>
+            <li><a href="#" onclick="case_type('VC')">VideoConverter</a>
+            	<ul>
+                	<li><a href="#" onclick="case_type('VC-P0')">VC-P0</a></li>
+                    <li><a href="#" onclick="case_type('VC-P1')">VC-P1</a></li>
+                </ul></li>
+            <li><a href="#" onclick="case_type('2T3')">2Dto3D</a>
+            	<ul>
+                	<li><a href="#" onclick="case_type('2T3-DR')">2T3-DR</a></li>
+                    <li><a href="#" onclick="case_type('2T3-BR')">2T3-BR</a></li>
+                    <li><a href="#" onclick="case_type('2T3-VC')">2T3-VC</a></li>
+                </ul></li>
+            <li><a href="#" onclick="case_type('Mini-test-set')">Mini-test-set</a>
+            		<ul>
+                	<li><a href="#" onclick="case_type('3D-Anaglyph')">3D-Anaglyph</a></li>
+                    <li><a href="#" onclick="case_type('3D-Split')">3D-Split</a></li>
+                    <li><a href="#" onclick="case_type('3D-TwoFiles')">3D-TwoFiles</a></li>
+                    <li><a href="#" onclick="case_type('3D-TwoVideos')">3D-TwoVideos</a></li>
+                    <li><a href="#" onclick="case_type('3D-Device')">3D-Device</a></li>
+                    <li><a href="#" onclick="case_type('DTS/LPCM-AC3')">DTS/LPCM-AC3</a></li>
+                    <li><a href="#" onclick="case_type('BD-SBS')">BD-SBS</a></li>
+                    <li><a href="#" onclick="case_type('BD-Blu')">BD-Blu</a></li>
+                </ul></li>
+        </ul>
+     </div>   
+
+
+<!--
+<script>
+startList = function(){
+if(document.all&&document.getElementById){
+navRoot = document.getElementById('menu');
+var allli = navRoot.getElementsByTagName('li')
+for(i = 0; i<allli.length; i++){
+node = allli[i];
+node.onmouseover = function(){
+this.className += 'current';
+}
+node.onmouseout = function(){
+this.calssName = this.className.replace('current','');
+}
+}
+}
+}
+window.onload = startList;
+</script>
+<style type = 'text/css'>
+body{font-family:Verdana; font-size:12px; line-height:1.5;}
+img{border-style:none;}
+a{color:#000; text-decoration:none;}
+a:hover{color:#F00;}
+#menu{width:100px; border:1px solid #CCC ; border-bottom:none;}
+#menu ul{list-style:none; margin:0px; padding:0px;}
+#menu ul li{background:#eee; padding:0px 8px; height:26px; line-height:26px;border-bottom:1px solid #ccc;position:relative;}
+#menu ul li ul{display:none; position:absolute; left:100px; top:0px;width:100px; border:1px solid #ccc;border-bottom:none:}
+#menu ul li.current ul{display:block;}
+#menu ul li:hover ul{display:block;}
+</style>
+</head>
+<body>
+<div id = 'menu'>
+<ul>
+<li><label><a href = ''>aaa</a></label>
+<ul>
+<label><li><a href = '#'>bbb</a></li></label>
+<li><a href = '#'>ccc</a></li>
+<li><a href = '#'>ddd</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</body>
+-->

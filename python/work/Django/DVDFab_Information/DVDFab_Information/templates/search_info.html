@@ -1,0 +1,16 @@
+<h1 align = "center">您所查询的产品信息</h1>
+
+<table align = "center" width = "50%" border = "3px solid red">
+<tr style = "background-color:#b7ddf7"><td>产品</td><td>{{name}}</td></tr> 
+<tr style = "background-color:#def1ff"><td>日期</td><td>{{date}}</td></tr> 
+<tr style = "background-color:#b7ddf7"><td>版本号</td><td>{{version}}</td></tr>
+<tr style = "background-color:#def1ff"><td>Change log</td><td>
+{% for each_record in change_log %}
+{{each_record}}<br />
+{% endfor %}
+</td></tr>
+</table>
+<div style = "font-size:2.0em">
+<span style = "float:right"><a href = "http://10.10.2.170:8888">Go Back</a>
+</span><span><a href = "/modify_change_log?name={{name}}">编辑Change log</a></span>
+</div>

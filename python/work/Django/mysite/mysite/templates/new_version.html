@@ -1,0 +1,26 @@
+<title>DVDFab new_add_version</title>
+{% extends 'base.html'%}
+{% block content%}
+<h1 align = 'center'>Add a new version</h1>
+<div align = 'center' style = 'background-color:gray'>
+<form action = '.' method = 'POST'> 
+{% csrf_token %}
+<br />
+<table width = '800'>
+<tr>
+<td align = 'right'>Version:</td><td><input type = 'text' name = 'Version' style = 'width :800px'/><td>
+</tr>
+<tr>
+<td align = 'right'>Create_time:</td><td><input type = 'text' name = 'Create_time' style = 'width :800px'/><td>
+</tr>
+<tr>
+<td align = 'right'>Description:</td><td><input type = 'text' name = 'Description' style = 'width :800px'/><td>
+</tr>
+<tr>
+<td align = 'right'>Notes:</td><td><input type = 'text' name = 'Notes' style = 'width :800px'/><td>
+</tr>
+</table>
+**<input type = 'submit' value = 'add_new_version'/>**
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

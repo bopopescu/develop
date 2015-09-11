@@ -1,0 +1,28 @@
+<head>
+	<title>Use PHP Remove Email</title>
+</head>
+
+<body>
+	<h1 align = "center">Use PHP Remove Email</h1>
+	<form action = "remove_email.php" method = "POST">
+		<table align = "center">
+			<tr>
+				<td>Email:</td><td><input type = "text" name = "email" /></td>
+			</tr>
+			<tr>
+				<td></td><td><input type = "submit" value = "Remove"  onClick = "delete_confirm()" /></td>
+			</tr>
+		</table>
+	</form>
+</body>
+<script>
+function delete_confirm(){
+  var flag = confirm("È·¶¨ÒªÉ¾³ýÂð£¿");
+  if(flag){
+    document.location.href = "/remove_email.php"
+  }
+  else{
+    return false
+  }
+}
+</script>

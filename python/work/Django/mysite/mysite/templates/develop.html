@@ -1,0 +1,9 @@
+﻿<!--<a href = ''>{{file}}</a>-->
+{% for file in files %}
+<a href = '?file={{file}}'>{{file}}</a>
+{% ifequal aa '' %}
+<p>您还没有对文件进行说明!请点击<a href = '/update/'>添加说明</a>进行添加!</p>
+{% else %}
+<p>{{aa}}</p>
+{% endifequal %}
+{%endfor%}

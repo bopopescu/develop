@@ -1,0 +1,26 @@
+﻿<html>
+	<head>
+		<title>Welcome to login page</title>
+	</head>
+	<body style = "background-color:#77ac98">
+		<br />
+		<h1 align = "center">欢迎来到登录页面</h1>
+		<form action = "/login/" method = "POST">
+			{% csrf_token %}
+			<table height = "20%" align = "center">
+				<tr>
+					<td align = "right">用户名:</td>
+					<td><input type = "text" name = "username" required = "required"/></td>
+				</tr>
+				<tr>
+					<td align = "right">密码:</td>
+					<td><input type = "password" name = "passwd"  required = "required"/></td>
+				</tr>
+			</table>
+
+			<p align = "center"><input type = "submit" value = "登录" /></p>
+			<div align = "center">还没有账号？那就<a href = "/register/"><strong style = "font-size:2.0em">注册</strong></a>一个吧!</div><br />
+			<div align = "center">忘记密码？那就<a href = "/get_passwd_page/"><strong style = "font-size:2.0em">找回</strong></a>吧!</div>
+		</form>
+	</body>
+</html>

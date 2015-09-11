@@ -1,0 +1,29 @@
+﻿<title>Success</title>
+<head>
+<!--<meta http-equiv="refresh" content="3"; url="index.html">-->
+</head>
+<h1>Switch branch successfully!</h1>
+<h2><a href = "http://10.10.2.170:8888/index/">Go Back</a></h2>
+
+<h4 id = 'time1'><a href = "http://10.10.2.170:8888/index">5秒钟之后,将自动跳转到上一页面...</a></h4>
+<script>
+var t=4
+function delay()
+{var ob=document.getElementById('time1');
+ ob.innerHTML = '<a href = "http://10.10.2.170:8888/index">'+t+'秒钟之后,将自动跳转到上一页面...</a>' ;
+ t--;
+ if (t==-1)
+ {ob.innerHTML='';
+ clearInterval(b);}
+}
+
+setTimeout("javascript:location.href='http://10.10.2.170:8888/index'", 5000); 
+b=setInterval('delay()',1000);
+//function dispTime()
+//{var now = new Date();
+// var ob = document.getElementById("mc");
+// ob.innerHTML=now.toTimeString();
+// setTimeout('dispTime()', 1000);
+//}
+//dispTime();
+</script>

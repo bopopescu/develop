@@ -1,0 +1,29 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<div><strong>Bug Count:&nbsp;&nbsp;{{num}}</strong></div>
+<br />
+
+{% for record in each_version_list %}
+	<div><strong>Version: &nbsp;&nbsp;{{record.0}}, Count: &nbsp;&nbsp;{{record.1}}&nbsp;&nbsp;({{record.2}}%)</strong></div>
+	<table width = "100%" border = "" style = "background-color:#def1ff">
+		<tr align = "center">
+			<td>Id</td><td>Count</td><td>Crash Position</td><td>Details</td>
+		</tr>
+		{% for each_list in all_records_list %}
+			{% ifequal each_list.0  record.0%}
+				<tr align = "center">
+					<td>{{each_list.2}}</td><!--<td>{{each_list.3}}</td>--><td>{{each_list.4}}&nbsp;({{each_list.3}}%)</td><td>{{each_list.1}}</td>
+					<td>
+						{% for each_record in each_list.5 %}
+							<a href = "{{record.0}}?num={{each_record}}">{{each_record}}</a>
+						{% endfor %}
+					</td>
+				</tr>
+			{% endifequal %}
+		{% endfor %}
+	</table>
+	<br />
+{% endfor %}
+
+{% endblock %}

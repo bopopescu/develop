@@ -1,0 +1,52 @@
+<title>Detail Information</title>
+<h1 align  = "center">Detail Information</h1>
+<div align = "center" style = "background-color:#d1d1d1">
+<table style = "font-size:1.5em" width = '100%' border = "5px solid black">
+{% for record in res%}
+<tr>
+<td>Id</td><td>{{record.0}}</td>
+</tr>
+<tr>
+<td>Package name</td><td>{{record.1}}</td>
+</tr>
+
+
+<tr>
+<td>bootingserver</td><td><span style = "float:left">{{record.2}}</span><span style = "float:right">{{record.9}}</span></td>
+</tr>
+<tr>
+<td>relayserver</td><td><span style = "float:left">{{record.3}}</span><span style = "float:right">{{record.10}}</span></td>
+</tr>
+<tr>
+<td>server</td><td><span style = "float:left">{{record.4}}</span><span style = "float:right">{{record.11}}</span></td>
+</tr>
+<tr>
+<td>transcode</td><td><span style = "float:left">{{record.5}}</span><span style = "float:right">{{record.12}}</span></td>
+</tr>
+<tr>
+<td>vidonbase</td><td><span style = "float:left">{{record.6}}</span><span style = "float:right">{{record.13}}</span></td>
+</tr>
+<tr>
+<td>vidonfs</td><td><span style = "float:left">{{record.7}}</span><span style = "float:right">{{record.14}}</span></td>
+</tr>
+<tr>
+<td>vidonpeer</td><td><span style = "float:left">{{record.8}}</span><span style = "float:right">{{record.15}}</span></td>
+</tr>
+
+
+<tr>
+<td>Flag</td><td>{{record.16}}</td>
+</tr>
+<tr>
+<td>Source Code Backup Path</td><td>{{record.17}}</td>
+</tr>
+<tr>
+<td>Package Folder Backup Path</td><td>{{record.18}}</td>
+</tr>
+<tr>
+<td>Description</td><td>{{record.19}}</td>
+</tr>
+
+{%endfor%}
+</table>
+</div>

@@ -1,0 +1,33 @@
+<title>DVDFab new_add_Client</title>
+{% extends 'base.html'%}
+{% block content%}
+<style>
+#d1{width :300px}
+</style>
+<h1 align = 'center'>Add a new client</h1>
+<div align = 'center' style = 'background-color:gray'>
+<form action = '.' method = 'POST' >
+{% csrf_token %} 
+<br />
+<table width = '800'>
+
+<tr>
+<td align = 'right'>PC_name:</td><td><input type = 'text' name = 'PC_name' style = 'width : 800px'/></td>
+</tr>
+<tr>
+<td align = 'right'>PC_ip:</td><td><input type = 'text' name = 'PC_ip' style = 'width : 800px'/></td>
+</tr>
+<tr>
+<td align = 'right'>DVDFab_path:</td><td><input type = 'text' name = 'Dvdfab_path' style = 'width : 800px'/></td>
+</tr>
+<tr>
+<td align = 'right'>Dest_path:</td><td><input type = 'text' name = 'Dest_path' style = 'width : 800px'/></td> 
+</tr>
+</table>
+
+
+<br />
+**<input type = 'submit' value = 'add_new_client'/>**
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

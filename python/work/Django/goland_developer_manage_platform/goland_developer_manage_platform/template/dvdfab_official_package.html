@@ -1,0 +1,7 @@
+<h1>Index of /{{index_path}}</h1>
+<div>
+{% for each_file in all_files %}
+<!--<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style = "fint-size:1.2em">.</span><a href = "{{http_path}}/{{each_file}}">{{each_file}}</a></div>-->
+<li><a href = "{{http_path}}/{{each_file}}">{{each_file}}</a></li>
+{% endfor %}
+</div>

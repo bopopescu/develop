@@ -1,0 +1,12 @@
+<title>display log</title>
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 align = 'center'>DVDFab internal log</h1>
+<div>
+{% for context in contexts %}
+<p>{{context}}</p>
+{% endfor %}
+ </div>
+ {% endblock %}
+ {% block footer %}{% endblock %}

@@ -1,0 +1,309 @@
+﻿<style>
+    #tr_id{background-color:#4ff5f4}
+	a{text-decoration:none}
+	a:hover{text-decoration:underline; color:red}
+	#main{margin:0 auto; text-align:center; font-size:1.0em; align:center; margin-right:auto; margin-left:auto}
+	ol{ padding: 0;  margin: 0;  list-style: none; width : 100% ;align:center}
+	li{ position:relative;  float: left;align:center}
+	li ol{position:absolute; display: none; top: 24px; left:0;}
+	li:hover ol{ display: block;}
+	li.over ol{ display: block;}
+	ol li a{border: 1px solid pink; display:block;	font-size:1.0em; padding:3px; margin-right:1px;	 text-decoration: none;color:#4f4ff4; background:#aeda56;}
+    #nav2 ol li a{test-decoration : none; align:center; text-align:center} 
+	#main ol li a {text-decoration: none;}
+	#nav2 li ol li{ float:left; width:111px; align:center; text-align:center}
+	#index, #new_case, #new_client, #new_bd, #new_dvd, #new_bd3d, #new_version, #case, #client, #bd, #dvd, #bd3d, #version, #all, #session, #test_result, #pingtai, #yin, #yincang{display:none;}
+</style>
+
+<title>DVDFab index</title>
+<!--{% block title %}<h1 align = 'center'>Welcome to DVDFab auto test center!</h1>{% endblock %}-->
+<link rel="stylesheet" type="text/css" media="screen" href="/admin_media/css" />
+<!--<div align = 'center'><img src = 'd:/develop/work_python/mysite/mysite/templates/logo.png' onerror = 'd:/logo.png' alt = 'hello' /></div>-->
+<p align = 'center'><img src="/site_media/logo.png"  mce_src="site_media/logo.png" /></p>  
+
+
+<div style = 'align:center'>
+    <div id = 'main' align = 'center'>
+		<ol id = 'nav2' align = 'center' style = 'width :100%'>
+		    <li style = 'width:5%'><a href = '/index/'  onmouseover = 'index()' onmouseout = 'index_()'>Index</a>
+				<ol id = 'index' onmouseover = 'index()' onmouseout = 'index_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/new_add_case/'  onmouseover = 'new_case1()' onmouseout = 'new_case_()'>New_case</a>
+				<ol id = 'new_case' onmouseover = 'new_case1()' onmouseout = 'new_case_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/new_add_client/'  onmouseover = 'new_client()' onmouseout = 'new_client_()'>New_client</a>
+				<ol id = 'new_client' onmouseover = 'new_client()' onmouseout = 'new_client_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/new_add_version/'  onmouseover = 'new_version()' onmouseout = 'new_version_()'>New_Versions</a>
+				<ol id = 'new_version' onmouseover = 'new_version()' onmouseout = 'new_version_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/new_add_BD/'  onmouseover = 'new_bd()' onmouseout = 'new_bd_()'>New_BD</a>
+				<ol id = 'new_bd' onmouseover = 'new_bd()' onmouseout = 'new_bd_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/new_add_DVD/'  onmouseover = 'new_dvd()' onmouseout = 'new_dvd_()'>New_DVD</a>
+				<ol id = 'new_dvd' onmouseover = 'new_dvd()' onmouseout = 'new_dvd_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/new_add_BD3D/'  onmouseover = 'new_bd3d()' onmouseout = 'new_bd3d_()'>New_BD3D</a>
+				<ol id = 'new_bd3d' onmouseover = 'new_bd3d()' onmouseout = 'new_bd3d_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>	
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:5%'><a href = '/case/'  onmouseover = 'case1()' onmouseout = 'case_()'>Case</a>
+				<ol id = 'case' onmouseover = 'case1()' onmouseout = 'case_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/client/'  onmouseover = 'client()' onmouseout = 'client_()'>Client</a>
+				<ol id = 'client' onmouseover = 'client()' onmouseout = 'client_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/version/'  onmouseover = 'version()' onmouseout = 'version_()'>Versions</a>
+				<ol id = 'version' onmouseover = 'version()' onmouseout = 'version_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:5%'><a href = '/bd_samples/'  onmouseover = 'bd()' onmouseout = 'bd_()'>BD</a>
+				<ol id = 'bd' onmouseover = 'bd()' onmouseout = 'bd_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:5%'><a href = '/dvd_samples/'  onmouseover = 'dvd()' onmouseout = 'dvd_()'>DVD</a>
+				<ol id = 'dvd' onmouseover = 'dvd()' onmouseout = 'dvd_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:5%'><a href = '/bd3d_samples/'  onmouseover = 'bd3d()' onmouseout = 'bd3d_()'>BD3D</a>
+				<ol id = 'bd3d' onmouseover = 'bd3d()' onmouseout = 'bd3d_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:5%'><a href = '/all_samples/'  onmouseover = 'all1()' onmouseout = 'all_()'>All</a>
+				<ol id = 'all' onmouseover = 'all1()' onmouseout = 'all_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>		
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/session/'  onmouseover = 'session()' onmouseout = 'session_()'>Session</a>
+				<ol id = 'session' onmouseover = 'session()' onmouseout = 'session_()'>
+				<!--	<li><a href ='/download/' >Window</a></li>	
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+			<li style = 'width:6%'><a href = '/test_result/'  onmouseover = 'test_result()' onmouseout = 'test_result_()'>Test_result</a>
+				<ol id = 'test_result' onmouseover = 'test_result()' onmouseout = 'test_result_()'>
+					 
+				<!--	<li><a href ='/download/' >Window</a></li>	
+				    <li><a href ='/download_mac/' >MacOS</a></li>	-->
+				</ol>
+			</li>
+		<!--style = 'display:block;	font-size:1.0em; border: 1px solid #ccc; padding:3px; margin-right:1px;	 background-color :#aeda56' --> 
+			<li style = 'width:6%'><a href = ''  onmouseover = 'window1()' onmouseout = 'window_()'>Download</a>
+				<ol id = 'pingtai' onmouseover = 'window1()' onmouseout = 'window_()'>
+					<li><a href ='/download/' >Window</a></li>	
+				    <li><a href ='/download_mac/' >MacOS</a></li>	
+				</ol>
+			</li>
+			
+		</ol>
+    </div>
+</div>		
+<br />
+<!--		
+ <div align = 'center'>
+<table style = 'border:solid 5px green; font-size:1.0em;text-align :center; ' width = '100%' align = 'center'>
+	<tr  style = 'background-color :#aeda56' align = 'center'>
+		<td><a href = '/index/'>&nbsp;Index</a>&nbsp;&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/new_add_case/'>New_case</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/new_add_client/'>New_client</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/new_add_BD/'>New_BD</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/new_add_DVD/'>New_DVD</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/new_add_BD3D/'>New_BD3D</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/new_add_version/'>New_Versions</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/case/'>Case</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/client/'>Client</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/version/'>Versions</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/bd_samples/'>BD</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/dvd_samples/'>DVD</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/bd3d_samples/'>BD3D</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/all_samples/'>All</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/session/'>Session</a>&nbsp;&nbsp; &nbsp;</td>
+		<td><a href = '/test_result/'>Test_result</a>&nbsp;&nbsp; </td>
+		<td align = 'center'>
+		<div id = 'main'>
+		<ol id = 'nav2'>
+		
+		style = 'display:block;	font-size:1.0em; border: 1px solid #ccc; padding:3px; margin-right:1px;	 background-color :#aeda56' 
+		
+			<li><a href = '/download/'  onmouseover = 'aa()' onmouseout = 'bb()'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Window</a>
+				<ol id = 'yincang' onmouseover = 'aa()' onmouseout = 'bb()'>
+					<li><a href ='/download_mac/' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MacOS</a></li>	
+				    <li><a href ='/download_mac/' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MacOS</a></li>	
+				</ol>
+			</li>
+		</ol>
+		</div>
+		</td>
+		
+		<td><a href = '/download/'>Download for Win</a></td>	 
+		<td><a href = '/download_mac/'>Download for Mac</a></td> 
+	</tr>
+</table>
+</div> -->
+<script>
+function aa(){var obj=document.getElementById('yincang'); obj.style.display='block';}
+function bb(){var obj=document.getElementById('yincang'); obj.style.display='none';}
+function a(){var obj=document.getElementById('yin'); obj.style.display='block';}
+function b(){var obj=document.getElementById('yin'); obj.style.display='none';}
+function index(){var obj=document.getElementById('index'); obj.style.display='block';}
+function index_(){var obj=document.getElementById('index'); obj.style.display='none';}
+function new_case1(){var obj=document.getElementById('new_case'); obj.style.display='block';}
+function new_case_(){var obj=document.getElementById('new_case'); obj.style.display='none';}
+function new_client(){var obj=document.getElementById('new_client'); obj.style.display='block';}
+function new_client_(){var obj=document.getElementById('new_client'); obj.style.display='none';}
+function new_version(){var obj=document.getElementById('new_version'); obj.style.display='block';}
+function new_version_(){var obj=document.getElementById('new_version'); obj.style.display='none';}
+function new_bd(){var obj=document.getElementById('new_bd'); obj.style.display='block';}
+function new_bd_(){var obj=document.getElementById('new_bd'); obj.style.display='none';}
+function new_dvd(){var obj=document.getElementById('new_dvd'); obj.style.display='block';}
+function new_dvd_(){var obj=document.getElementById('new_dvd'); obj.style.display='none';}
+function new_bd3d(){var obj=document.getElementById('new_bd3d'); obj.style.display='block';}
+function new_bd3d_(){var obj=document.getElementById('new_bd3d'); obj.style.display='none';}
+
+function case1(){var obj=document.getElementById('case'); obj.style.display='block';}
+function case_(){var obj=document.getElementById('case'); obj.style.display='none';}
+function client(){var obj=document.getElementById('client'); obj.style.display='block';}
+function client_(){var obj=document.getElementById('client'); obj.style.display='none';}
+function version(){var obj=document.getElementById('version'); obj.style.display='block';}
+function version_(){var obj=document.getElementById('version'); obj.style.display='none';}
+function bd(){var obj=document.getElementById('bd'); obj.style.display='block';}
+function bd_(){var obj=document.getElementById('bd'); obj.style.display='none';}
+function dvd(){var obj=document.getElementById('dvd'); obj.style.display='block';}
+function dvd_(){var obj=document.getElementById('dvd'); obj.style.display='none';}
+function bd3d(){var obj=document.getElementById('bd3d'); obj.style.display='block';}
+function bd3d_(){var obj=document.getElementById('bd3d'); obj.style.display='none';}
+
+function window1(){var obj=document.getElementById('pingtai'); obj.style.display='block';}
+function window_(){var obj=document.getElementById('pingtai'); obj.style.display='none';}
+function all1(){var obj=document.getElementById('all'); obj.style.display='block';}
+function all_(){var obj=document.getElementById('all'); obj.style.display='none';}
+function session(){var obj=document.getElementById('session'); obj.style.display='block';}
+function session_(){var obj=document.getElementById('session'); obj.style.display='none';}
+function test_result(){var obj=document.getElementById('test_result'); obj.style.display='block';}
+function test_result_(){var obj=document.getElementById('test_result'); obj.style.display='none';}
+</script>
+
+{% block content%}
+{% endblock %}
+{% block footer %}
+<br />
+<!--<tr>
+<td>Num:</td><td><input type = 'text' name = 'Num' style = 'width :800px'/></td>
+</tr>-->
+<form action = '.' method = 'POST'>
+{% csrf_token %}
+<input type = 'submit' value = 'Submit' />
+</form>
+
+<div align = 'center'><h2>简介说明</h2>
+<!--<img src="/file_picture/1.jpg">
+<p><a href = "/file_picture/1.txt">aaa</a></p>-->
+<table width = '800' border= '3px solid red' style = 'background-color:#aed456'>
+<tr>
+<td>Index</td><td>Index页面为首页！</td>
+</tr>
+<tr>
+<td>New_case</td><td>New_case页面是添加新case的页面！</td>
+</tr>
+
+<tr> 
+<td>New_client</td><td>New_client页面是添加新的client的页面！</td>
+</tr>
+
+<tr>
+<td>New_Versions</td><td>New_Versions页面是添加新的版本号！</td>
+</tr>
+
+<tr>
+<td>New_BD</td><td>New_BD页面是添加新的BD源！</td>
+</tr>
+
+<tr>
+<td>New_DVD</td><td>New_DVD页面是添加新的DVD源！</td>
+</tr>
+
+<tr>
+<td>New_BD3D</td><td>New_BD3D页面是添加新的BD3D源！</td>
+</tr>
+
+<br />
+
+<tr>
+<td>Case</td><td>Case页面是显示所有的源，根据Mode的不同分开显示源！</td>
+</tr>
+
+<tr>
+<td>Client</td><td>Client页面是显示所有的客户端，即测试case的主机！</td>
+</tr>
+
+<tr>
+<td>Versions</td><td>Versions页面是显示版本的！</td>
+</tr>
+
+<tr>
+<td>BD</td><td>BD页面是显示所有的BD源!</td>
+</tr>
+
+<tr>
+<td>DVD</td><td>DVD页面是显示所有的DVD源!</td>
+</tr>
+
+<tr>
+<td>BD3D</td><td>BD3D页面是显示所有的BD3D源!</td>
+</tr>
+
+<tr>
+<td>All</td><td>All页面是显示所有的源!</td>
+</tr>
+
+<tr>
+<td>Session</td><td>Session页面是显示将要运行的case，正在运行的case，以及已经运行的case。所有case都是从case页面添加过来的！</td>
+</tr>
+
+<tr>
+<td>Test_result</td><td>Test_result页面是显示的内容和Session页面一样，只不过它是按天显示的。每一天的case都由一个表显示出来！</td>
+</tr>
+
+<tr>
+<td>Download</td><td>Download是下载客户端程序脚本的，分为Windows和MacOS两种程序脚本！</td>
+</tr>
+</div>
+
+{{context}}
+{% endblock %}
+ 

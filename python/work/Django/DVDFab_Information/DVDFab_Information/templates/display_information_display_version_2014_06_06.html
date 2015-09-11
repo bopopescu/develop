@@ -1,0 +1,49 @@
+<title>Restore DVDFab</title>
+<h1 align= "center">Restore DVDFab</h1>
+
+<span style = "font-size:1.5em;float:left"><a href = "/display_information/?platform_name=Win">Win</a>
+</span><span style ="float:right; font-size:1.5em"><a href = "/display_information/?platform_name=Mac">Mac</a></span>
+
+<form action = "/backup_dvdfab/" method = "POST" name = "Form1">
+{% csrf_token %}
+<table width = "100%" align = "center" id = "table" border = "solid 5px green">
+<tr align = "center" style = "background-color:gray">
+<td>Platform</td><td>Package</td><td>svn version</td><td>include version</td><td>bluray version</td><td>common version</td><td>DVDFabQxLibs version</td><td>mobile2 version</td><td>backup path</td><td>flag</td><td>description</td>
+</tr>
+{% for record in res %}
+<tr align = "center" style = "background-color:{% cycle '#4ff5f4' '#E0ffff'%}">
+<td>{{record.11}}</td>
+<td>
+<input type = "checkbox" name = "checkbox" value = "{{record.1}}" style = "float:left"/>
+
+{{record.1}}
+
+<input type = "hidden" name = "num" id = "case_num_for case_range"  value = "{{record.1}}"/>
+<input type = "hidden" name = "index" value = "case" />
+<input type = "hidden" name = "platform_name" value = "{{url_path}}" />
+</td>
+
+<td>{{record.2}}</td><td>{{record.3}}</td><td>{{record.4}}</td><td>{{record.5}}</td><td>{{record.6}}</td><td>{{record.7}}</td><td>{{record.8}}</td><td>{{record.9}}</td><td>{{record.10}}</td>
+</tr>
+{% endfor %}
+</table>
+<br />
+<br />
+<br />
+<div align = "center"><input type = "Submit" value = "Submit"/></div>
+
+</form>
+<!--<div><a href = "/display_all/">Display All</a></div>
+-->
+<script>
+
+function change(s)
+{
+var obj = document.getElementById("test");
+if (s == "Win")
+   {obj.innerHTML = ''}
+else if (s == "Mac")
+   {obj.innerHTML = "qwrqw"}
+}
+
+</script>

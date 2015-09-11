@@ -1,0 +1,118 @@
+﻿<title>Display All Used Records</title>
+<head>
+<style>
+.link-xdd td{
+cursor:pointer
+}
+</style>
+</head>
+<h1 align = "center">Display All Used Records</h1>
+<!--d3d7d4-->
+<body style = "background-color:#77ac98">
+	<div align = 'center'>
+		<form action = '/search_info/' method = 'POST' onsubmit = "return NotEmpty()">
+				<select name = 'search_name'>
+				<option value = 'slavename'>slavename</option>
+				<option value = 'buildername'>buildername</option>
+				<option value = 'slave_platform'>slave_platform</option>
+				<option value = 'username'>username</option>
+				</select>
+				<input type = 'text' id = "search_value" name = 'record_name'  value = '{{record_name}}' required = "required"/>
+				</select> 
+
+		<input type = 'submit' value = 'Search'>
+		</form>
+	</div>
+
+	<!--<p><a href = "/" target = _blank><strong>添加</strong></a></p>-->
+	<!--<p><input type = "submit" value = "添加" onClick = "window.open('/','_self')"/></p>-->
+	{% if request.session.username %}
+	    <p>欢迎:<span style = "font-size:1.9em"><strong>{{request.session.username}}</strong></span>&nbsp;&nbsp;||&nbsp;&nbsp;<a href = "/logout/">退出</a></p>
+	{% else %}
+	    <p><a href = "/login/">登录</a>&nbsp;<a href = "/register/">注册</a></p>
+    {% endif %}
+	<p>
+            <span><input type = "submit" value = "添加" onClick = "window.open('/')"/></span>
+            <span><input type = "button" value="显示所有的slave" onClick = "window.open('/display_all_records')"/></span>
+        </p>	
+	<table width = "100%" border = 'solid 3px red'>
+		<tr style = ' background-color :gray'>
+			<td>id</td>
+			<td>slavename</td>
+			<td>buildername</td>
+			<td>masterip</td>
+			<td>slaveip</td>
+			<td>slave_platform</td>
+			<td>start_method</td>
+			<td>user</td>
+			<!--<td>script_contents1</td>
+			<td>work_dir1</td>
+			<td>description1</td>
+			<td>script_contents2</td>
+			<td>work_dir2</td>
+			<td>description2</td>
+			<td>script_contents3</td>
+			<td>work_dir3</td>
+			<td>description3</td>-->
+			<!--<td>new master</td>
+			<td>new factory</td>
+			<td>script path</td>-->
+		</tr>
+		{% for record in build_info %}
+			<tr style = "background-color: {% cycle '#d1c7b7' '#d3d7d4'%};height = '50px'" class="link-xdd">
+				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.id}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.slavename}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.buildername}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.masterip}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.slaveip}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.slave_platform}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.start_method}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.username}}</td>
+
+				
+				<!--<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.script_contents1}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.work_dir1}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.description1}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.script_contents2}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.work_dir2}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.description2}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.script_contents3}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.work_dir3}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.description3}}</td>-->
+				<!--<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.new_master}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.new_factory}}</td>
+				<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.scripts_path}}</td>-->
+			</tr>
+		{% endfor %}
+	</table>
+	<br />
+	{% ifequal count 0 %}
+	{% else %}
+		<a href = "?nowpage=1">首页</a>
+		{% ifequal nowpage 1 %}
+		{% else %}
+			<a href = "?nowpage={{pageup}}">上一页</a>
+	{% endifequal %}
+
+	{% ifequal nowpage pageall %}
+	{% else %}
+		<a href = "?nowpage={{pagedn}}">下一页</a>
+		{% endifequal %}
+			<a href = "?nowpage={{pageall}}">末页</a>
+	{% endifequal %}
+
+	{{p.count}}<br />
+	{{p.num_pages}}<br />
+	{{p.page_range}}
+</body>
+
+<script>
+function NotEmpty(){
+    var obj = document.getElementById("search_value");
+    if (obj.value == ""){
+        alert("不能为空，请填写");
+        return false;
+    }
+}
+</script>
+

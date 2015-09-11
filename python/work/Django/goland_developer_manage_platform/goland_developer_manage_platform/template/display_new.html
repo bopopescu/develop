@@ -1,0 +1,33 @@
+﻿<h1>Index of /{{index_path}}</h1>
+<div>
+{% ifequal platform "WIN" %}
+	{% for each_file in all_files %}
+		<!--<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style = "fint-size:1.2em">.</span><a href = "{{http_path}}/{{each_file}}">{{each_file}}</a></div>-->
+		{% ifequal each_file "official" %}
+		<li><a href = "/dvdfab_official_package" target = _blink>{{each_file}}</a></li>
+		{% else %}
+		<li><a href = "/site_file{{http_path}}/{{each_file}}">{{each_file}}</a></li>
+		{% endifequal %}
+	{% endfor %}
+{% endifequal %}
+
+{% ifequal platform "MAC" %}
+	{% for each_file in all_files %}
+		{% ifequal each_file "official" %}
+		<li><a href = "/mac_dvdfab_official_package" target = _blink>{{each_file}}</a></li>
+		{% else %}
+		<li><a href = "{{http_path}}/{{each_file}}">{{each_file}}</a></li>
+		{% endifequal %}
+	{% endfor %}
+{% endifequal %}
+
+{% ifequal platform "other" %}
+<!--<div>{{MEDIA_URL}}</div>1111-->
+	{% for each_file in all_files %}
+	    {{http_path}}/{{each_file}}
+		<li><a href = "{{http_path}}/{{each_file}}">{{each_file}}</a></li>
+		<!--<li><a href = "{{MEDIA_URL}}/{{each_file}}">{{each_file}}</a></li>
+		<li><img src = "{{MEDIA_URL}}1.jpg"></li>-->
+	{% endfor %}
+{% endifequal %}
+</div>

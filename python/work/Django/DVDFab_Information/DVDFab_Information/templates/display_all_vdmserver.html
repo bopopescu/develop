@@ -1,0 +1,22 @@
+<title>All Backup Information</title>
+<h1 align= "center">All Backup Information</h1>
+<table width = "100%" align = "center" id = "table" border = "solid 5px green">
+<tr align = "center" style = "background-color:gray">
+<td>Package</td><td>bootingserver version</td><td>relayserver version</td><td>server version</td><td>transcode version</td><td>vidonbase version</td><td>vidonfs version</td>
+<td>vidonpeer version</td><td>source codebackup path</td><td>flag</td><td>description</td>
+</tr>
+{% for record in res %}
+<tr align = "center" style = "background-color:{% cycle '#4ff5f4' '#E0ffff'%}">
+<td>
+<input type = "checkbox" name = "checkbox" value = "{{record.1}}" style = "float:left"/>
+
+{{record.1}}
+</td>
+
+<td>{{record.2}}</td><td>{{record.3}}</td><td>{{record.4}}</td><td>{{record.5}}</td><td>{{record.6}}</td><td>{{record.7}}</td><td>{{record.8}}</td><td>{{record.18}}</td><td>{{record.16}}</td><td>{{record.19}}</td>
+</tr>
+{% endfor %}
+</table>
+<br />
+<br />
+<h3><a href = "/display_vdmserver_information/">return</a></h3>

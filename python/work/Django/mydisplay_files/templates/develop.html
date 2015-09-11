@@ -1,0 +1,102 @@
+﻿<title>DVDFab共享资源文件--{{dir_name}}</title>
+<!--<a href = '' style = 'position:relative; right:80px; top:40%'><img align = 'left' src="/site_media/logo.png" mce_src="site_media/logo.png"/></a> -->
+<style>
+a{text-decoration:none}
+a:hover{text-decoration:none; color:green;text-decoration:underline}
+</style>
+<a name = 'header' href = '#header1'></a>
+<div>
+    <ul>
+    	<li style = 'list-style-type:none;'>
+	    	<a href = ''><img align = 'left' src="/site_media/logo.png" mce_src="site_media/logo.png"/></a>
+	    </li>
+    </ul>
+</div>
+<div>
+	{% ifequal url  PATH%}
+    	<p align = 'left'><b>首页</b></p>
+	{% else %}
+    	<p align = 'left'><a href = '{{PATH}}'><b>返回首页</b></a></p>
+	{% endifequal %}
+</div>
+
+<br />
+<h1>DVDFab开发共享资源文件中心</h1>
+
+<div>
+	<!--<h1>{{full_path}}</h1>
+	-->
+	{% ifequal url PATH %}
+	{% else %}
+	<p><a href = '{{url2}}'><b>返回上一级</b></a></p>
+	{% endifequal %}
+	<!--<h3><a href = '/add_files?url={{url}}'>添加文件或目录</a></h3>-->
+	{% ifequal all_list '[]' %}
+	{%else%}
+		<table style = 'font-size:1.1em'>
+			<tr>
+			    <td><b>名称</b></td> <td><b>修改日期</b></td><td><b>说明</b></td>
+				<!--{% ifequal dirs_str  '[]'%}
+				{% else %}
+				<td><b>说明</b></td>
+				{% endifequal %}-->
+			</tr>
+			{% for file in dirs_list %}
+			<tr>
+				<td width = '250px'><img src="/site_media/folder.jpg"/>&nbsp;<a href = '{{file.0}}/' style = 'color:blue;'>{{file.0}}</a>
+				                   
+				<td width = '250px'><a style = 'color:blue;'>{{file.1}}</a></td>
+				<td>
+					{% for dir_name in name_list %}
+						{% ifequal file.0 dir_name %}
+							<a href = '#{{file.0}}' name = '{{file.0}}_description' style = 'font-size:0.9em;color:#B23AEE'>说明</a></td>
+						{% else %}
+						{% endifequal %}
+					{% endfor %}
+				</td>
+			</tr>
+			{% endfor %}
+			
+			{% for file in files_list %}
+			<tr>
+				<td width = '250px'><img src="/site_media/file.jpg"/>&nbsp;<a href = '{{file.0}}/' style = 'color:blue'>{{file.0}}</a></td>
+				<td width = '250px'><a style = 'color:blue'>{{file.1}}</a></td>
+				<td>
+					{% for dir_name in name_list %}
+						{% ifequal file.0 dir_name %}
+							<a href = '#{{file.0}}' name = '{{file.0}}_description' style = 'font-size:0.9em;color:#B23AEE'>说明</a></td>
+						{% else %}
+						{% endifequal %}
+					{% endfor %}
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+    {% endifequal %}
+	<br />
+	{% ifequal content '' %}
+	{% else %}
+	<br />
+	<h1>简要说明</h1>
+	{% for record in dir_content_list %}
+	<pre><h1><a  href = '#{{record.0}}_description' name = '{{record.0}}' id = '{{record.0}}'style = 'color:#B23AEE'>{{record.0}}</a></h1></pre>
+	<pre style = 'font-size:1.0em'>{{record.1}}</pre>
+	<!--<pre style = 'font-size:1.0em'>{{file_content}}</pre>-->
+	{% endfor %}
+	{% endifequal %}
+</div>
+<div style = 'color:bule'>
+	<p align = 'center'><a href = '#header' name = 'header1'>回到顶部</a></p>
+	<p style = 'width:1000px, height:10px' ><hr /></p>
+	<!--
+	<div align = 'center'><a href = ''>Copyright@DVDFab</a>|<a href = ''>版权所有</a>|<a href = ''>关于我们</a>|<a href = ''>广告合作|<a href = ''>投诉建议</a>|
+	<a href = ''>挂码检测</a>|<a href = ''>手机版</a>|<a href = ''>联系电话</a>|</div>
+		<ul>
+			<li style = 'list-style-type:none'><img align = 'left' src="http://s1.fabimg.net/images/technical/intel.png" height="80" />
+			<img align = 'right' src="http://s1.fabimg.net/images/technical/cuda.png" height="80" />
+			</li>
+		</ul>
+	</div>
+	-->
+</div>
+

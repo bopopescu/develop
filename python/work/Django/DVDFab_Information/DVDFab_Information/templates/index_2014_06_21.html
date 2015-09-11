@@ -1,0 +1,184 @@
+﻿<title>DVDFab 产品信息修改</title>
+<p align = 'center'><img src="/site_media/logo.png"  mce_src="site_media/logo.png" /></p> 
+<h1 align = 'center'>DVDFab产品信息修改</h1>
+<div align = "center">
+<form action = '.' method = 'POST'>
+{% csrf_token %}
+<!--<a href = '/add_name/'>+添加</a>-->
+产品:<select id = "product" name = 'name' onchange = 'change(this.options[this.options.selectedIndex].value)'>
+{% for name in name_list %}
+<option value = "{{name}}">{{name}}</option>
+{% endfor %}
+</select>
+<span id = "date">日期:<input type = 'text' name = 'date' value = '{{current_date}}'/></span>
+<span id = "version">版本号:<input type = 'text' name = 'version' value = '{{DVDFab_8_version}}'/></span>
+<!--版本号:<input type = 'text' name = 'version' value = '{{previous_version}}'/>-->
+<span id = 'type_name'></span>
+<div id = 'changelog'><br /><br />Change Log<br /><textarea rows = 25 cols = 78 type = 'text' name = 'changelog'></textarea></div>
+
+<input type = 'submit' value = 'Submit' id = 'submit' style="align:center;font-szie:9pt; line-height: 100%" onclick = "1fakeProgress(0, sb)"/>
+<br />
+<p align=center style="font-szie:9pt; line-height: 100%" id = 'doing'></p>
+<div id=sb style="width: 500px">
+<div style="filter: Alpha(Opacity=0, FinishOpacity=60, style=1, StartX=0, StartY=0, FinishX=100, FinishY=0); width: 0%; height: 12px; position: absolute; background: #9999ff"></div>
+<div style="font-size: 12px; width: 100%; color: #ff3333; font-family: arial; text-align: center"></div>
+</div>
+
+</form>
+</div>
+
+
+<div>
+{% for each_line in win_all_lines%}
+{{each_line}}
+{% endfor %}
+
+{% for each_line in mac_all_lines%}
+{{each_line}}<br />
+{% endfor %}
+</div>
+
+{% ifequal all_lines '[]'%}
+{% else %}
+<form action = "/ci_file/" method = "POST">
+<input type = 'submit' value = 'Force Build' id = 'forcebuild'/>
+</form>
+{% endifequal %}
+
+<!--{{name_list}}-->
+
+<!--<div style = 'font-size:1.2em' align = 'center'><a href = 'http://10.10.2.50:8010/waterfall' target = _blank>Link Buildbot</a></div>
+-->
+<script>
+function doit(){
+        var rs=confirm("您可能需要等待几秒钟的时间!");
+        //if(rs)
+        //location="/xudedong/";
+}
+
+function setSB(v, el) {
+  var ie5 = (document.all  &&  document.getElementsByTagName);
+  if (ie5 || document.readyState == "complete")     {
+    filterEl = el.children[0];
+    valueEl = el.children[1];
+    filterEl.style.width = v + "%";
+    valueEl.innerText = v + "%";
+  }
+}
+function fakeProgress(v, el) {
+  var obj = document.getElementById("doing");
+  obj.innerHTML = '正在提交内容，请稍侯……'
+  if (v > 100)
+    location.href = "http://10.10.2.170:8888/index/";
+  else     {
+    //document.getElementById("submit").disabled = true;
+    setSB(v, el);
+    window.setTimeout("fakeProgress(" + (++v) + ", document.all['" + el.id + "'])", 2000);
+  }
+}
+
+
+function change(s)
+ {
+	var obj = document.getElementById('changelog');
+	if (s == 'DVDFab 9 Beta')
+		{ obj.innerHTML = ""
+		}
+	else if (s == 'DVDFabUSANad 9 Beta')
+		{ obj.innerHTML = ""
+		}
+	else if (s == 'BluFab 9 Beta')
+		{ obj.innerHTML = ""
+		}
+	else if (s == 'DVDFab Retail')
+		{ obj.innerHTML = ""
+		}
+	else if (s == 'DVDFabNonDecAll')
+		{ obj.innerHTML = ""
+		}	
+		
+	else if (s == 'DVDFabNonDecAll German')
+		{ obj.innerHTML = ""
+		}
+	else if (s == 'DVDFab 9 Mac Beta')
+		{ obj.innerHTML = ""
+		}
+	else if (s == 'DVDFabUSANad 9 Mac Beta')
+		{ obj.innerHTML = ""
+		}
+	else if (s == 'BluFab 9 Mac Beta')
+		{ obj.innerHTML = ""
+		}
+	else if (s == 'VDM Server')
+		{ obj.innerHTML = ""
+		}
+		
+	else{obj.innerHTML = "<span id = 'changelog'><br /><br />Change Log<br /><textarea rows = 25 cols = 78 type = 'text' name = 'changelog'></textarea></span>"}
+	
+	var res = document.getElementById('type_name');
+	var res_date = document.getElementById('date');
+	if (s == 'VDM Server')
+	   { res.innerHTML = "版本:<input type = 'text' name = 'type_name' value = 'Beta'/>";
+	     res_date.innerHTML = "";
+		}
+	else{res.innerHTML = "";
+	     res_date.innerHTML = "日期:<input type = 'text' name = 'date' value = '{{current_date}}'/>"}
+	
+	var res = document.getElementById('version');
+	if (s == 'DVDFab 8')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFab_8_version}}'/>"
+		}
+	else if (s == 'DVDFab 9 Official')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFab_9_Official_version}}'/>"
+		}
+	else if (s == 'DVDFab 9 Beta')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFab_9_Beta_version}}'/>"
+		}
+	else if (s == 'DVDFabUSANad 9 Official')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFabUSANad_9_Official_version}}'/>"
+		}
+	else if (s == 'DVDFabUSANad 9 Beta')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFabUSANad_9_Beta_version}}'/>"
+		}
+		
+	else if (s == 'BluFab 9 Official')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{BluFab_9_Official_version}}'/>"
+		}
+	else if (s == 'BluFab 9 Beta')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{BluFab_9_Beta_version}}'/>"
+		}
+	else if (s == "DVDFabNonDecAll")
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFabNonDecAll_version}}'/>"}
+	else if (s == "DVDFabNonDecAll German")
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFabNonDecAll_German_version}}'/>"}
+	else if (s == "TDMore")
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{TDMore_version}}'/>"}
+        else if (s == "DVDFab Retail")
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFab_Retail_version}}'/>"}
+        else if (s == 'DVDFab 9 Mac Official')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFab_9_Mac_Official_version}}'/>"
+		}
+	else if (s == 'DVDFab 9 Mac Beta')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFab_9_Mac_Beta_version}}'/>"
+		}
+	 else if (s == 'DVDFabUSANad 9 Mac Official')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFabUSANad_9_Mac_Official_version}}'/>"
+		}
+	else if (s == 'DVDFabUSANad 9 Mac Beta')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFabUSANad_9_Mac_Beta_version}}'/>"
+		}
+	 else if (s == 'BluFab 9 Mac Official')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{BluFab_9_Mac_Official_version}}'/>"
+		}
+	else if (s == 'BluFab 9 Mac Beta')
+	   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{BluFab_9_Mac_Beta_version}}'/>"
+		}
+	//else if (s == 'VDM Server')
+	//   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{vdmserver_version}}'/>"
+	//	}
+	//else if (s == 'DVDFabMediaPlayer')
+	//   { res.innerHTML = "版本号:<input type = 'text' name = 'version' value = '{{DVDFabMediaPlayer_version}}'/>"
+	//   }
+}
+ </script>
+

@@ -1,0 +1,61 @@
+<title>Backup DVDFab</title>
+<h1 align= "center">Backup DVDFab</h1>
+
+<form action = "/backup_dvdfab/" method = "POST" name = "Form1">
+{% csrf_token %}
+<select name = "platform" onchange='change(this.options[this.options.selectedIndex].value)'>
+<option>---------</option>
+<option value = 'Win'>Win</option>
+<option value = "Mac">Mac</option>
+</select>
+<br />
+<br />
+<!--<div id = "test">
+<table width = "100%" align = "center" id = "table" border = "solid 5px green">
+<tr align = "center" style = "background-color:gray">
+<td>Platform</td><td>Package</td><td>svn version</td><td>include version</td><td>bluray version</td><td>common version</td><td>DVDFabQxLibs version</td><td>mobile2 version</td><td>backup path</td><td>flag</td><td>description</td>
+</tr>
+{% for record in res %}
+<tr align = "center" style = "background-color:{% cycle '#4ff5f4' '#E0ffff'%}">
+<td>{{record.11}}</td>
+<td>
+<input type = "checkbox" name = "checkbox" value = "{{record.1}}" style = "float:left"/>
+
+{{record.1}}
+<input type = "hidden" name = "num" id = "case_num_for case_range"  value = "{{record.1}}"/>
+<input type = "hidden" name = "index" value = "case" />
+</td>
+
+<td>{{record.2}}</td><td>{{record.3}}</td><td>{{record.4}}</td><td>{{record.5}}</td><td>{{record.6}}</td><td>{{record.7}}</td><td>{{record.8}}</td><td>{{record.9}}</td><td>{{record.10}}</td>
+</tr>
+{% endfor %}
+</table>
+-->
+
+<table width = "100%" style = "font-size: 10em">
+<tr><td width = "20%"  style = "background-olor:grey"></td>
+<td width = "30%" style = "background-color:green"align = "center">Win</td>
+<td width = "30%" style = "background-color:green" align = "center">Mac</td>
+<td width = "20%" style = "background-colr:grey"></td></tr>
+
+</table>
+<br />
+<br />
+<br />
+<br />
+<div align = "center"><input type = "Submit" value = "Submit"/></div>
+</form>
+<!--<div><a href = "/display_all/">Display All</a></div>
+-->
+<script>
+
+function change(s)
+{
+var obj = document.getElementById("test");
+if (s == "Win")
+   {obj.innerHTML = ''}
+else if (s == "Mac")
+   {obj.innerHTML = "qwrqw"}
+}
+
+</script>

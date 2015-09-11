@@ -1,0 +1,69 @@
+﻿<title>Search Result</title>
+<h1 align = "center">Search Result</h1>
+
+{% ifequal flag 1 %}
+{% ifequal count 0 %}
+{% else %}
+<p><a href = '?nowpage=1'>首页</a>
+{% ifequal nowpage 1 %}
+{% else %}
+<a href = '?nowpage={{pageup}}'>上一页</a>
+{% endifequal %}
+{% ifequal nowpage pageall %}
+{% else %}
+<a href = '?nowpage={{pagedn}}'>下一页</a>
+{% endifequal %}
+<a href = '?nowpage={{pageall}}'>末页</a>
+{% endifequal %} 
+{% endifequal %}
+
+<p><br /></p>
+<table width = "100%" align = "center" border="solid red 5px" style = "font-size:0.8em">
+<tr align = "center">
+<td>version</td>
+<td>software title</td>
+<td>filepath</td>
+<td>record_type</td>
+<td>username</td>
+<td>useremail</td>
+<td>subject</td>
+<td>content</td>
+<td>windows_version</td>
+<td>dvd_title</td>
+<td>region_code</td>
+<td>country</td>
+<td>buy_link</td>
+<td>filename</td>
+<td>status</td>
+<td>upload_time</td>
+<td>bug_type</td>
+<td>flag</td>
+<td>sample</td>
+<td>description</td>
+</tr>
+{% for record in session %}
+<tr align = "center"  style = "background-color:{% cycle 'b7ddf7' '#def1ff'%}">
+<td>{{record.version}}</td>
+<td>{{record.software_title}}</td>
+<td>{{record.filepath}}</td>
+<td>{{record.record_type}}</td>
+<td>{{record.username}}</td>
+<td>{{record.useremail}}</td>
+<td>{{record.subject}}</td>
+<td>{{record.content}}</td>
+<td>{{record.windows_version}}</td>
+<td>{{record.dvd_title}}</td>
+<td>{{record.region_code}}</td>
+<td>{{record.country}}</td>
+<td>{{record.buy_link}}</td>
+<td>{{record.filename}}</td>
+<td>{{record.status}}</td>
+<td>{{record.upload_time}}</td>
+<td>{{record.bug_type}}</td>
+<td>{{record.flag}}</td>
+<td>{{record.sample}}</td>
+<td>{{record.description}}</td>
+</tr>
+{% endfor %}
+
+</table>

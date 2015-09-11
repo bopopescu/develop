@@ -1,0 +1,126 @@
+﻿<title>Search XBMC Dump Files</title>
+<h1 align = "center">Search XBMC Dump Files</h1>
+<div>zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz</div>
+<div align = "center">
+<form action = '.' method = 'POST'>
+	{% csrf_token %}
+	    产品名称：
+		<select name = 'product'>
+		    <option value = ''></option>
+			<option value = 'Android Blu-ray Box AV100'>Android Blu-ray Box AV100</option>
+			<option value = 'Android Blu-ray Box AV200'>Android Blu-ray Box AV200</option>
+		</select>
+		&nbsp;&nbsp;用户名:<input type = "text" name ="username"  value = "{{username}}" />
+		&nbsp;&nbsp;邮箱:<input type = "text" name ="useremail"  value = "{{useremail}}" />
+		&nbsp;&nbsp;chipid:<input type = "text" name ="chipid" value = "{{chipid}}" />
+		&nbsp;&nbsp;上传日期:<input type = "text" name ="date_time" value = "{{date_time}}" />
+		<br />
+		<input type = 'submit' value = 'Search' />
+</form>
+</div>
+
+
+<!--{% ifequal flag 1 %}-->
+{% ifequal count 0 %}
+{% else %}
+查询结果共计: <span style = "font-size:1.5em">{{count}}</span> 条记录
+<!--
+<form action = '.' method = 'POST'>
+	{% csrf_token %}
+每页显示:
+{% if perpage_number %}
+<input type = "text" style = "width:60px" name ="perpage_number" value = "{{perpage_number}}" />
+{% else %}
+<input type = "text" style = "width:60px" name ="perpage_number" value = "100" />
+{% endif %}
+<input type = 'submit' value = '提交' />
+</form>
+<p><a href = '?nowpage=1'>首页</a>
+{% ifequal nowpage 1 %}
+{% else %}
+<a href = '?nowpage={{pageup}}'>上一页</a>
+{% endifequal %}
+{% ifequal nowpage pageall %}
+{% else %}
+<a href = '?nowpage={{pagedn}}'>下一页</a>
+{% endifequal %}
+<a href = '?nowpage={{pageall}}'>末页</a>
+-->
+{% endifequal %} 
+<p><br /></p>
+
+<table width = "100%" align = "center" border="solid red 5px" style = "font-size:0.8em">
+<tr align = "center">
+<!--
+<td>version</td>
+<td>software title</td>
+<td>filepath</td>
+<td>record_type</td>
+<td>username</td>
+<td>useremail</td>
+<td>chipid</td>
+<td>content</td>
+<td>windows_version</td>
+<td>dvd_title</td>
+<td>region_code</td>
+<td>country</td>
+<td>buy_link</td>
+<td>filename</td>
+<td>status</td>
+<td>upload_time</td>
+-->
+<td><a href = "?ziduan=version">version</a></td>
+<td><a href = "?ziduan=software_title">software title</a></td>
+<td><a href = "?ziduan=filepath">filepath</a></td>
+<td><a href = "?ziduan=record_type">record_type</a></td>
+<td><a href = "?ziduan=username">username</a></td>
+<td><a href = "?ziduan=useremail">useremail</a></td>
+<td><a href = "?ziduan=chipid">chipid</a></td>
+<td><a href = "?ziduan=content">content</a></td>
+<td><a href = "?ziduan=windows_version">windows_version</a></td>
+<td><a href = "?ziduan=dvd_title">dvd_title</a></td>
+<td><a href = "?ziduan=region_code">region_code</a></td>
+<td><a href = "?ziduan=country">country</a></td>
+<td><a href = "?ziduan=buy_link">buy_link</a></td>
+<td><a href = "?ziduan=filename">filename</a></td>
+<td><a href = "?ziduan=status">status</a></td>
+<td><a href = "?ziduan=upload_time">upload_time</a></td>
+
+<!--
+<td>bug_type</td>
+<td>flag</td>
+<td>sample</td>
+<td>description</td>
+-->
+</tr>
+{% for record in session %}
+<tr align = "center"  style = "background-color:{% cycle 'b7ddf7' '#def1ff'%}">
+<td>{{record.version}}</td>
+<td>{{record.software_title}}</td>
+<td>{{record.filepath}}</td>
+<td>{{record.record_type}}</td>
+<td>{{record.username}}</td>
+<td>{{record.useremail}}</td>
+<td>{{record.subject}}</td>
+<td>{{record.content}}</td>
+<td>{{record.windows_version}}</td>
+<td>{{record.dvd_title}}</td>
+<td>{{record.region_code}}</td>
+<td>{{record.country}}</td>
+<td>{{record.buy_link}}</td>
+<td>{{record.filename}}</td>
+<td>{{record.status}}</td>
+<td>{{record.upload_time}}</td>
+<!--
+<td>{{record.bug_type}}</td>
+<td>{{record.flag}}</td>
+<td>{{record.sample}}</td>
+<td>{{record.description}}</td>
+-->
+</tr>
+{% endfor %}
+
+</table>
+xude111111111111111111111111111111111111111111111111111111111111111
+
+<!--{% endifequal %}-->

@@ -1,0 +1,28 @@
+<title>DVDFab new_add_BD</title>
+{% extends 'base.html'%}
+{% block content%}
+<h1 align = 'center'>Update BD sample</h1>
+<div align = 'center' style = 'background-color:gray'>
+<form action = '/update_all_BD/{{param1}}/' method = 'GET'> 
+<br />
+Name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Name' value = '{{bd.Name}}' style = 'width :800px'/><br /><br />
+Video_info: &nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Video_info' value = '{{bd.Video_info}}' style = 'width :800px'/><br /><br />
+Audio_info: &nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Audio_info' value = '{{bd.Audio_info}}' style = 'width :800px'/><br /><br />
+File_size: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type = 'text' name = 'File_size' value = '{{bd.File_size}}' style = 'width :800px'/><br /><br /><br />
+
+Channel: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Channel' value = '{{bd.Channel}}' style = 'width :800px'/><br /><br />
+Framerate: &nbsp;&nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Framerate' value = '{{bd.Framerate}}' style = 'width :800px'/><br /><br />
+Standard: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Standard' value = '{{bd.Standard}}' style = 'width :800px'/><br /><br />
+Scan_type: &nbsp;&nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Scan_type' value = '{{bd.Scan_type}}' style = 'width :800px'/><br /><br /><br />
+Numbers_jar: <input type = 'text' name = 'Numbers_jar' value = '{{bd.Numbers_jar}}' style = 'width :800px'/><br /><br />
+Company: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Company' value = '{{bd.Company}}' style = 'width :800px'/><br /><br />
+Locations: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Locations' value = '{{bd.Locations}}' style = 'width :800px'/><br /><br />
+Description: &nbsp;&nbsp;&nbsp;<input type = 'text' name = 'Description' value = '{{bd.Description}}' style = 'width :800px'/><br /><br />
+Volume_label: <input type = 'text' name = 'Volume_label' value = '{{bd.Volume_label}}' style = 'width :800px'/><br /><br />
+ 
+
+**<input type = 'submit' value = 'Update_BDsample'/>**
+</form>
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

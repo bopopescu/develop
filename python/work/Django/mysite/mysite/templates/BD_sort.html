@@ -1,0 +1,96 @@
+<style>
+#tr_id{background-color:#4ff5f4}
+</style>
+<title>DVDFab BD samples</title>
+{% extends 'base.html'%}
+{% block content%}
+<h1 align = 'center'>Display DVDFab BD Samples Info</h1>
+
+<div align = 'center'>
+	<form action = '/search/BD/type/' method = 'GET'>
+		<select name = 'BD'>
+			<option value = 'Name'>Name</option>
+			<option value = 'Locations'>Locations</option>
+			<option value = 'Video_info'>Video_info</option>
+			<option value = 'Audio_info'>Audio_info</option>
+			<option value = 'Channel'>Channel</option>
+			<option value = 'Framerate'>Framerate</option>
+			<option value = 'Standard'>Standard</option>
+			<option value = 'Scan_type'>Scan_type</option>
+			<option value = 'Numbers_jar'>Numbers_jar</option>
+			<option value = 'Company'>Company</option>
+			
+		</select>
+	<input type = 'text' name = 'BD_type'>
+	<input type = 'submit' value = 'Search'> 
+	</form>
+	<form action = '/BD/sort/' method = 'GET'>
+		<select name = 'sort_name'>
+			<option value = 'Name'>Name</option>
+			<option value = 'id'>Index</option>
+			<option value = 'Video_info'>Video_info</option>
+			<option value = 'Audio_info'>Audio_info</option>
+			<option value = 'File_size'>File_size</option>
+			<option value = 'Channel'>Channel</option>
+			<option value = 'Framerate'>Framerate</option>
+			<option value = 'Standard'>Standard</option>
+			<option value = 'Scan_type'>Scan_type</option>
+			<option value = 'Numbers_jar'>Numbers_jar</option>
+			<option value = 'Company'>Company</option>
+			<option value = 'Locations'>Locations</option>
+			<option value = 'Description'>Description</option>
+			<option value = 'Volume_label'>Volume_label</option>
+			<input type = 'submit' value = 'Sort_By'>
+		</select>
+	</form>
+</div>
+
+<table border = 'solid 3px red' align = 'center' style = 'color:black' width = 100%>
+<tr align = 'center'>
+<td>Name</td>
+<td>Locations</td>
+<td>Video_info</td>
+<td>Audio_info</td>
+
+<td>File_size</td>
+<td>Channel</td>
+<td>Framerate</td>
+<td>Standard</td>
+
+<td>Scan_type</td>
+<td>Numbers_jar</td>
+<td>Company</td>
+<td>Description</td>
+<td>Volume_label</td>
+
+</tr>
+
+{% for i in bd_samples %}
+<tr id = 'tr_id' align = 'center' Onclick = 'function show()'>
+
+<td>{{i.Name}}</td>
+<td>{{i.Locations}}</td>
+<td>{{i.Video_info}}</td>
+<td>{{i.Audio_info}}</td>
+
+<td>{{i.File_size}}</td>
+<td>{{i.Channel}}</td>
+<td>{{i.Framerate}}</td>
+<td>{{i.Standard}}</td>
+
+<td>{{i.Scan_type}}</td>
+<td>{{i.Numbers_jar}}</td>
+<td>{{i.Company}}</td>
+<td>{{i.Description}}</td>
+<td>{{i.Volume_label}}</td>
+</tr>
+{% endfor %}
+
+</table>
+<br />
+<a href = '/new_add_BD/'>add BD</a>
+<script type = 'javascript/text'>
+function show(){window.location.href = '/index/'}
+</script>
+{% endblock %}
+{% block footer %}{% endblock %}

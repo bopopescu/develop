@@ -1,0 +1,120 @@
+ <style>
+#tr_id{background-color:#4ff5f4}
+</style>
+<title>DVDFab test_result</title>
+{% extends 'base.html'%}
+{% block content%}
+<h1 align = 'center'>Display Test Result Info</h1>
+<div align = 'center'>
+	<form action = '.' method = 'GET'>
+		Display days:
+		{% if days %}
+		<input type = 'text' name = 'days' value = '{{days}}' />
+		{% else %}
+		<input type = 'text' name = 'days' value = '7' />
+		{% endif %}
+		<input type = 'submit' value = 'Search'>
+	</form>
+
+	<form action = '/search_test_result/' method = 'GET'>
+		<select name = 'test_api'>
+			<option value = 'id'> Index </option>
+			<option value = 'PC_name'> PC_name </option>
+			<option value = 'Init_name'> Init_time </option>
+		</select>
+		<input type = 'text' name = 'test_name' value = '{{test_name}}'/>
+		Update Flag to:<input type = 'text'  name = 'Flag'  value = '{{Flag}}'/>
+		<input type = 'submit' value = 'Submit' />
+	</form>
+</div>
+ 
+<!--<h1>{{display_days}}</h1>
+ 
+<h1>{{a.Init_time}}</h1><div>
+   <h1>{{a.Start_time}}</h1>-->
+ 
+ 
+<table border = 'solid 3px red' align = 'center' style = 'color:black' width = '100%'>
+	<tr align = 'center' style = 'background-color :gray'>
+					<td width = '3%'>Index</td>
+					<td width = '3%'>Num</td>
+					<td width = '5%'>Mode</td>
+					<td width = '4%'>PC</td>
+
+
+					<td width = '5%'>Outdisc</td>
+					<td width = '3%'>R-HD</td>
+					<td width = '3%'>3D-T</td>
+					<td width = '3%'>C-AC3</td>
+					<td width = '2%'>DH</td>
+
+					<td width = '2%'>DV</td>
+					<td width = '2%'>DM</td>
+					<td width = '2%'>EH</td>
+					<td width = '2%'>3D</td>
+
+					<td width = '6%'>Profile</td>
+					<td width = '7%'>Src_path</td>
+					<td width = '7%'>Dest_path</td>
+					<td width = '6%'>Start_time</td>
+					<td width = '6%'>End_time</td>
+
+					<td width = '6%'>Total_time</td>
+					<td width = '6%'>Folder_size</td>
+					<td width = '4%'>Descript</td>
+					<td width = '7%'>Result</td>
+
+					<td width = '4%'>Develop</td>
+					<td width = '2%'>Fg</td>
+	</tr></table>
+	{% for i in  day_info_list %}
+ 
+	<h1>{{i.0}}</h1>
+ 
+	<table> 
+	 {% for j in i.1 %}
+	<tr id = 'tr_id' align = 'center'>
+	
+			<div>
+					<a href = '/update_test_result_page/{{j.id}}/'>
+					<td width = '3%'>{{j.id}}</td>
+					<td width = '3%'>{{j.Num}}</td>
+					<td width = '5%'>{{j.Mode}}</td>
+					<td width = '4%'>{{j.PC_name}}</td>
+
+					<td width = '5%'>{{j.Out_disc}}</td>
+					<td width = '3%'>{{j.Remove_HD_audio}}</td>
+					<td width = '3%'>{{j.BD3D_convert_type}}</td>
+					<td width = '3%'>{{j.Compress_to_AC3}}</td>   
+
+					<td width = '2%'>{{j.Video_decoder_H264}}</td>
+					<td width = '2%'>{{j.Video_decoder_VC1}}</td>
+					<td width = '2%'>{{j.Video_decoder_MPEG2}}</td>
+					<td width = '2%'>{{j.Video_encoder_H264}}</td>
+
+					<td width = '2%'>{{j.Enable_2Dto3D}}</td>
+					<td width = '6%'>{{j.Profile}}</td>
+					<td width = '7%'>{{j.Src_path}}</td>
+					<td width = '7%'>{{j.Dest_path}}</td>
+
+					<td width = '6%'>{{j.Start_time}}</td>
+					<td width = '6%'>{{j.End_time}}</td>
+					<td width = '6%'>{{j.Total_time}}</td>
+
+					<td width = '6%'>{{j.Folder_size}}</td>
+					<td width = '4%'>{{j.DVDFab_description}}</td>
+					<td width = '7%'>{{j.Result}}</td>
+
+					<td width = '4%'>{{j.Developer}}</td>
+					<td width = '2%'>{{j.Flag}}</td>
+					</a>
+			</div> 
+	</tr>
+ {% endfor %}
+</table>
+ 
+ {% endfor %}
+ 
+ 
+{% endblock %}
+{% block footer %}{% endblock %}

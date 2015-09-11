@@ -1,0 +1,12 @@
+<title>modify change log</title>
+<h1 align = "center">Modify Change Log</h1>
+<form method = "POST" action = "/update_change_log/">
+{% csrf_token %}
+<p align = "center">
+<span><input type = "submit" value = "Submit"/></span>
+<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+<span><a href = "/"><strong>放弃修改并返回首页</strong></a></span></p>
+<textarea rows = 100 cols = 200 type = "text" name = "changelog">
+{{change_log}}
+</textarea>
+</form>
