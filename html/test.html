@@ -1,0 +1,91 @@
+<div onclick = test1()>aaa</div>
+<div onclick = test2()>bbb</div>
+<div onclick = test3()>ccc</div>
+
+<script>
+var n=99
+function test1(){
+alert(n);}
+
+function test2(){
+    var n1 = 789;
+    function test22(){
+    alert(n1)
+    }
+}
+
+function test3(){
+a=12345;
+alert(a);
+}
+
+function test4(){
+b=45678;
+}
+test4();
+//alert(b);
+
+function f1(){
+　　　　var n=999;
+　　　　nAdd=function(){n+=1}
+　　　　function f2(){
+　　　　　　alert(n);
+　　　　}
+　　　　return f2();
+　　}
+    f1();    // 999
+　　var result=f1();
+　　result(); // 999
+　　nAdd();
+　　result(); // 1000
+    f1();    // 999
+</script>
+
+
+
+<html>
+<div onclick = "test()">12345</div>
+<script language="javascript">
+function test(){
+         alert(new Date());}
+</script>
+</html>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<script src="/jquery/jquery-1.11.1.min.js">
+</script>
+<script>
+$(document).ready(function(){
+  $("p").click(function(){
+    $(this).hide();
+  });
+});
+</script>
+</head>
+<body>
+<p>如果您点击我，我会消失。</p>
+<p>点击我，我会消失。</p>
+<p>也要点击我哦。</p>
+</body>
+</html>
+
+<script languang = "javascript">
+      var msg = "全局变量";
+      function show()
+      {
+           //var msg;
+            msg = "局部变量";
+			return msg;
+      }
+      show();
+      alert(msg);
+	  
+</script>
+
+
+
+
+

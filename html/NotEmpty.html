@@ -1,0 +1,97 @@
+﻿<body style = "background-color:#70a19f">
+<h1 align = "center">欢迎来到我的图书馆！！！</h1>
+
+<form align = "center" action = "/search_record/" method = "POST" onsubmit="return NotEmpty();">
+<!--<form align = "center" action = "/search_record/" method = "POST">-->
+	查询:
+	<select name = "select_name">
+		<option value = "book">书名</option>
+		<option value = "author">作者</option>
+		<option value = "publisher">出版商</option>
+	</select>
+	<!--<input type = "text" id = "id1" name = "search_name" required = "required"/>-->
+	<input type = "text" id = "id1" name = "search_name"/>
+	<input type = "submit" value = "Submit"/>
+</form>
+
+<div><a href = "">登录</a>&nbsp;<a href = "">注册</a></div>
+<div><a href = "/new_add_book/" target = _blank>添加</a></div>
+
+
+<table width = "100%" border = "solid 3px">
+	<tr>
+		<td>书名</td>
+		<td>作者</td>
+		<td>出版商</td>
+	</tr>
+	{% for each_book in book %}
+		<tr>
+			<td>{{each_book.name}}</td>
+			<td>
+				{% for each_author in each_book.author.all%}
+					{{each_author.name}}
+				{%endfor%}
+			</td>
+			<td>{{each_book.publisher}}</td>
+		</tr>
+	{% endfor %}
+</table>
+
+<!--
+<table width = "100%" border = "solid 3px" align = "center">
+	<tr align = "center">
+		<td>书名</td>
+		<td>作者</td>
+		<td>出版商</td>
+	</tr>
+	{% for each_book in test %}
+		<tr>
+			<td>{{each_book.name}}</td>
+			<td>{{each_book.author}}</td>
+			<td>{{each_book.publisher}}</td>
+		</tr>
+	{% endfor %}
+</table>
+-->
+<!--{{test}}-->
+</body>
+<script>
+
+function NotEmpty(){
+	var obj = document.getElementById("id1");
+	if (obj.value ==""){
+		alert("不能为空，请填写");
+		return false;
+	}
+}
+</script>
+
+
+<input name="key" type="text" id="key" value="关键词" size="30"    
+          onmouseover=this.focus();this.select();   
+          onclick="if(value==defaultValue){value='';this.style.color='#000'}"    
+           onBlur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" /> 
+<input name="key" type="text" id="key" value="关键词" size="30"    
+          onmouseover=this.focus();this.select();   
+          onclick="if(value==defaultValue){value='';this.style.color='#000'}"    
+           onBlur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" /> 
+		   
+		   
+<input type="text" onfocus="if(this.value=='指中我看看什么效果') 
+this.value='';" onblur="if(this.value=='') this.value='指中我看看什么效果';" 
+value="指中我看看什么效果" style="color:#666" size="6" id="s_name" name="s_name">
+		   
+<input type="text" onfocus="if(this.value=='指中我看看什么效果') 
+this.value='';" onblur="if(this.value=='') this.value='指中我看看什么效果';" 
+value="指中我看看什么效果" style="color:#666" size="6" id="s_name" name="s_name">
+
+
+
+<input type="text" value="点击文字消失" 
+onfocus="if (value ==defaultValue){value =''}" 
+onblur="if (value ==''){value=defaultValue}" />
+
+
+<input type="text" value="这是为什么呢" 
+onfocus="value =''" ;
+onblur="value=defaultValue"/>

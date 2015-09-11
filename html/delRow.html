@@ -1,0 +1,50 @@
+/*****不管是动态生成还是静态生成，此方法通杀******/
+<html><head><title>1</title></head>
+<body>
+<table border = "1"> 
+<tr> 
+<td>A<input type="button" value="A" onclick="getRowNo(this)">getRowNo<td> 
+</tr> 
+<tr> 
+<td>B<input type="button" value="B" onclick="delRow(this)">delRow<td> 
+</tr> 
+<tr>
+<td>C<input type="button" value="C" onclick="getRowNo(this)">getRowNo</td>
+</tr>
+<tr>
+<td>D<input type="button" value="D" onclick="getRowNo(this)">getRowNo</td>
+</tr>
+</table> 
+</body>
+<html>
+<script>
+//得到行对象
+function getRowObj(obj)
+{
+   var i = 0;
+   while(obj.tagName.toLowerCase() != "tr"){
+    obj = obj.parentNode;
+    if(obj.tagName.toLowerCase() == "table")return null;
+   }
+   return obj;
+}
+//根据得到的行对象得到所在的行数
+function getRowNo(obj){
+   var trObj = getRowObj(obj); 
+   var trArr = trObj.parentNode.children;
+for(var trNo= 0; trNo < trArr.length; trNo++){
+  if(trObj == trObj.parentNode.children[trNo]){
+    alert(trNo+1);
+  }
+}
+}
+//删除行
+function delRow(obj){
+    var tr = this.getRowObj(obj);
+   if(tr != null){
+    tr.parentNode.removeChild(tr);
+   }else{
+    throw new Error("the given object is not contained by the table");
+   }
+}
+</script>

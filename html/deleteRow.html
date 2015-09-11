@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>javascript删除行和列</title>
+<script >
+function deleteCol(obj){
+    var index=obj.cellIndex;
+    var table = document.getElementById("table");
+    var len = table.rows.length; 
+    for(var i = 0;i < len;i++){
+        table.rows[i].deleteCell(index);
+    }
+}
+function deleteRow(obj){
+    var index=obj.parentNode.parentNode.rowIndex;
+    var table = document.getElementById("table");
+	alert(index);
+    table.deleteRow(index);
+}
+</script>
+<style>
+table *{border:1px red solid;}
+</style>
+</head>
+<body>
+<table id="table">
+       <tr class="onclickHead">
+           <td onclick="deleteCol(this)">删除列</td>
+           <td onclick="deleteCol(this)">删除列</td>
+           <td onclick="deleteCol(this)">删除列</td>
+           <td> </td>
+       </tr>
+       <tr>
+          <td>名字</td>
+          <td>年龄</td>
+          <td>性别</td>
+          <td><div onclick="deleteRow(this)">删除行</div></td>
+       </tr>
+       <tr>
+          <td>张三</td>
+          <td>36</td>
+          <td>男</td>
+          <td onclick="deleteRow(this)">删除行</td>
+       </tr>
+</table>
+</body>
+</html>

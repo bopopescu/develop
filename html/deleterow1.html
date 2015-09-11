@@ -1,0 +1,103 @@
+<html>
+<head>
+<title></title>
+<script type="text/javascript">
+function Goto(){}
+function deleteCurrentRow(obj){
+
+var tr=obj.parentNode.parentNode;
+var tbody=tr.parentNode;
+alert(tr);
+tbody.removeChild(tr);
+
+}
+
+function cycle(obj){
+
+   deleteCurrentRow(obj)
+
+}
+
+</script>
+</head>
+<body>
+<table cellspacing="0" rules="all" bordercolor="#CCCCCC" border="1" id="dgFlowList" style="border-color:#CCCCCC;border-width:1px;border-style:solid;width:98%;border-collapse:collapse;MARGIN: 5px 0px">
+<tr class="DataGrid_HeaderStyle" nowrap="nowrap" align="Center">
+<td>流程名称</td><td>表单名称</td><td>上传附件</td><td>操作</td>
+</tr>
+<tr>
+<td style="width:35%;">请假单1</td>
+<td style="width:35%;">请假单</td>
+<td align="Center" style="width:10%;">不允许</td>
+<td align="Center" style="width:20%;">
+<a href="javascript:Goto();" onclick='{if(confirm("确定要删除【请假单1】这个流程吗?")) {cycle(this); }else {}}'>删除</a>
+</td>
+</tr>
+<tr>
+<td style="width:35%;">请假单2</td>
+<td style="width:35%;">请假单</td>
+<td align="Center" style="width:10%;">不允许</td>
+<td align="Center" style="width:20%;">
+<a href="javascript:Goto();" onclick='{if(confirm("确定要删除【请假单2】这个流程吗?")) {cycle(this); }else {}}'>删除</a>
+</td>
+</tr>
+<tr>
+<td style="width:35%;">请假单3</td>
+<td style="width:35%;">请假单</td>
+<td align="Center" style="width:10%;">不允许</td>
+<td align="Center" style="width:20%;">
+<a href="javascript:Goto();" onclick='{if(confirm("确定要删除【请假单3】这个流程吗?")) {cycle(this); }else {}}'>删除</a>
+</td>
+</tr>
+<tr>
+<td style="width:35%;">请假单4</td>
+<td style="width:35%;">请假单</td>
+<td align="Center" style="width:10%;">不允许</td>
+<td align="Center" style="width:20%;">
+<a href="javascript:Goto();" onclick='{if(confirm("确定要删除【请假单4】这个流程吗?")) {cycle(this); }else {}}'>删除</a>
+</td>
+</tr>
+</table>
+</body>
+</html>
+
+
+
+
+<html>
+<head>
+<script language="javascript">
+function doclick()
+{
+var td = event.srcelement; // 通过event.srcelement 获取激活事件的对象 td
+alert("行号：" + (td.parentelement.rowindex + 1) + "，内容：" + td.innertext);
+var tab = document.getelementbyid("test") ;
+//表格行数
+var rows = tab.rows.length ;
+//表格列数
+var cells = tab.rows.item(0).cells.length ;
+alert("行数"+rows+"列数"+cells);
+}
+</script>
+</head>
+<body>
+<table id="test" >
+<tr>
+<td onclick = "doclick()">
+9:00
+</td>
+<td>
+10:00
+</td>
+</tr>
+<tr>
+<td>
+11:00
+</td>
+<td>
+12:00
+</td>
+</tr>
+</table>
+</body>
+</html>

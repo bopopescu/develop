@@ -1,0 +1,42 @@
+<html>
+ <head>
+  <title>获取当前行数</title>
+  <script type="text/javascript" src="http://www.aspbc.com/js/jquery.js"></script>
+  <script type="text/javascript">
+   $(document).ready(function(){
+ $("[href='#']").bind("click",function(event){
+  obj = event.srcElement ? event.srcElement : event.target;
+  var dgTable=document.getElementById('tb').rows;//tb为table的ID,  
+  var pp=obj;     
+  for (var i=0; i < dgTable.length; i++) //遍历table的行,
+  {
+    if(pp==dgTable[i].cells[2].getElementsByTagName("A")[0])  //cells[2]为触发事件的列的索引，也就是鼠标点击的列的地方
+    {    
+      alert('第'+i+'行');
+    } 
+  }
+ });
+   });
+
+  </script>
+ </head>
+ <body>
+  <table id="tb" border="1px" width="500px">
+  <tr>
+   <td width="40%">aaa</td>
+   <td width="40%">bbb</td>
+   <td width="15%"><a href="#">delete</a></td>
+  </tr>
+  <tr>
+   <td>ccc</td>
+   <td>ddd</td>
+   <td><a href="#">delete</a></td>
+  </tr>
+  <tr>
+   <td>eee</td>
+   <td>fff</td>
+   <td><a  href="#">delete</a></td>
+  </tr>
+  </table>
+ </body>
+</html>

@@ -1,0 +1,30 @@
+<!-- 文件说明：OnFocus事件 -->
+<!-- ------------------------------ -->
+<html>
+<head>
+<title>OnFocus事件</title>
+</head>
+<body>
+<Form>
+
+<input type="text" name="test11" value="test11" onclick=alert("可以关掉!")> 
+<input type="text" id = "xdd" name="test12" onblur="test()">
+
+<input type="text" name="test13" value="test13" onclick=alert("可以关掉bbbbbbbbb!")> 
+<input type="text" name="test14" value="一按我就无法关掉了，haha" onFocus=alert("我成为了输入焦点!")>
+</Form>
+</body>
+</html>
+<script>
+function test(){
+	var obj = document.getElementsByName("test12");
+	if(obj[0].value == ""){
+		alert("不能为空1");
+	}
+	
+	var obj_id = document.getElementById("xdd");
+	if(obj_id.value == ""){
+		alert("不能为空2");
+	}
+}
+</script>

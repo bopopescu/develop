@@ -1,0 +1,28 @@
+<body> 
+<table width="100%" border="1"> 
+  <tr> 
+    <td> 1</td>    <td> 2</td> 
+  </tr> 
+  <tr> 
+    <td> 3</td>     <td> 4</td> 
+  </tr> 
+  <tr> 
+    <td>5</td>     <td> 6</td> 
+  </tr> 
+  <tr> 
+    <td>7 </td>     <td> 8</td> 
+  </tr> 
+</table> 
+</body> 
+</html> 
+<script language="javascript" type="text/javascript"> 
+    document.body.onclick=function(e){ 
+        e=e|| window.event; 
+        var obj=e.target || e.srcElement; 
+         
+        if(obj.tagName=="TD"){ 
+            obj=obj.parentNode; 
+        } 
+        alert(obj.rowIndex); 
+    } 
+</script>
