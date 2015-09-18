@@ -1133,7 +1133,13 @@ LOGGING = {
 74：Linux下杀死进程的命令： kill -s 9 pid
 
 
+75：python的and or
 
+    当 a为真时，输出x，否则输出y，代码如下
+
+    (a and [x] or [y])[0]
+
+   
 
 
 

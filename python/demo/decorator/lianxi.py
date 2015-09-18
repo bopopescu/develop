@@ -17,4 +17,11 @@ def myfunc(a, b):
  
 myfunc(1, 2)
 
-
+print "********************************"
+def deco1(func):
+    print 567890
+    print func  
+    return func  
+@deco1  
+def foo1():pass  
+foo1()
