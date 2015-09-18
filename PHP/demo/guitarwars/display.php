@@ -6,6 +6,7 @@
 <body>
 	<h1 align = "center">Display Score</h1>
 	<?php
+	    echo '<img src = "d:\test\image\10-mymatchgraph.gif">';
 	    //define('GW_UPLOADPATH','images/');
 		require_once("appvars.php");
 		require_once("connectvars.php");
@@ -39,6 +40,7 @@
 			//echo "<td>" . $row['score'] . "</td>";
 			if (is_file(GW_UPLOADPATH.$row['screenshot']) && filesize(GW_UPLOADPATH.$row['screenshot']) > 0){
 				echo '<td><img src = "' . GW_UPLOADPATH.$row['screenshot'] . '" alt="Score image" /></td>';
+				
 			}
 			else{
 				echo '<td><img src = "unverfied.gif" alt="unverfied score" /></td>';
