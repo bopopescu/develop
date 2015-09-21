@@ -1,0 +1,39 @@
+﻿<title>success</title>
+<head>
+<!--<meta http-equiv="refresh" content="3"; url="index.html">-->
+</head>
+<body style = "background-color:#77ac98">
+<h1>创建成功</h1>
+<!--<div><a href = '/index/'>INDEX</a></div>
+<div style = 'font-size:1.2em'><a href = 'http://10.10.2.50:8010/waterfall' target = _blank>Link Buildbot</a></div>-->
+<h4 id = 'time1'>
+<a href = "{{builder_waterfall_address}}">10秒钟之后,将自动跳转到build页面...</a>
+<br /><br />
+<!--
+<span style = "font-size:1.8em">
+当前只是创建了build，需要重启buildbot服务才能生效，这大概需要几分钟的时间！<br /><br />返回的build页面可能暂时还不存在，请耐心等待！
+</span>
+-->
+</h4>
+</body>
+<script>
+var t=9
+function delay()
+{var ob=document.getElementById('time1');
+ ob.innerHTML = '<a href = "{{builder_waterfall_address}}">'+t+'秒钟之后,将自动跳转到build页面...</a>';
+ t--;
+ if (t==-1)
+ {ob.innerHTML='';
+ clearInterval(b);}
+}
+
+setTimeout("javascript:location.href='{{builder_waterfall_address}}'", 10000); 
+b=setInterval('delay()',1000);
+//function dispTime()
+//{var now = new Date();
+// var ob = document.getElementById("mc");
+// ob.innerHTML=now.toTimeString();
+// setTimeout('dispTime()', 1000);
+//}
+//dispTime();
+</script>

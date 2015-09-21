@@ -1,0 +1,301 @@
+﻿<style>
+.test {width:80%}
+.test_right {width:20%}
+.class_size {width:80%}
+.left_position {width:20%}
+</style>
+
+<title>Update Info</title>
+
+<!--d3d7d4-->
+<body style="background-color:#77ac98">
+<h1 align = "center">Update Info</h1>
+<p>欢迎:<span style = "font-size:1.9em"><strong>{{request.session.username}}</strong></span>&nbsp;||&nbsp;<a href = "/logout/">退出</a></p>
+<div><a href = "/display_all_used_records/">首页</a></div>
+<form action = "/update_info/{{params}}/" method = "POST">
+	{% csrf_token %}
+	<table width = "100%" id = "update_table" style = 'background-color:'>
+		<tr>
+			<td class = "test_right" align = "right">id:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "id" value = "{{build_info.id}}" required = "required"></td>
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right">slavename:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "slavename" value = "{{build_info.slavename}}" required = "required"> </td>
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right">buildername:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "buildername" value = "{{build_info.buildername}}" required = "required"></td>
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right">masterip:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "masterip" value = "{{build_info.masterip}}" required = "required"></td>
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right">slaveip:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "slaveip" value = "{{build_info.slaveip}}" required = "required"></td>
+		</tr>
+		<tr>
+			<td class = "test_right" align = "right">username:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "username" value = "{{build_info.username}}" required = "required"></td>
+		</tr>
+		
+		<tr>
+			<td class = "test_right" align = "right">slave platform:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "slave_platform" value = "{{build_info.slave_platform}}" required = "required"></td>
+		</tr>
+
+	<!--	<tr>
+			<td class = "test_right" align = "right">start method:</td>
+			<td>
+			{% ifequal build_info.start_method "radio_timing" %}
+			定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" checked = "checked" required = "required" />
+			触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" required = "required" />
+			手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" required = "required" />
+			{% endifequal %}
+			{% ifequal build_info.start_method "radio_trigger" %}
+			定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" required = "required" />
+			触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" checked = "checked" required = "required" />
+			手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" required = "required" />
+			{% endifequal %}
+			{% ifequal build_info.start_method "radio_manual" %}
+			定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" required = "required" />
+			触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" required = "required" />
+			手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" checked = "checked" required = "required" />
+			{% endifequal %}
+			</td>
+		</tr>-->
+		
+		
+		{% ifequal build_info.start_method "radio_timing" %}
+		<tr>
+			<td class = "test_right" align = "right">start method:</td>
+			<td>
+				<label>定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" checked = "checked" required = "required" onclick = "Radio_Timing()"/></label>
+			</td>
+		</tr>
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td>	
+				<label>触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" required = "required"  onclick = "Radio_Trigger()"/></label>
+			</td>
+		</tr>
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td>
+				<label>手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" required = "required"  onclick = "Radio_Manual()"/></label>	
+			</td>
+		</tr>
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td id = "start_method_value">
+				start time:<select name = "hour">
+					{% for each_hour in hours %}
+						{% ifequal each_hour build_info_hour %}
+							<option value = "{{each_hour}}" selected = "selected">{{each_hour}}</option>
+						{% else %}
+							<option value = "{{each_hour}}">{{each_hour}}</option>
+						{% endifequal %}
+					{% endfor %}
+				</select>
+				
+				<select name = "minute">
+					{% for each_minute in minutes %}
+						{% ifequal each_minute build_info_minute %}
+							<option value = "{{each_minute}}" selected = "selected">{{each_minute}}</option>
+						{% else %}
+							<option value = "{{each_minute}}">{{each_minute}}</option>
+						{%endifequal%}
+					{% endfor %}
+				</select>
+			</td>
+		</tr>
+        {% endifequal %}
+		
+		{% ifequal build_info.start_method "radio_trigger" %}
+		<tr>
+			<td class = "test_right" align = "right">start method:</td>
+			<td>
+				<label>定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" required = "required" onclick = "Radio_Timing()"/></label>
+			</td>
+		</tr>
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td>	
+				<label>触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" checked = "checked" required = "required" onclick = "Radio_Trigger()"/></label>
+			</td>
+		</tr>
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td>
+				<label>手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" required = "required"  onclick = "Radio_Manual()"/></label>
+			</td>
+		</tr>
+		
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td id = "start_method_value">
+				<table>
+					<tr><td class = "left_position">git project url:</td><td class = "class_size"><input class = "class_size" type = "text" value = "{{build_info.git_project_path}}" name = "git_project_path"/></td></tr>
+					<tr><td class = "left_position">branches:</td><td class = "class_size"><input class = "class_size" type = "text" value = "{{build_info.branches}}" name = "branches"/></td></tr>
+					<tr><td class = "left_position">monitor file path:</td><td class = "class_size"><input class = "class_size" type = "text" value = "{{build_info.monitor_file_path}}" name = "monitor_file_path"/></td></tr>
+				</table>
+			</td>
+		</tr>
+        {% endifequal %}
+		
+		
+		{% ifequal build_info.start_method "radio_manual" %}
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td>
+				<label>定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" required = "required" onclick = "Radio_Timing()"/></label>
+			</td>
+		</tr>
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td>	
+				<label>触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" required = "required" onclick = "Radio_Trigger()"/></label>
+			</td>
+		</tr>
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td>
+				<label>手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" checked = "checked" required = "required"  onclick = "Radio_Manual()"/></label>
+			</td>
+		</tr>
+		<tr>
+			<td class = "test_right" align = "right"></td>
+			<td id = "start_method_value">
+			</td>
+		</tr>
+        {% endifequal %}
+		
+		
+		<tr>
+			<td class = "test_right" align = "right">if failed,send mail to:</td>
+			<td><input class = "test" type = "text" name = "send_mail" value = "{{build_info.send_mail}}" required = "required"></td>
+		</tr>
+		
+		<!--{% for each_step in build_steps %}
+		<tr>
+			<td class = "test_right" align = "right">script_contents{{forloop.counter}}:</td>
+			<td><textarea class = "test" type = "text" rows = 8% name = "script_contents">{{each_step.script_content}}</textarea></td>
+			
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right">work_dir{{forloop.counter}}:</td>
+			<td><input class = "test" type = "text" name = "work_dir" value = "{{each_step.work_dir}}"></td>
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right">description{{forloop.counter}}:</td>
+			<td><input class = "test" type = "text" name = "description" value = "{{each_step.description}}"></td>
+		</tr>
+		{% endfor %}
+		-->
+		{% for each_step in all_list %}
+		<tr>
+			<td class = "test_right" align = "right">script_content{{forloop.counter}}:</td>
+			<td><textarea class = "test" type = "text" rows = 8% name = "script_content{{forloop.counter}}"  required = "required">{{each_step.script_content}}</textarea></td>
+			
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right">work_dir{{forloop.counter}}:</td>
+			<td><input class = "test" type = "text" name = "work_dir{{forloop.counter}}" value = "{{each_step.work_dir}}" required = "required"></td>
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right">description{{forloop.counter}}:</td>
+			<td><input class = "test" type = "text" name = "description{{forloop.counter}}" value = "{{each_step.description}}" required = "required">
+                        <input type = 'button' onclick = 'deletetable(this)' value = '删除'>
+                        </td>
+		</tr>
+		{% endfor %}
+
+
+		
+                
+		<tr>
+			<td class = "test_right" align = "right"><!--new master:--></td>
+			<td><input class = "test" readonly = "readonly" type = hidden name = "new_master" value = "{{build_info.new_master}}" required = "required"></td>
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right"><!--new factory:--></td>
+			<td><input class = "test" readonly = "readonly" type = hidden name = "new_factory" value = "{{build_info.new_factory}}" required = "required"></td>
+		</tr>
+
+		<tr>
+			<td class = "test_right" align = "right"><!--script path:--></td>
+			<td><input class = "test" readonly = "readonly" type = hidden name = "scripts_path" value = "{{build_info.scripts_path}}" required = "required"></td>
+		</tr>
+                
+	</table>
+	
+	<p align = "center"><input type = "submit" value = "Submit" /></p>
+</form>
+
+
+
+<script>
+function deletetable(obj){
+    var index = obj.parentNode.parentNode.rowIndex;
+    var table = document.getElementById("update_table");
+    //alert(index);
+    table.deleteRow(index);
+    table.deleteRow(index-1);
+    table.deleteRow(index-2);
+    //table.deleteRow(index-3);
+    //i--;
+}
+
+
+
+function Radio_Timing(){
+    var obj = document.getElementById("start_method_value");
+    obj.innerHTML = 'start time:<select name = "hour">\
+	{% for each_hour in hours %}\
+		{% ifequal each_hour build_info_hour %}\
+			<option value = "{{each_hour}}" selected = "selected">{{each_hour}}</option>\
+		{% else %}\
+			<option value = "{{each_hour}}">{{each_hour}}</option>\
+		{% endifequal %}\
+	{% endfor %}\
+	</select>\
+	<select name = "minute">\
+		{% for each_minute in minutes %}\
+			{% ifequal each_minute build_info_minute %}\
+				<option value = "{{each_minute}}" selected = "selected">{{each_minute}}</option>\
+			{% else %}\
+				<option value = "{{each_minute}}">{{each_minute}}</option>\
+			{%endifequal%}\
+		{% endfor %}\
+	</select>';
+				
+}  
+
+
+function Radio_Trigger(){
+    var obj = document.getElementById("start_method_value");
+    obj.innerHTML = '<table><tr><td class = "left_position">git project url:</td><td class = "class_size"><input class = "class_size" type = "text" name = "git_project_path"  value = "{{build_info.git_project_path}}" required = "required" class = "input_size"/>&nbsp;</td></tr>\
+                 <tr><td class = "left_position">branches:&nbsp;&nbsp;</td><td class = "class_size"><input class = "class_size" type = "text" name = "branches" value = "{{build_info.branches}}" required = "required" class = "input_size"/></td></tr>\
+                 <tr><td class = "left_position">monitor file path:</td><td class = "class_size"><input class = "class_size" type = "text" name = "monitor_file_path" value = "{{build_info.monitor_file_path}}" required = "required" class = "input_size"/></td></tr></table>';
+			
+}  
+
+
+function Radio_Manual(){
+    var obj = document.getElementById("start_method_value");
+    obj.innerHTML = '';				
+}
+</script>
+
+
+

@@ -1,0 +1,367 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns= "http://www.w3.org/1999/xhtml" > 
+<style>
+	.class_size {width:80%}
+	.left_position {width:20%}
+	.span_color {color:red}
+	.input_size width{width:40%}
+</style>
+<head>
+    <meta http-equiv= "Content-Type" content= "text/html; charset=utf-8" /> 
+    <title>Auto Create Build</title>
+	<meta>
+		<!--<script type = "text/javascript" src = "/static/js/add_table.js"></script>
+		<script type = "text/javascript" src = "/js/alert_daojishi.js"></script>
+		<script type = "text/javascript" src = "/static/js/alert_daojishi.js"></script>-->
+		<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="text/javascript"></script>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>-->
+		<!--<img src = "/static/js/xiaomaomi.jpg">-->
+	</meta>
+</head>
+
+<body style = "background-color:#77ac98">
+	<table width = "100%" id = "testtable">
+		<tr>
+			<td class = "left_position" style = "background-color:"><body>&nbsp;</body></td>
+			<td>
+			   <h1 align = "center"><b>Auto Create Build</b></h1>
+			    {% if request.session.username %}
+					<p>欢迎:<span style = "font-size:1.9em"><strong>{{request.session.username}}</strong></span>&nbsp;&nbsp;||&nbsp;&nbsp;<a href = "/logout/">退出</a></p>
+				{% else %}
+					<p><a href = "/login/">登录</a>&nbsp;<a href = "/register/">注册</a></p>
+				{% endif %}
+			   
+			   <p align= ""><a href = "/display_all_records/" target = _blank><strong>所有记录</strong></a>
+			   <a href = "/display_all_used_records/" target = _blank><strong>所有在用的记录</strong></a></p>
+			 
+                           <form action = "/create_new_build/" method = "POST" onsubmit = "return NotEmpty();">
+			        {% csrf_token %}
+				<table align = "center" width = "100%">
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>master ip:</td>
+
+						<td class = "class_size">
+							 <!--<select name = "masterip" class = "class_size">
+								<option value = "10.10.2.201">10.10.2.201 Win</option>
+								<option value = "10.10.2.170">10.10.2.170 Mac</option>
+								<option value = "10.10.2.141">10.10.2.141 Ubuntu</option>
+								<option value = "10.10.2.64">10.10.2.64 Ubuntu</option>
+							</select>-->
+                                                <input type = "text" readonly name = "masterip" class = "class_size" value = "10.10.2.64" />
+						</td>
+					</tr>
+					
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>slave ip:</td>
+
+						<td class = "class_size">
+							 <input type = "text" name = "slaveip" class = "class_size" required = "required" />
+						</td>
+					</tr>
+					
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>slave platform:</td>
+						<td class = "class_size">
+							<select name = "slave_platform" class = "class_size">
+								<option value = "Win">Win</option>
+								<option value = "Mac">Mac</option>
+								<option value = "Ubu">Ubuntu</option>
+							</select>
+							<!-- <input type = "text"width = "40%" name = "slaveip"/>-->
+						</td>
+					</tr>
+						
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>slavename:</td>
+						<td class = "class_size">
+							 <input type = "text" name = "slavename" class = "class_size" required = "required" />
+						</td>
+					</tr>
+						
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>buildername:</td>
+						<td class = "class_size">
+							<input type = "text" name = "buildername" class = "class_size" required = "required" />
+						</td>
+					</tr>
+						
+					<tr>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>启动方式:</td>
+						<td class = "class_size">
+							<label>定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" required = "required" onclick = "Radio_Timing()"/></label>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class = "left_position"><span class = "span_color"></span></td>
+						<td class = "class_size">
+							<label>触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" required = "required" onclick = "Radio_Trigger()"/></label>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class = "left_position"><span class = "span_color"></span></td>
+						<td class = "class_size">
+							<label>手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" required = "required" onclick = "Radio_Manual()"/></label>
+						</td>
+					</tr>
+					<tr>
+						<td class = "left_position"><span class = "span_color"></span></td>
+						<td class = "class_size" id = "display_radio_value">
+						</td>
+					</tr>
+					
+						
+					<tr>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>if failed,send mail to:</td>
+						<td class = "class_size">
+							<input type = "text" name = "send_mail" value = "如果是多个接收者，请以逗号或者分号分开"
+							onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
+							onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" class = "class_size" required = "required" />
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+					</tr>
+
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>script_content1:</td>
+						<td class = "class_size">
+		                                        <textarea rows = 8% class = "class_size" 
+                                                        onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
+							onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" 
+							name = "script_content1" required = "required" >此处保存脚本的内容：win下使用bat脚本；mac和ubuntu下使用shell脚本</textarea>
+						</td>
+					</tr>
+						
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>work_dir1:</td>
+						<td class = "class_size">
+							<input type = "text" class = "class_size" value = "脚本的执行路径" 
+							onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
+							onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" name = "work_dir1" required = "required" />
+						</td>
+					</tr>
+						
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>description1:</td>
+						<td class = "class_size">
+							<input type = "text" class = "class_size"  value = "当前步骤的描述" 
+							onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
+							onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" name = "description1" required = "required" />
+						</td>
+					</tr>
+				</table>
+				<table id="add" width = "100%"></table>
+				<br />
+				<div align = "center"><input type = "submit" id = "submit" value = "Submit"/></div>
+				<input type = "button" onclick="createTable()" value = "继续添加"/>
+				</form>
+			</td>
+		
+			<td width = "20%" style = "background-color:">&nbsp;</td>
+		</tr>
+	</table>	
+
+</body>
+</html> 
+
+
+<script>
+var i = 2
+function createTable(){ 
+    //var div = document.getElementById("add"); 
+    //var table = document.createElement("table");//创建table 
+    //table.width = "100%";
+    var table = document.getElementById("add"); 
+	 
+    var row = table.insertRow();//创建一行 
+    var cell = row.insertCell();//创建一个单元 
+    cell.innerHTML="&nbsp;";
+	 
+    var row1 = table.insertRow();//创建一行 
+    var cell1 = row1.insertCell();//创建一个单元 
+    var script_content = "script_content" + i;
+    //var id_num = "id" + i;
+    cell1.width = "20%";//更改cell的各种属性 
+    cell1.innerHTML="<span class = 'span_color'>*</span>"+script_content;
+    cell1 = row1.insertCell();//创建一个单元 
+    cell1.width = "80%";//更改cell的各种属性 
+    cell1.innerHTML="<textarea rows = 8% class = 'class_size' name = "+ script_content + " required = 'required' ></textarea>"; 
+     
+    var row2 = table.insertRow();//创建一行 
+    var cell2 = row2.insertCell();//创建一个单元 
+    var work_dir = "work_dir" + i;
+    cell2.width = "20%";//更改cell的各种属性 
+    cell2.innerHTML="<span class = 'span_color'>*</span>"+ work_dir;
+    cell2 = row2.insertCell();//创建一个单元 
+    cell2.width = "80%";//更改cell的各种属性 
+    cell2.innerHTML="<input type = 'text' name = "+ work_dir + " class = 'class_size' required = 'required'/>"; 
+	 
+    var row3 = table.insertRow();//创建一行 
+    var cell3 = row3.insertCell();//创建一个单元 
+    var description = "description" + i;
+    cell3.width = "20%";//更改cell的各种属性 
+    cell3.innerHTML="<span class = 'span_color'>*</span>"+description;
+    cell3 = row3.insertCell();//创建一个单元 
+    cell3.width = "80%";//更改cell的各种属性 
+    cell3.innerHTML="<input type = 'text' name = " + description + " class = 'class_size' required = 'required'/><input type = 'button' onclick = 'deletetable(this)' value = '删除'>";
+	 
+    //div.appendChild(table);
+    i ++;
+} 
+
+
+function deletetable(obj){
+    //alert(obj.parentNode.parentNode.tagName);
+    var index = obj.parentNode.parentNode.rowIndex;
+    var table = document.getElementById("add");
+    //alert(table);
+    //alert(table.childNodes[0]);
+    //alert(table.childNodes[0].tagName);
+    //alert(index);
+    table.deleteRow(index);
+    table.deleteRow(index-1);
+    table.deleteRow(index-2);
+    table.deleteRow(index-3);
+    //i--;
+}
+
+ 
+ 
+
+function Radio_Timing(){
+    var obj = document.getElementById("display_radio_value");
+    obj.innerHTML = 'hour:&nbsp;&nbsp;<select name = "hour">\
+					{% for each_hour in hours%}\
+					<option value = "{{each_hour}}">{{each_hour}}</option>\
+				{% endfor %}\
+				</select>&nbsp;&nbsp;\
+				minute:&nbsp;&nbsp;<select name = "minute">\
+					{% for each_minute in minutes%}\
+					<option value = "{{each_minute}}">{{each_minute}}</option>\
+					{% endfor %}\
+				</select>';
+				
+}  
+
+
+function Radio_Trigger(){
+    var obj = document.getElementById("display_radio_value");
+    obj.innerHTML = '<table><tr><td class = "left_position">git project url:</td><td class = "class_size"><input class = "class_size" type = "text" name = "git_project_path"  required = "required" class = "input_size"/></td></tr>\
+                 <tr><td class = "left_position">branches:</td><td><input class = "class_size" type = "text" name = "branches"  required = "required" class = "input_size"/></td></tr>\
+                 <tr><td class = "left_position">monitor file path:</td><td><input class = "class_size" type = "text" name = "monitor_file_path"  required = "required" class = "input_size"/></td></tr></table>';
+			
+}  
+
+
+function Radio_Manual(){
+    var obj = document.getElementById("display_radio_value");
+    obj.innerHTML = '';				
+}
+ 
+
+ 
+function CreateInput(){
+    document.getElementById("content").appendChild("<span>work_dir</span>");
+
+    var input1 = document.createElement("input");
+    input1.type = "text";
+    input1.name = "test";
+    document.getElementById("showText").appendChild(input1);
+	
+    var input2 = document.createElement("input");
+    input2.type = "text";
+    input2.name = "test";
+    document.getElementById("showText").appendChild(input2);
+	
+    var textarea = document.createElement("textarea");
+    document.getElementById("showText").appendChild(textarea);
+}
+
+function add()                                   
+  {       
+          content1 = "script_content";
+		  content2 = "work_dir";
+		  content3 = "description";
+          str1= '<input type="text" class = "class_size"  name=proportion>';
+          str2= '<input type="text"  class = "class_size" name=proportion>';
+		  textarea= '<textarea rows = 8% class = "class_size" name = "script_contents3"></textarea>';
+		  window.content.innerHTML += content1 + "<br />" + content2 + "<br />" + content3
+          window.ShowText.innerHTML += "<span style = 'color:red'>*</span>script_contents3" + 
+		  textarea + "<br /><span style = 'color:red'>*</span>work_dir" + str1 + 
+		  "<br \><span style = 'color:red'>*</span>description" + str2 + "<br />";
+  }  
+
+
+function alert_prompt()
+{
+    var obj = document.getElementById("submit");
+    alert("该过程会操作git，需要一定的时间, 请耐心等待，不要再次提交!");
+}
+
+function trimStr(strings){
+    return strings.replace(/(^\s*)|(\s*$)/g,'');
+}
+
+
+function NotEmpty(){
+    var start_method_obj = document.getElementsByName("start_method");
+    var input_obj = document.getElementsByTagName("input");
+    var textarea_obj = document.getElementsByTagName("textarea");
+    var msg = "每一项都是必填项，请填写完整之后再提交！";
+	
+    //检测是否选中radio按钮
+    var start_method_num = 0;
+    for(l=0;l<start_method_obj.length;l++){
+        if (start_method_obj[l].checked){
+            start_method_num++;
+        }
+    }
+    if(!start_method_num){
+        alert(msg);
+        return false;
+    }
+	
+    //检测input标签是否已填充内容
+    for(k=0;k<input_obj.length;k++){
+        if (trimStr(input_obj[k].value) == ""){
+        //if (imput_obj[j].value.replace(/(^\s*)|(\s*$)/g,"") == ""){
+            alert(msg);
+            return false;
+        }
+    }
+    //检测textarea文本域是否已填充内容
+    for(j=0;j<textarea_obj.length;j++){
+        if (trimStr(textarea_obj[j].value) == ""){
+        //if (textarea_obj[j].value.replace(/(^\s*)|(\s*$)/g,"") == ""){
+            alert(msg);
+            return false;
+        }
+    }
+    alert("该过程会操作git，需要一定的时间, 请耐心等待，不要再次提交!");
+}
+
+
+$(function(){
+alert(1)
+})
+
+</script>
+
+
+
+
+
+<!--
+<form action = "">          
+<input type = "text" required = "required">
+<input type = "submit"  value= "Submit">
+</form>
+-->

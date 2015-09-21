@@ -1,0 +1,32 @@
+﻿<title>success</title>
+<head>
+<!--<meta http-equiv="refresh" content="3"; url="index.html">-->
+</head>
+<body style = "background-color:#77ac98">
+<h1>修改成功</h1>
+<!--<div><a href = '/index/'>INDEX</a></div>
+<div style = 'font-size:1.2em'><a href = 'http://10.10.2.50:8010/waterfall' target = _blank>Link Buildbot</a></div>-->
+<h4 id = 'time1'><a href = "{{builder_waterfall_address}}">5秒钟之后,将自动跳转到build页面...</a></h4>
+</body>
+
+<script>
+var t=4
+function delay()
+{var ob=document.getElementById('time1');
+ ob.innerHTML = '<a href = "{{builder_waterfall_address}}">'+t+'秒钟之后,将自动跳转到build页面...</a>' ;
+ t--;
+ if (t==-1)
+ {ob.innerHTML='';
+ clearInterval(b);}
+}
+
+setTimeout("javascript:location.href='{{builder_waterfall_address}}'", 5000); 
+b=setInterval('delay()',1000);
+//function dispTime()
+//{var now = new Date();
+// var ob = document.getElementById("mc");
+// ob.innerHTML=now.toTimeString();
+// setTimeout('dispTime()', 1000);
+//}
+//dispTime();
+</script>
