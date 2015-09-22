@@ -1,0 +1,66 @@
+﻿<head><title>欢迎来到分页中心</title></head>
+<body>
+<h1 align = "center">欢迎来到分页中心</h1>
+
+<div>
+{% ifequal page 1 %}
+	<span>首页</span>
+{% else %}
+    <a href = "?page=1">首页</a>
+{% endifequal %}
+
+
+{% if session_list.has_previous %}
+	<a href = "?page={{session_list.previous_page_number}}">&lt;上一页</a>
+{% endif %}
+<span>
+	{% for each_page in page_range %}
+		{% ifequal each_page session_list.number %}
+			<span>{{each_page}}</span>
+		{% else %}
+			<a href = "?page={{each_page}}" title = "第{{each_page}}页">{{each_page}}</a>
+		{% endifequal %}
+	{% endfor %}
+</span>
+
+{% if session_list.has_next %}
+	<a href = "?page={{session_list.next_page_number}}">下一页&gt;</a>
+{% endif %}
+
+
+{% ifequal page session_list.paginator.num_pages %}
+	<span>尾页</span>
+{% else %}
+	<a href = "?page={{session_list.paginator.num_pages}}">尾页</a>
+{% endifequal %}
+
+<span>[第{{session_list.number}}/{{session_list.paginator.num_pages}}页]</span>
+<span>[第{{page}}/{{paginator.num_pages}}页]</span>
+<br /><br />
+</div>
+
+<table border = 'solid 3px red' align = 'center' style = 'font-size: 0.9em;color:black' width = 100%>
+	<tr align = 'center' style = ' background-color :gray'>
+		<td width = '3%'>Index</td>
+		<td width = '3%'>Num</td>
+		<td width = '6%'>PC</td>
+		<td width = '5%'>Iso_type</td>
+		<td width = '5%'>Mode</td>
+		<td width = '5%'>Outdisc</td>
+
+	</tr>
+{% for session in session_list.object_list %}
+	<tr id = 'tr_id' align = 'center' style = "background-color: {% cycle '#4ffff4' '#a9a9a9'%}; height = '40px'">
+		<div>
+		<td>{{session.id}}</td>
+		<td>{{session.Num}}</td>
+		<td>{{session.PC_name}}</td>
+		<td>{{session.Iso_type}}</td>
+		<td>{{session.Mode}}</td>
+		<td>{{session.Out_disc}}</td>
+		<div>
+	</tr>
+{% endfor %}
+</table>
+</body>
+
