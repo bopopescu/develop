@@ -1,0 +1,110 @@
+﻿{% if request.session.username %}
+	{{request.session.username}} || <a href = "/logout/">退出</a>
+{% else %}
+	<a href = "/login/">登录</a>
+{% endif %}
+
+<a href = "/index/">Index</a>
+
+<head><title>欢迎来到分页中心</title></head>
+<body>
+<h1 align = "center">欢迎来到分页中心</h1>
+
+<div>
+{% ifequal page 1 %}
+	<span>首页</span>
+{% else %}
+    <a href = "?page=1">首页</a>
+{% endifequal %}
+
+
+{% if session_list.has_previous %}
+	<a href = "?page={{session_list.previous_page_number}}&sort={{sort}}">&lt;上一页</a>
+{% endif %}
+<span>
+	{% for each_page in page_range %}
+		{% ifequal each_page session_list.number %}
+			<span>{{each_page}}</span>
+		{% else %}
+			<a href = "?page={{each_page}}&sort={{sort}}" title = "第{{each_page}}页">{{each_page}}</a>
+		{% endifequal %}
+	{% endfor %}
+</span>
+
+{% if session_list.has_next %}
+	<a href = "?page={{session_list.next_page_number}}&sort={{sort}}">下一页&gt;</a>
+{% endif %}
+
+
+{% ifequal page session_list.paginator.num_pages %}
+	<span>尾页</span>
+{% else %}
+	<a href = "?page={{session_list.paginator.num_pages}}&sort={{sort}}">尾页</a>
+{% endifequal %}
+
+<span>[第{{session_list.number}}/{{session_list.paginator.num_pages}}页]</span>
+<span>[第{{page}}/{{paginator.num_pages}}页]</span>
+<br /><br />
+</div>
+
+<table border = 'solid 3px red' align = 'center' style = 'font-size: 0.9em;color:black' width = 100%>
+	<tr align = 'center' style = ' background-color :gray'>
+		<td width = '3%'><a href = "?page={{page}}&ziduan=index&sort={{sort}}">Index</a></td>
+		<td width = '3%'><a href = "?page={{page}}&ziduan=Num&sort={{sort}}">Num</a></td>
+		<td width = '6%'>PC</td>
+		<td width = '5%'>Iso_type</td>
+		<td width = '5%'>Mode</td>
+		<td width = '5%'>Outdisc</td>
+		<td width = '2%'>3D-Tp</td>
+		<td width = '1%'>C-AC3</td>
+		<td width = '1%'>DH</td>
+		<td width = '1%'>DV</td>
+		<td width = '1%'>DM</td>
+		<td width = '1%'>EH</td>
+		<td width = '2%'>3D</td>
+		<td width = '8%'>Profile</td>
+		<td width = '10%'>Src_iso</td>
+		<td width = '8%'>Start_time</td>
+		<td width = '8%'>End_time</td>
+		<td width = '5%'>Total_time</td>
+		<td width = '5%'>File_size</td>
+		<td width = '5%'>Descript</td>
+		<td width = '12%'>Result</td>
+		<td width = '5%'>Develop</td>
+		<td width = '3%'>Flag</td>
+
+	</tr>
+<!--session_list_new，如果没有排序的话，session_list以及session_list.object_list都可以用 -->
+{% for i in session_list_new %}
+	<tr id = 'tr_id' align = 'center' style = "background-color: {% cycle '#4ffff4' '#a9a9a9'%}; height = '40px'">
+		<div>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.id}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Num}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.PC_name}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Iso_type}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Mode}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Out_disc}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.BD3D_convert_type}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Compress_to_AC3}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Video_decoder_H264}}</td>
+		
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Video_decoder_VC1}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Video_decoder_MPEG2}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Video_encoder_H264}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Enable_2Dto3D}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Profile}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Src_path}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Start_time}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.End_time}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Total_time}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Folder_size}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.DVDFab_description}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Result}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Developer}}</td>
+		<td style = 'word-break:break-all; overflow:hidden; word-wrap:break-word; table-layout:fixed;' onClick = "window.open('/update_session_page/{{i.id}}/')">{{i.Flag}}</td>
+		<div>
+	</tr>
+{% endfor %}
+</table>
+</body>
+
