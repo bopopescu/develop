@@ -56,10 +56,13 @@
 <!--{{test}}-->
 </body>
 <script>
+function trimStr(strings){
+    return strings.replace(/(^\s*)|(\s*$)/g,"");
+}
 
 function NotEmpty(){
 	var obj = document.getElementById("id1");
-	if (obj.value ==""){
+	if (trimStr(obj.value) ==""){
 		alert("不能为空，请填写");
 		return false;
 	}
