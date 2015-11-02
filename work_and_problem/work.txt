@@ -1,4 +1,6 @@
 1:新建master和slave
+
+  安装build master和slave的时候，机器上需要装有vs2008
    
   (a):  buildbot create-master d:\buildbot_master
   
@@ -780,6 +782,7 @@ build_lock = locks.SlaveLock("slave_builds",
     一般这种情况可以重启机器来解决。
 
 51：在本地配置git公钥
+   切记：windows下一定要在git bash窗口下运行，不要在cmd窗口中执行
 
    (1): 　git config --global user.name "dedong.xu"
 
@@ -1133,13 +1136,21 @@ LOGGING = {
 74：Linux下杀死进程的命令： kill -s 9 pid
 
 
+
 75：python的and or
 
     当 a为真时，输出x，否则输出y，代码如下
 
     (a and [x] or [y])[0]
 
-   
+
+76：mysql 配置文件的权限必须为不可写，644即可，否则权限太低了，mysql会认为有安全隐患，自动忽略这个文件的
+
+77：ps -ef | grep process_name   可以查看进程的名字
+
+
+
+
 
 
 
