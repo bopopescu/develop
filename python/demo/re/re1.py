@@ -5,7 +5,7 @@ print re.findall("a*","  ")
 
 strs = "sdgetrndbsge"
 
-pattern = "^s[asdgeyitr]{1,}"
+pattern = r"^s[asdgeyitr]{1,}"
 
 result = re.findall(pattern,strs)
 print result
@@ -21,6 +21,8 @@ print "**************************"
 
 #Python提供了两种不同的原始操作：match和search。match是从字符串的起点开始做匹配，而search（perl默认）是从字符串做任意匹配.
 #注意：当正则表达式是' ^ '开头时，match与search是相同的。match只有当且仅当被匹配的字符串开头就能匹配 或 从pos参数的位置开始就能匹配 时才会成功。
+#re.match(patterns, strs)
+#re.search(patterns, strs)
 
 print re.match("c","abcdef")
 print re.match("c","cabdef")

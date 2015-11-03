@@ -7,3 +7,4 @@ for i in sys.path:
 
 import test
 print test.add
+test.add()

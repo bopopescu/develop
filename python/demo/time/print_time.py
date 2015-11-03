@@ -7,7 +7,7 @@
 import re
 import sys
 
-start_time = "2011-12-27"
+start_time = "2010-12-27"
 end_time = "2013-01-02"
 #month = [i for i in xrange(1,13)]
 #day = [i for i in xrange(1,32)]
