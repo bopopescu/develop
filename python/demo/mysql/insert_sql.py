@@ -5,10 +5,10 @@ import functools
 
 
 
-DB_HOST = "10.10.2.11"
-DB_USER = "root"
-DB_PASSWORD = "19890612"
-DB_NAME = "mysite"
+DB_HOST = ""
+DB_USER = ""
+DB_PASSWORD = ""
+DB_NAME = ""
 
 def take_time(func):
     @functools.wraps(func)
@@ -80,10 +80,9 @@ def select_table():
 
 if __name__ == "__main__":
     select_table()
-    """
+
     insert_table()
     print "************************************************"
     insert_table1()
     print "************************************************"
     insert_table2()
-    """
