@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+	    {% block title %}
+			{% if page_title %}
+				<title>Git Log-{{page_title}}</title>
+			{% else %}
+			{% endif %}
+		{% endblock %}
+		<style>
+			#menu a{
+				text-decoration:none;
+				color:#fff;
+				display:inline-block;
+				height:40px;
+				line-height:40px;
+				border-radius:5px;
+				background:#666;
+				padding:0 10px;
+			}
+			#menu a:hover{
+				background:#000000
+			}
+			tr:hover{
+				background:#eaeaea
+			}
+			.link_td td{
+				cursor:pointer
+			}
+		</style>
+	</head>
+	<body>
+		<h1 align = "center">Git Log-{{page_title}}</h1>
+		<div id="menu">
+		    <a href = "/">首页</a>
+			<a href = "/display_author/">所有作者</a>
+			<a href = "/display_project/">所有工程</a>
+			<a href = "/display_product_project/">产品与工程对应列表</a>
+			<a href = "/add_product_project/">添加产品与工程</a>
+		</div><br />		
+
+{% block content%}
+{% endblock %}
+<br /><br />
+<hr />
+<div style = "font-size:0.9em; color:gray" align = "center">北京世纪高蓝科技有限公司2003-{{CUR_YEAR}}@copyright</div>
+</body>
+</html>
+{% block footer%}
+{% endblock %}

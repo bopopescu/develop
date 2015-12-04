@@ -1,0 +1,27 @@
+﻿<html>
+    {% extends 'navmenu.html'%}
+	<!--<head>
+		<title>欢迎来到Git Log查询中心</title>
+	</head>
+	<body>
+		<h1 align = "center">欢迎来到Git Log查询中心</h1>
+		<div><a href = "/">首页</a>&nbsp;&nbsp;<a href = "/add_product_project/">添加产品与工程</a></div><br />
+		-->
+		{% block content %}
+		<table width = "100%"  cellSpacing="5" cellPadding="0" border="0">
+			<tr align = "center" style = 'font-size:1.2em; background-color :gray;height:2em'>
+				<td><strong>id</strong></td>
+				<td><strong>工程名</strong></td>
+
+			</tr>
+			{% for project in projects %}
+				<tr align = "center" style = "height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}">
+					<td>{{project.id}}</td>
+					<td>{{project.name}}</td>
+
+				</tr>
+			{% endfor %}
+		</table>
+		{% endblock %}
+	</body>
+</html>

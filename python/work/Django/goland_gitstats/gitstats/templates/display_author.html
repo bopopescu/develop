@@ -1,0 +1,20 @@
+﻿<html>
+    {% extends 'navmenu.html'%}
+		
+		{% block content %}
+		<table  width = "100%" cellSpacing="5" cellPadding="0" border="0">
+			<tr align = "center" style = 'font-size:1.2em; background-color :gray;line-height:2em'>
+				<td><strong>id</strong></td>
+				<td><strong>作者</strong></td>
+			</tr>
+			
+			{% for author in authors %}
+				<tr align = "center" style = "line-height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}">
+					<td>{{author.id}}</td>
+					<td>{{author.name}}</td>
+				</tr>
+			{% endfor %}
+		</table>
+		{% endblock %}
+	</body>
+</html>

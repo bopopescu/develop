@@ -1,0 +1,344 @@
+﻿<html>
+    {% extends 'navmenu.html'%}
+
+	<!--<head>
+		<title>欢迎来到Git Log查询中心</title>
+	</head>
+	<body>
+		<h1 align = "center">欢迎来到Git Log查询中心</h1>
+		<div>
+			<a href = "/display_author/">所有作者</a>
+			<a href = "/display_project/">所有工程</a>
+			<a href = "/display_product_project/">产品与工程对应列表</a>
+		</div><br />-->
+		{% block content%}
+		<form action = "." method = "GET" onsubmit = "return test()">
+			
+			<strong>Author:</strong>
+			<select name = 'author'>
+				<option value = ''></option>		
+				{% for each_author in authors %}
+					{% ifequal each_author.name author %}
+						<option  selected = "selected" name = "author" value = '{{each_author.name}}'>{{each_author.name}}</option>
+					{% else %}
+						<option  name = "author" value = '{{each_author.name}}'>{{each_author.name}}</option>
+					{% endifequal %}
+				{% endfor %}
+			</select>
+
+			<strong>Product:</strong>
+			<select name = 'product'>		
+				<option value = ''></option>		
+				{% for each_product in products %}
+					{% ifequal each_product.name product %}
+						<option  selected = "selected" value = '{{each_product.name}}'>{{each_product.name}}</option>
+					{% else %}
+						<option  value = '{{each_product.name}}'>{{each_product.name}}</option>
+					{% endifequal %}
+				{% endfor %}
+			</select>
+			
+			<!--<strong>Project:</strong>
+			<select name = 'project'>		
+				<option value = ''></option>		
+				{% for each_project in projects %}
+					{% ifequal each_project.name project %}
+						<option  selected = "selected" value = '{{each_project.name}}'>{{each_project.name}}</option>
+					{% else %}
+						<option  value = '{{each_project.name}}'>{{each_project.name}}</option>
+					{% endifequal %}
+				{% endfor %}
+			</select>-->
+			
+			<strong>Start Time:</strong> <input type = "text" id = "start_time" onfocus="HS_setDate(this)" readonly = "readonly" name = "start_time" value = "{{start_time}}" />
+			<strong>End Time:</strong> <input type = "text" id = "end_time" onfocus="HS_setDate(this)" readonly = "readonly" name = "end_time" value = "{{end_time}}" />
+			<input type = "submit" value = "Submit"/>
+		</form>
+		<br />
+		{% ifequal commit_record '' %}
+		{% else %}
+		<div>
+		    {% ifequal page 1 %}
+				<span>首页</span>
+			{% else %}
+				<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&page=1">首页</a>
+			{% endifequal %}
+				
+			{% if commit_record.has_previous %}
+				<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&page={{commit_record.previous_page_number}}">&lt;上一页</a>
+			{% endif %}
+			<span>
+				{% for each_page in page_range %}
+					{% ifequal each_page commit_record.number %}
+						<span>{{each_page}}</span>
+					{% else %}
+						<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&page={{each_page}}" title = "第{{each_page}}页">{{each_page}}</a>
+					{% endifequal %}
+				{% endfor %}
+			</span>
+			
+			{% if commit_record.has_next %}
+				<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&page={{commit_record.next_page_number}}">下一页&gt;</a>
+			{% endif %}
+			
+			{% ifequal page commit_record.paginator.num_pages %}
+				<span>尾页</span>
+			{% else %}
+				<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&page={{commit_record.paginator.num_pages}}">尾页</a>
+			{% endifequal %}
+			
+			<span>[第{{commit_record.number}}/{{commit_record.paginator.num_pages}}]</span>
+			<span>[第{{page}}/{{paginator.num_pages}}页]</span>
+			<br /><br />
+		</div>
+
+		{% if product %}
+			<div>当前产品的安装包在nas上的路径为: <span style = "font-size:1.5em"><strong>{{package_nas_path}}</strong></span></div>
+		{% endif %}
+		<table border = "solid 3px red" width = "100%">
+			<tr align = "center" style = 'font-size:1.2em; background-color :gray; height:2em'>
+				<td><strong>id</strong></td>
+				<td><strong>author</strong></td>
+				<!--<td><strong>product</strong></td>-->
+				<td><strong>project</strong></td>
+				<td><strong>branch name</strong></td>
+				<td><strong>commit time</strong></td>
+				<td><strong>commit version</strong></td>
+				<td><strong>commit message</strong></td>
+				<!--<td><strong>package path</strong></td>-->
+			</tr>
+			{% for record in commit_record %}
+				<tr align = "center" style = "font-size:1.2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}; height:2em">
+					<td>{{record.id}}</td>
+					<td>{{record.author}}</td>
+					<!--<td>{{product}}</td>-->
+					<td>{{record.project}}</td>
+					<td>{{record.branch_name}}</td>
+					<td>{{record.commit_time}}</td>
+					<td>{{record.commit_version}}</td>
+					<td>{{record.commit_message}}</td>
+					<!--<td>{{record.package_path}}</td>-->
+				</tr>
+			{% endfor %}
+		</table>
+		
+		{% endifequal %}
+		<br /><br />
+		<div align = "center" style = "font-size:1.5em"><strong><i>{{empty_message}}</i></strong></div>
+
+<SCRIPT>
+
+ function datacheck(){
+ if(判断条件){
+ return "yes";
+ }else{
+ return "no";
+ }
+ }
+ function formSubmit(){
+ if(datacheck() == "yes"){
+ this.form.submit();
+ }
+ }
+
+function format_time(src_time){
+if(src_time.split("-")[1].length==1){month = 0 + src_time.split("-")[1]}else{month = src_time.split("-")[1]}
+  if(src_time.split("-")[2].length==1){day = 0 + src_time.split("-")[2]}else{day = src_time.split("-")[2]}
+  format_date = src_time.split("-")[0] + "-" + month + "-" + day
+  return format_date;
+}
+
+function trimstr(strings){
+	return strings.replace(/(^\s*)|(\s*$)/g, '');
+}
+
+
+function test()
+{
+  var flag = false;
+  var select_obj = document.getElementsByTagName("select");
+  var input_obj = document.getElementsByTagName("input");
+  
+  //检测select标签是否已填充内容
+  for(i=0;i<select_obj.length;i++){
+	if (trimstr(select_obj[i].value) != ""){
+		flag = true;
+	}
+  }
+  
+  //检测input标签是否已填充内容
+  for(i=0;i<input_obj.length;i++){
+	if (trimstr(input_obj[i].value) != "" && trimstr(input_obj[i].value).toUpperCase() != "SUBMIT"){
+		flag = true;
+	}
+  }
+
+  //判断是否全部为空
+  if(!flag){
+    alert("亲，您至少得填一项吧！")
+	return false;
+  }
+
+  var start_time_obj = document.getElementById("start_time");
+  var end_time_obj = document.getElementById("end_time");
+  
+  start_time = format_time(start_time_obj.value);
+  end_time = format_time(end_time_obj.value);
+
+  cmp_result = end_time.localeCompare(start_time);
+  if (cmp_result == -1){
+    alert("你好！截止日期不能小于起始日期！请重新输入！");
+    return false;
+  }
+}
+
+
+function HS_DateAdd(interval,number,date){
+	number = parseInt(number);
+	if (typeof(date)=="string"){var date = new Date(date.split("-")[0],date.split("-")[1],date.split("-")[2])}
+	if (typeof(date)=="object"){var date = date}
+	switch(interval){
+	case "y":return new Date(date.getFullYear()+number,date.getMonth(),date.getDate()); break;
+	case "m":return new Date(date.getFullYear(),date.getMonth()+number,checkDate(date.getFullYear(),date.getMonth()+number,date.getDate())); break;
+	case "d":return new Date(date.getFullYear(),date.getMonth(),date.getDate()+number); break;
+	case "w":return new Date(date.getFullYear(),date.getMonth(),7*number+date.getDate()); break;
+	}
+}
+function checkDate(year,month,date){
+	var enddate = ["31","28","31","30","31","30","31","31","30","31","30","31"];
+	var returnDate = "";
+	if (year%4==0){enddate[1]="29"}
+	if (date>enddate[month]){returnDate = enddate[month]}else{returnDate = date}
+	return returnDate;
+}
+function WeekDay(date){
+	var theDate;
+	if (typeof(date)=="string"){theDate = new Date(date.split("-")[0],date.split("-")[1],date.split("-")[2]);}
+	if (typeof(date)=="object"){theDate = date}
+	return theDate.getDay();
+}
+function HS_calender(){
+	var lis = "";
+	var style = "";
+	style +="<style type='text/css'>";
+	style +=".calender { width:170px; height:auto; font-size:12px; margin-right:14px; background:url(calenderbg.gif) no-repeat right center #fff; border:1px solid #397EAE; padding:1px}";
+	style +=".calender ul {list-style-type:none; margin:0; padding:0;}";
+	style +=".calender .day { background-color:#EDF5FF; height:20px;}";
+	style +=".calender .day li,.calender .date li{ float:left; width:14%; height:20px; line-height:20px; text-align:center}";
+	style +=".calender li a { text-decoration:none; font-family:Tahoma; font-size:11px; color:#333}";
+	style +=".calender li a:hover { color:#f30; text-decoration:underline}";
+	style +=".calender li a.hasArticle {font-weight:bold; color:#f60 !important}";
+	style +=".lastMonthDate, .nextMonthDate {color:#bbb;font-size:11px}";
+	style +=".selectThisYear a, .selectThisMonth a{text-decoration:none; margin:0 2px; color:#000; font-weight:bold}";
+	style +=".calender .LastMonth, .calender .NextMonth{ text-decoration:none; color:#000; font-size:18px; font-weight:bold; line-height:16px;}";
+	style +=".calender .LastMonth { float:left;}";
+	style +=".calender .NextMonth { float:right;}";
+	style +=".calenderBody {clear:both}";
+	style +=".calenderTitle {text-align:center;height:20px; line-height:20px; clear:both}";
+	style +=".today { background-color:#ffffaa;border:1px solid #f60; padding:2px}";
+	style +=".today a { color:#f30; }";
+	style +=".calenderBottom {clear:both; border-top:1px solid #ddd; padding: 3px 0; text-align:left}";
+	style +=".calenderBottom a {text-decoration:none; margin:2px !important; font-weight:bold; color:#000}";
+	style +=".calenderBottom a.closeCalender{float:right}";
+	style +=".closeCalenderBox {float:right; border:1px solid #000; background:#fff; font-size:9px; width:11px; height:11px; line-height:11px; text-align:center;overflow:hidden; font-weight:normal !important}";
+	style +="</style>";
+	var now;
+	if (typeof(arguments[0])=="string"){
+		selectDate = arguments[0].split("-");
+		var year = selectDate[0];
+		var month = parseInt(selectDate[1])-1+"";
+		var date = selectDate[2];
+		now = new Date(year,month,date);
+	}else if (typeof(arguments[0])=="object"){
+		now = arguments[0];
+	}
+	var lastMonthEndDate = HS_DateAdd("d","-1",now.getFullYear()+"-"+now.getMonth()+"-01").getDate();
+	var lastMonthDate = WeekDay(now.getFullYear()+"-"+now.getMonth()+"-01");
+	var thisMonthLastDate = HS_DateAdd("d","-1",now.getFullYear()+"-"+(parseInt(now.getMonth())+1).toString()+"-01");
+	var thisMonthEndDate = thisMonthLastDate.getDate();
+	var thisMonthEndDay = thisMonthLastDate.getDay();
+	var todayObj = new Date();
+	today = todayObj.getFullYear()+"-"+todayObj.getMonth()+"-"+todayObj.getDate();
+	for (i=0; i<lastMonthDate; i++){  // Last Month's Date
+		lis = "<li class='lastMonthDate'>"+lastMonthEndDate+"</li>" + lis;
+		lastMonthEndDate--;
+	}
+	for (i=1; i<=thisMonthEndDate; i++){ // Current Month's Date
+		if(today == now.getFullYear()+"-"+now.getMonth()+"-"+i){
+			var todayString = now.getFullYear()+"-"+(parseInt(now.getMonth())+1).toString()+"-"+i;
+			lis += "<li><a href=javascript:void(0) class='today' onclick='_selectThisDay(this)' title='"+now.getFullYear()+"-"+(parseInt(now.getMonth())+1)+"-"+i+"'>"+i+"</a></li>";
+		}else{
+			lis += "<li><a href=javascript:void(0) onclick='_selectThisDay(this)' title='"+now.getFullYear()+"-"+(parseInt(now.getMonth())+1)+"-"+i+"'>"+i+"</a></li>";
+		}
+	}
+	var j=1;
+	for (i=thisMonthEndDay; i<6; i++){  // Next Month's Date
+		lis += "<li class='nextMonthDate'>"+j+"</li>";
+		j++;
+	}
+	lis += style;
+	var CalenderTitle = "<a href='javascript:void(0)' class='NextMonth' onclick=HS_calender(HS_DateAdd('m',1,'"+now.getFullYear()+"-"+now.getMonth()+"-"+now.getDate()+"'),this) title='Next Month'>&raquo;</a>";
+	CalenderTitle += "<a href='javascript:void(0)' class='LastMonth' onclick=HS_calender(HS_DateAdd('m',-1,'"+now.getFullYear()+"-"+now.getMonth()+"-"+now.getDate()+"'),this) title='Previous Month'>&laquo;</a>";
+	CalenderTitle += "<span class='selectThisYear'><a href='javascript:void(0)' onclick='CalenderselectYear(this)' title='Click here to select other year' >"+now.getFullYear()+"</a></span>年<span class='selectThisMonth'><a href='javascript:void(0)' onclick='CalenderselectMonth(this)' title='Click here to select other month'>"+(parseInt(now.getMonth())+1).toString()+"</a></span>月"; 
+	if (arguments.length>1){
+		arguments[1].parentNode.parentNode.getElementsByTagName("ul")[1].innerHTML = lis;
+		arguments[1].parentNode.innerHTML = CalenderTitle;
+	}else{
+		var CalenderBox = style+"<div class='calender'><div class='calenderTitle'>"+CalenderTitle+"</div><div class='calenderBody'><ul class='day'><li>日</li><li>一</li><li>二</li><li>三</li><li>四</li><li>五</li><li>六</li></ul><ul class='date' id='thisMonthDate'>"+lis+"</ul></div><div class='calenderBottom'><a href='javascript:void(0)' class='closeCalender' onclick='closeCalender(this)'>×</a><span><span><a href=javascript:void(0) onclick='_selectThisDay(this)' title='"+todayString+"'>Today</a></span></span></div></div>";
+		return CalenderBox;
+	}
+}
+function _selectThisDay(d){
+	var boxObj = d.parentNode.parentNode.parentNode.parentNode.parentNode;
+		boxObj.targetObj.value = d.title;
+		boxObj.parentNode.removeChild(boxObj);
+}
+function closeCalender(d){
+	var boxObj = d.parentNode.parentNode.parentNode;
+		boxObj.parentNode.removeChild(boxObj);
+}
+function CalenderselectYear(obj){
+		var opt = "";
+		var thisYear = obj.innerHTML;
+		for (i=1970; i<=2020; i++){
+			if (i==thisYear){
+				opt += "<option value="+i+" selected>"+i+"</option>";
+			}else{
+				opt += "<option value="+i+">"+i+"</option>";
+			}
+		}
+		opt = "<select onblur='selectThisYear(this)' onchange='selectThisYear(this)' style='font-size:11px'>"+opt+"</select>";
+		obj.parentNode.innerHTML = opt;
+}
+function selectThisYear(obj){
+	HS_calender(obj.value+"-"+obj.parentNode.parentNode.getElementsByTagName("span")[1].getElementsByTagName("a")[0].innerHTML+"-1",obj.parentNode);
+}
+function CalenderselectMonth(obj){
+		var opt = "";
+		var thisMonth = obj.innerHTML;
+		for (i=1; i<=12; i++){
+			if (i==thisMonth){
+				opt += "<option value="+i+" selected>"+i+"</option>";
+			}else{
+				opt += "<option value="+i+">"+i+"</option>";
+			}
+		}
+		opt = "<select onblur='selectThisMonth(this)' onchange='selectThisMonth(this)' style='font-size:11px'>"+opt+"</select>";
+		obj.parentNode.innerHTML = opt;
+}
+function selectThisMonth(obj){
+	HS_calender(obj.parentNode.parentNode.getElementsByTagName("span")[0].getElementsByTagName("a")[0].innerHTML+"-"+obj.value+"-1",obj.parentNode);
+}
+function HS_setDate(inputObj){
+	var calenderObj = document.createElement("span");
+	calenderObj.innerHTML = HS_calender(new Date());
+	calenderObj.style.position = "absolute";
+	calenderObj.targetObj = inputObj;
+	inputObj.parentNode.insertBefore(calenderObj,inputObj.nextSibling);
+}
+
+</SCRIPT>
+		{% endblock %}
+	</body>
+</html>
+
