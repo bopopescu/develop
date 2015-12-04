@@ -218,12 +218,10 @@
 			<td class = "test"><input class = "test" type = "text" name = "work_dir{{forloop.counter}}" value = "{{each_step.work_dir}}" required = "required"></td>
 		</tr>
 
-		<tr name = "{{forloop.counter}}">
+		<tr>
 			<td class = "test_right" align = "1right">description{{forloop.counter}}:</td>
 			<td class = "test"><input class = "test" type = "text" name = "description{{forloop.counter}}" value = "{{each_step.description}}" required = "required">
-                        <input type = 'button' onclick = 'deletetable(this)' value = '删除'>
-                        <input type = "button" onclick = "insert_table(this)" id= "description{{forloop.counter}}" value = "插入">
-                        <input type = "hidden" value = "1" />
+                        <input type = 'button' onclick = 'deletetable(this)' value = '删除'><input type = "button" onclick = "insert_table(this)" value = "{{forloop.counter}}  insert">
                         </td>
 		</tr>
 		{% endfor %}
@@ -250,7 +248,7 @@
         <table id="add" width = "100%"></table>
 	
 	<p align = "center"><input type = "submit" value = "Submit" /></p>
-	<!--<input type = "button"  onclick="createTable()" value = "继续添加"/>-->
+	<input type = "button" onclick="createTable()" value = "继续添加"/>
   </form>
   </td>
 
@@ -315,54 +313,51 @@ function deletetable_new(obj){
 function deletetable(obj){
     var index = obj.parentNode.parentNode.rowIndex;
     var table = document.getElementById("update_table");
+    //alert(index);
     table.deleteRow(index);
     table.deleteRow(index-1);
     table.deleteRow(index-2);
+    //table.deleteRow(index-3);
+    //i--;
 }
 
 function insert_table(obj){
+    //var row = table.insertRow();//创建一行 
+    //var cell = row.insertCell();//创建一个单元 
+    //cell.innerHTML="&nbsp;";
+    
+    var mydate = new Date()
     var index = obj.parentNode.parentNode.rowIndex;
     var table = document.getElementById("update_table");
-    //var cur_index = table.getElementsByTagName("tr")[index].firstChild.innerHTML.split("description")[1].split(":")[0];
-    //var next_index = table.getElementsByTagName("tr")[index+3].firstChild.innerHTML.split("description")[1].split(":")[0];
-    var cur_index = table.getElementsByTagName("tr")[index].getAttribute("name");
-    var next_index = table.getElementsByTagName("tr")[index+3].getAttribute("name");
-    if (next_index == null){
-         data_flag = parseFloat(cur_index) + 1.0;
-         //alert(data_flag);
-    }
-    else{
-        data_flag = (parseFloat(cur_index) + parseFloat(next_index))/2.0;
-    }
+    alert(index);
     row1 = table.insertRow(index+1);
-    script_content = "script_content" + data_flag;
     cell11 = row1.insertCell()
     cell11.width = "20%";//更改cell的各种属性 
-    cell11.innerHTML = script_content;
+    cell11.innerHTML = "script_content";
     cell12 = row1.insertCell()
     cell12.width = "80%";//更改cell的各种属性 
+    script_content = "script_content" + mydate.getTime();
     cell12.innerHTML="<textarea rows = 8% class = 'class_size' name = "+ script_content + " required = 'required' ></textarea>"; 
     
     row2 = table.insertRow(index+2);
-    work_dir = "work_dir" + data_flag;
     cell21 = row2.insertCell()
     cell21.width = "20%";//更改cell的各种属性 
-    cell21.innerHTML = work_dir;
+    cell21.innerHTML = "work_dir";
     cell22 = row2.insertCell()
     cell22.width = "80%";//更改cell的各种属性 
+    work_dir = "work_dir" + mydate.getTime();
     cell22.innerHTML="<input type = 'text' name = "+ work_dir + " class = 'class_size' required = 'required'/>"; 
  
     row3 = table.insertRow(index+3);
-    row3.setAttribute("name",data_flag);
-    description = "description" + data_flag;
     cell31 = row3.insertCell()
     cell31.width = "20%";//更改cell的各种属性 
-    cell31.innerHTML = description;
+    cell31.innerHTML = "description";
     cell32 = row3.insertCell()
     cell32.width = "80%";//更改cell的各种属性 
-    cell32.innerHTML="<input type = 'text' name = " + description + " class = 'class_size' required = 'required'/>\
-                      <input type = 'button' onclick = 'deletetable(this)' value = '删除'>\
-                      <input type = 'button' onclick = 'insert_table(this)' value = '插入'>";
+    description = "description" + mydate.getTime();
+    cell32.innerHTML="<input type = 'text' name = " + description + " class = 'class_size' required = 'required'/><input type = 'button' onclick = 'deletetable_new(this)' value = '删除'>";
+    
+
 }
 
 

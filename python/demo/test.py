@@ -1,21 +1,33 @@
-if 1 == True:
-    print 11111111
-if 0 == False:
-    print 22222222
+m = 10
+n = 1
+left = []
 
-li = ["a","c","b","c","a","a","b"]
-
-dict = {}
-new_li = []
-li_totals = []
-
-for i in li:
-    if i not in new_li:
-        li_totals.append((i,li.count(i)))
-        new_li.append(i)
-        dict[i] = li.count(i)
+while 1:
+    if len(left) == 1 and left[0] % 3 != 0:
+        break
+    last = left[-1] if left else 0
+    del left[:]
+    left = [i for i in xrange(last+1, last+m+1) if i%3!=0]
+    n += 1
+    m = len(left)
+print left
 
 
-print dict
-print new_li
-print li_totals
+
+
+
+
+
+
+
+
+
+"""
+start = 100
+end = 1
+
+list_3 = []
+
+while 1:
+    if list_3 and list_3
+"""

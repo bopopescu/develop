@@ -23,6 +23,7 @@ urlpatterns = patterns('create_build.views',
     url(r"^delete/(?P<params>\d*)/$","delete"),
     url(r"^get_passwd_page/$","get_passwd_page"),
     url(r"^get_passwd/$","get_passwd"),
+    url(r"^checkname/$","checkname"),
     # Examples:
     # url(r'^$', 'auto_create_build.views.home', name='home'),
     # url(r'^auto_create_build/', include('auto_create_build.foo.urls')),

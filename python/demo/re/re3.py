@@ -2,7 +2,7 @@
 
 import re
 
-strs = "(fw467%&*@#$%^<>?.)/)"
+strs = "12(fw467%&*@#$%^<>?.)/)"
 print re.search("(.*)",strs).group(), "  #匹配括号内的所有字符"
 
 print re.search("(?#fw)",strs).group(),  "  #注释，忽略括号内的内容"      

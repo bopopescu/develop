@@ -1,7 +1,10 @@
-# Django settings for auto_create_build project.
+﻿# Django settings for auto_create_build project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+import ldap
+from django_auth_ldap.config import LDAPSearch, LDAPSearchUnion
+from django.conf.global_settings import AUTHENTICATION_BACKENDS
 
 import os
 BASE_DIR = os.path.dirname(__file__)
@@ -11,7 +14,7 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-
+XDD = "haha"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
@@ -102,6 +105,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    #'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -178,7 +182,7 @@ LOGGING = {
             'level':'DEBUG',  
             'class':'logging.handlers.RotatingFileHandler',  
             'filename': "/home/goland/log.txt", 
-            'maxBytes': 1024*1024*5, # 5 MB  
+            'maxBytes': 1024*1024*500, # 500 MB  
             'backupCount': 5,  
             'formatter':'standard',  
         },   
@@ -191,4 +195,49 @@ LOGGING = {
         },  
        
     }  
-}  
+} 
+
+
+###################below is the LDAP configration#############################
+AUTH_LDAP_SERVER_URI = "ldap://10.10.7.120:389"
+
+AUTH_LDAP_CONNECTION_OPTIONS = {
+    ldap.OPT_DEBUG_LEVEL: 1,
+    ldap.OPT_REFERRALS:  0,
+}
+
+ad_name = 'CN=徐德东,OU=IT部,OU=世纪高蓝,DC=goland,DC=cn'.decode("utf-8")
+search_ad = 'OU=世纪高蓝,DC=goland,DC=cn'.decode("utf-8")
+AUTH_LDAP_BIND_DN = ad_name
+AUTH_LDAP_BIND_PASSWORD = "123456"
+
+AUTH_LDAP_USER_SEARCH = LDAPSearchUnion(
+    LDAPSearch(search_ad, ldap.SCOPE_SUBTREE, "(&(objectClass=user)(mail=%(user)s))"),
+    LDAPSearch(search_ad, ldap.SCOPE_SUBTREE, "(&(objectClass=user)(sAMAccountName=%(user)s))"),
+)
+
+
+
+AUTH_LDAP_USER_ATTR_MAP = {
+'first_name':'givenName',
+'last_name':'sn',
+'email':'mail',
+}
+
+
+AUTHENTICATION_BACKENDS = (
+'django_auth_ldap.backend.LDAPBackend',
+'django.contrib.auth.backends.ModelBackend',
+) 
+
+AUTH_LDAP_ALWAYS_UPDATE_USER = True
+#AUTH_LDAP_FIND_GROUP_PERMS = True
+
+AUTH_LDAP_CACHE_GROUPS = True
+AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+
+AUTH_LDAP_GLOBAL_OPTIONS = {
+    ldap.OPT_X_TLS_REQUIRE_CERT: False,
+    ldap.OPT_REFERRALS: False,
+}
+

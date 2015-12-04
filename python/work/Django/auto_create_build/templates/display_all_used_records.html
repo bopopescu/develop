@@ -29,11 +29,11 @@ cursor:pointer
 	{% if request.session.username %}
 	    <p>欢迎:<span style = "font-size:1.9em"><strong>{{request.session.username}}</strong></span>&nbsp;&nbsp;||&nbsp;&nbsp;<a href = "/logout/">退出</a></p>
 	{% else %}
-	    <p><a href = "/login/">登录</a>&nbsp;<a href = "/register/">注册</a></p>
+	    <p><a href = "/login/">登录</a><!--&nbsp;<a href = "/register/">注册</a>--></p>
     {% endif %}
 	<p>
-            <span><input type = "submit" value = "添加" onClick = "window.open('/')"/></span>
-            <span><input type = "button" value="显示所有的slave" onClick = "window.open('/display_all_records')"/></span>
+            <span><input type = "submit" value = "添加" onClick = "window.open('/', '_self')"/></span>
+            <span><input type = "button" value="显示所有slave" onClick = "window.open('/display_all_records','_self')"/></span>
         </p>	
 	<table width = "100%" border = 'solid 3px red'>
 		<tr style = ' background-color :gray'>
@@ -60,14 +60,14 @@ cursor:pointer
 		</tr>
 		{% for record in build_info %}
 			<tr style = "background-color: {% cycle '#d1c7b7' '#d3d7d4'%};height = '50px'" class="link-xdd">
-				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.id}}</td>
-				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.slavename}}</td>
-				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.buildername}}</td>
-				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.masterip}}</td>
-				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.slaveip}}</td>
-				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.slave_platform}}</td>
-				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.start_method}}</td>
-				<td onClick = "window.open('/display_details/{{record.id}}')">{{record.username}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}', '_self')">{{record.id}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}', '_self')">{{record.slavename}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}', '_self')">{{record.buildername}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}', '_self')">{{record.masterip}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}', '_self')">{{record.slaveip}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}', '_self')">{{record.slave_platform}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}', '_self')">{{record.start_method}}</td>
+				<td onClick = "window.open('/display_details/{{record.id}}', '_self')">{{record.username}}</td>
 
 				
 				<!--<td onClick = "window.open('/update_info_page/{{record.id}}')">{{record.script_contents1}}</td>
@@ -107,9 +107,13 @@ cursor:pointer
 </body>
 
 <script>
+function trimStr(strings){
+    return strings.replace(/(^\s*)|(\s*$)/g,"");
+}
+
 function NotEmpty(){
     var obj = document.getElementById("search_value");
-    if (obj.value == ""){
+    if (trimStr(obj.value) == ""){
         alert("不能为空，请填写");
         return false;
     }

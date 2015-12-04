@@ -109,7 +109,7 @@ print re.search("foo.$","foo1\nfoo2\nfoo3\nfoo4", re.MULTILINE).group(), "   匹
 print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 #没有$符号的情况下
-print re.findall("foo.","foo1\nfoo2\nfoo3\nfoo4"), "   匹配最后一行的结果"
+print re.findall("foo.","foo1\nfoo2\nfoo3\nfoo4"), "   匹配所有行的结果"
 print re.findall("foo.","foo1\nfoo2\nfoo3\nfoo4", re.MULTILINE), "   匹配所有行的结果"
 print re.search("foo.","foo1\nfoo2\nfoo3\nfoo4").group(), "   匹配最后一行的结果"
 print re.search("foo.","foo1\nfoo2\nfoo3\nfoo4", re.MULTILINE).group(), "   匹配第一行的结果"
@@ -121,3 +121,7 @@ print re.findall("(cc)(aa)", "ccaadacciuccaaojccjjopaaccaa")
 print re.search("(cc)(aa)", "ccaadacciuccaaojccjjopaaccaa").group()
 
 #最后：如果能用字符串的方法，就不要选择正则表达式，因为字符串方法更简单快速。
+
+#返回匹配到的所有命名子组的字典。Key是name值，value是匹配到的值
+m=re.match("(?P<first>\w+) (?P<secode>\w+)","hello world")
+print m.groupdict()

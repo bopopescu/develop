@@ -38,7 +38,7 @@
 			        {% csrf_token %}
 				<table align = "center" width = "100%">
 					<tr>
-						<td class = "left_position"><span class = "span_color"><!--*--></span>master ip:</td>
+						<td class = "left_position"><span class = "span_color">*</span>master ip:</td>
 
 						<td class = "class_size">
 							 <!--<select name = "masterip" class = "class_size">
@@ -52,17 +52,15 @@
 					</tr>
 					
 					<tr>
-						<td class = "left_position"><span class = "span_color">*</span>build ip:</td>
+						<td class = "left_position"><span class = "span_color">*</span>slave ip:</td>
 
 						<td class = "class_size">
-							 <input type = "text" id = "slaveip" name = "slaveip" class = "class_size" value = "格式为xx.xx.x.x(x)(x)；括号里表示为非必须" 
-							 onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
-							 onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" required = "required" />
+							 <input type = "text" name = "slaveip" class = "class_size" required = "required" />
 						</td>
 					</tr>
 					
 					<tr>
-						<td class = "left_position"><span class = "span_color">*</span>build platform:</td>
+						<td class = "left_position"><span class = "span_color">*</span>slave platform:</td>
 						<td class = "class_size">
 							<select name = "slave_platform" class = "class_size">
 								<option value = "Win">Win</option>
@@ -76,16 +74,14 @@
 					<tr>
 						<td class = "left_position"><span class = "span_color">*</span>slavename:</td>
 						<td class = "class_size">
-							 <input type = "text" id = "slavename" name = "slavename" value = "只支持数字字母下划线！且不能以数字开头！" onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
-							onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" class = "class_size" required = "required" />
+							 <input type = "text" name = "slavename" class = "class_size" required = "required" />
 						</td>
 					</tr>
 						
 					<tr>
 						<td class = "left_position"><span class = "span_color">*</span>buildername:</td>
 						<td class = "class_size">
-							<input type = "text" id = "buildername" name = "buildername" value = "只支持数字字母下划线！且不能以数字开头！" onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
-							onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" class = "class_size" required = "required" />
+							<input type = "text" name = "buildername" class = "class_size" required = "required" />
 						</td>
 					</tr>
 						
@@ -125,7 +121,7 @@
 					<tr>
 						<td class = "left_position"><span class = "span_color">*</span>if failed,send mail to:</td>
 						<td class = "class_size">
-							<input type = "text" id = "mail" name = "send_mail" value = "如果是多个接收者，请以逗号或者分号分开"
+							<input type = "text" name = "send_mail" value = "如果是多个接收者，请以逗号或者分号分开"
 							onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
 							onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" class = "class_size" required = "required" />
 						</td>
@@ -166,6 +162,7 @@
 				<br />
 				<div align = "center"><input type = "submit" id = "submit" value = "Submit"/></div>
 				<input type = "button" onclick="createTable()" value = "继续添加"/>
+				<input type = "button" onclick="deletetable()" value = "删除"/>
 				</form>
 			</td>
 		
@@ -178,48 +175,6 @@
 
 
 <script>
-
-//$.ajax({
-//          url: "checkname",
-//          async:false,
-//          type: "POST",
-//          dataType: "json",
-//          data: {"slavename":$("#Tel").val()},
-//          success:function(data){
-//              if(data == "no"){
-//                                  slavename_bouned = true;
-//                                  $("#imgeTel").addClass("reg_erro").html("Exception");
-//                              } else if(data == false){
-//                                  slavename_bouned = true;
-//                                  $("#imgeTel").addClass("reg_erro").html("slavename is already in use");
-//                              } else if(data == true){
-//                                  slavename_bouned = false;
-//                                  $("#imgeTel").addClass("reg_erro").html("");
-//                              }
-                                  
-                                  
-
-//if(valid_slavename($('#for_slavename').val())){
-//    var slavename = $('#for_slavename').val();
-//    $.ajax({
-//        type:"POST",
-//        url: "checkname",
-//        data: slavename,
-//        cache:false,
-//        success:function(result){
-//          if(result==1){
-//            $("#slavename").removeClass("g-hide");
-//            $("$slavename").removeClass("msg-isok").addClass("msg-error").html("slavename exists!");
-//            eok = true;
-//          }
-//          else{
-//          $('#for_slavename').addClass("g-hide");
-//          eok = false;
-//          }
-//      }
-//    })
-//}
-
 var i = 2
 function createTable(){ 
     //var div = document.getElementById("add"); 
@@ -257,26 +212,26 @@ function createTable(){
     cell3.innerHTML="<span class = 'span_color'>*</span>"+description;
     cell3 = row3.insertCell();//创建一个单元 
     cell3.width = "80%";//更改cell的各种属性 
-    cell3.innerHTML="<input type = 'text' name = " + description + " class = 'class_size' required = 'required'/><input type = 'button' onclick = 'deletetable(this)' value = '删除'>";
+    cell3.innerHTML="<input type = 'text' name = " + description + " class = 'class_size' required = 'required'/>";
 	 
     //div.appendChild(table);
     i ++;
 } 
 
 
-function deletetable(obj){
+function deletetable(){
     //alert(obj.parentNode.parentNode.tagName);
-    var index = obj.parentNode.parentNode.rowIndex;
     var table = document.getElementById("add");
+    var index = table.rows.length;
     //alert(table);
     //alert(table.childNodes[0]);
     //alert(table.childNodes[0].tagName);
     //alert(index);
-    table.deleteRow(index);
     table.deleteRow(index-1);
     table.deleteRow(index-2);
     table.deleteRow(index-3);
-    //i--;
+    table.deleteRow(index-4);
+    i--;
 }
 
  
@@ -358,45 +313,10 @@ function trimStr(strings){
 
 
 function NotEmpty(){
-    var slaveip_obj = document.getElementById("slaveip");
-    var slavename_obj = document.getElementById("slavename");
-    var buildername_obj = document.getElementById("buildername");
-    var mail_obj = document.getElementById("mail");
     var start_method_obj = document.getElementsByName("start_method");
     var input_obj = document.getElementsByTagName("input");
     var textarea_obj = document.getElementsByTagName("textarea");
     var msg = "每一项都是必填项，请填写完整之后再提交！";
-
-    //check slaveip is valid
-    reg_slaveip = /^(\d{2}\.\d{2}\.\d{1}\.\d{1,3})$/;
-    flag_slaveip = slaveip_obj.value.search(reg_slaveip)
-    if (flag_slaveip == -1){
-        alert("build ip格式不正确，请重新填写！格式为xx.xx.x.x(x)(x)；括号里表示非必须")
-        return false;
-    }
-
-    //检查slavename格式是否有效
-    reg_slavename = /^[^0-9]\w*$/;
-    flag_slavename = slavename_obj.value.search(reg_slavename)
-    if (flag_slavename == -1){
-        alert("slavename格式不正确，请重新填写！只支持数字字母下划线！且不能以数字开头！")
-        return false;
-    }
-    
-
-    //检查buildername格式是否有效
-    reg_buildername = /^([^0-9]\w*)$/;
-    flag_buildername = buildername_obj.value.search(reg_buildername)
-    if (flag_buildername == -1){
-        alert("buildername格式不正确，请重新填写！只支持数字字母下划线！且不能以数字开头！")
-        return false;
-    }
-
-    //检查salvename 和 buildername是否相同，如果相同就提示用户，然后禁止提交；不相同则通过
-    if (slavename_obj.value == buildername_obj.value){
-        alert("slavename和buildername不能相等，请重新填写！");
-        return false;
-    }
 	
     //检测是否选中radio按钮
     var start_method_num = 0;
@@ -413,12 +333,11 @@ function NotEmpty(){
     //检测input标签是否已填充内容
     for(k=0;k<input_obj.length;k++){
         if (trimStr(input_obj[k].value) == ""){
-        //if (input_obj[j].value.replace(/(^\s*)|(\s*$)/g,"") == ""){
+        //if (imput_obj[j].value.replace(/(^\s*)|(\s*$)/g,"") == ""){
             alert(msg);
             return false;
         }
     }
-
     //检测textarea文本域是否已填充内容
     for(j=0;j<textarea_obj.length;j++){
         if (trimStr(textarea_obj[j].value) == ""){
@@ -427,24 +346,13 @@ function NotEmpty(){
             return false;
         }
     }
-    
-
-    ////检查邮箱是否有效
-    var regex = /^(?:\w+\.?)*\w+@(?:\w+\.)*\w+$/;
-    var regex = /^(?:\w+\.?)*\w+@(?:\w+\.)*\w+([,;](?:\w+\.?)*\w+@(?:\w+\.)*\w+)*[,;]*$/;
-    if (regex.test(mail_obj.value)){
-        //alert("true")
-    }
-    else{
-        alert("邮箱格式不正确");
-        //document.getElementById("mail").value = "";
-        return false;
-    }
-    
     alert("该过程会操作git，需要一定的时间, 请耐心等待，不要再次提交!");
 }
 
 
+$(function(){
+alert(1)
+})
 
 </script>
 

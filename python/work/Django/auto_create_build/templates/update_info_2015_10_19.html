@@ -10,50 +10,43 @@
 <!--d3d7d4-->
 <body style="background-color:#77ac98">
 <h1 align = "center">Update Info</h1>
-
-<table width = "100%" id = "testtable">
-
-<tr>
-  <td class = "left_position" ><body>&nbsp;</body></td>
-  <td>
-        <p>欢迎:<span style = "font-size:1.9em"><strong>{{request.session.username}}</strong></span>&nbsp;||&nbsp;<a href = "/logout/">退出</a></p>
-        <div><a href = "/display_all_used_records/">首页</a></div>
-
-        <form action = "/update_info/{{params}}/" method = "POST">
+<p>欢迎:<span style = "font-size:1.9em"><strong>{{request.session.username}}</strong></span>&nbsp;||&nbsp;<a href = "/logout/">退出</a></p>
+<div><a href = "/display_all_used_records/">首页</a></div>
+<form action = "/update_info/{{params}}/" method = "POST">
 	{% csrf_token %}
-	<table align = "center" width = "100%" id = "update_table" style = 'background-color:'>
+	<table width = "100%" id = "update_table" style = 'background-color:'>
 		<tr>
-			<td class = "test_right" align = "1right">id:</td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = "text" name = "id" value = "{{build_info.id}}" required = "required"></td>
+			<td class = "test_right" align = "right">id:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "id" value = "{{build_info.id}}" required = "required"></td>
 		</tr>
 
 		<tr>
-			<td class = "test_right" align = "1right">slavename:</td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = "text" name = "slavename" value = "{{build_info.slavename}}" required = "required"> </td>
+			<td class = "test_right" align = "right">slavename:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "slavename" value = "{{build_info.slavename}}" required = "required"> </td>
 		</tr>
 
 		<tr>
-			<td class = "test_right" align = "1right">buildername:</td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = "text" name = "buildername" value = "{{build_info.buildername}}" required = "required"></td>
+			<td class = "test_right" align = "right">buildername:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "buildername" value = "{{build_info.buildername}}" required = "required"></td>
 		</tr>
 
 		<tr>
-			<td class = "test_right" align = "1right">masterip:</td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = "text" name = "masterip" value = "{{build_info.masterip}}" required = "required"></td>
+			<td class = "test_right" align = "right">masterip:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "masterip" value = "{{build_info.masterip}}" required = "required"></td>
 		</tr>
 
 		<tr>
-			<td class = "test_right" align = "1right">slaveip:</td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = "text" name = "slaveip" value = "{{build_info.slaveip}}" required = "required"></td>
+			<td class = "test_right" align = "right">slaveip:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "slaveip" value = "{{build_info.slaveip}}" required = "required"></td>
 		</tr>
 		<tr>
-			<td class = "test_right" align = "1right">username:</td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = "text" name = "username" value = "{{build_info.username}}" required = "required"></td>
+			<td class = "test_right" align = "right">username:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "username" value = "{{build_info.username}}" required = "required"></td>
 		</tr>
 		
 		<tr>
-			<td class = "test_right" align = "1right">slave platform:</td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = "text" name = "slave_platform" value = "{{build_info.slave_platform}}" required = "required"></td>
+			<td class = "test_right" align = "right">slave platform:</td>
+			<td><input class = "test" readonly = "readonly" type = "text" name = "slave_platform" value = "{{build_info.slave_platform}}" required = "required"></td>
 		</tr>
 
 	<!--	<tr>
@@ -80,26 +73,26 @@
 		
 		{% ifequal build_info.start_method "radio_timing" %}
 		<tr>
-			<td class = "test_right" align = "left">start method:</td>
-			<td class = "test">
+			<td class = "test_right" align = "right">start method:</td>
+			<td>
 				<label>定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" checked = "checked" required = "required" onclick = "Radio_Timing()"/></label>
 			</td>
 		</tr>
 		<tr>
 			<td class = "test_right" align = "right"></td>
-			<td class = "test">	
+			<td>	
 				<label>触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" required = "required"  onclick = "Radio_Trigger()"/></label>
 			</td>
 		</tr>
 		<tr>
 			<td class = "test_right" align = "right"></td>
-			<td class = "test">
+			<td>
 				<label>手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" required = "required"  onclick = "Radio_Manual()"/></label>	
 			</td>
 		</tr>
 		<tr>
 			<td class = "test_right" align = "right"></td>
-			<td class = "test" id = "start_method_value">
+			<td id = "start_method_value">
 				start time:<select name = "hour">
 					{% for each_hour in hours %}
 						{% ifequal each_hour build_info_hour %}
@@ -125,27 +118,27 @@
 		
 		{% ifequal build_info.start_method "radio_trigger" %}
 		<tr>
-			<td class = "test_right" align = "left">start method:</td>
-			<td class = "test">
+			<td class = "test_right" align = "right">start method:</td>
+			<td>
 				<label>定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" required = "required" onclick = "Radio_Timing()"/></label>
 			</td>
 		</tr>
 		<tr>
 			<td class = "test_right" align = "right"></td>
-			<td class = "test">	
+			<td>	
 				<label>触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" checked = "checked" required = "required" onclick = "Radio_Trigger()"/></label>
 			</td>
 		</tr>
 		<tr>
 			<td class = "test_right" align = "right"></td>
-			<td class = "test">
+			<td>
 				<label>手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" required = "required"  onclick = "Radio_Manual()"/></label>
 			</td>
 		</tr>
 		
 		<tr>
 			<td class = "test_right" align = "right"></td>
-			<td class = "test" id = "start_method_value">
+			<td id = "start_method_value">
 				<table>
 					<tr><td class = "left_position">git project url:</td><td class = "class_size"><input class = "class_size" type = "text" value = "{{build_info.git_project_path}}" name = "git_project_path"/></td></tr>
 					<tr><td class = "left_position">branches:</td><td class = "class_size"><input class = "class_size" type = "text" value = "{{build_info.branches}}" name = "branches"/></td></tr>
@@ -158,34 +151,34 @@
 		
 		{% ifequal build_info.start_method "radio_manual" %}
 		<tr>
-			<td class = "test_right" align = "left"></td>
-			<td class = "test">
+			<td class = "test_right" align = "right"></td>
+			<td>
 				<label>定时启动: <input type = "radio" width = "40%" value = "radio_timing" name = "start_method" required = "required" onclick = "Radio_Timing()"/></label>
 			</td>
 		</tr>
 		<tr>
 			<td class = "test_right" align = "right"></td>
-			<td class = "test">	
+			<td>	
 				<label>触发启动: <input type = "radio" width = "40%" value = "radio_trigger" name = "start_method" required = "required" onclick = "Radio_Trigger()"/></label>
 			</td>
 		</tr>
 		<tr>
 			<td class = "test_right" align = "right"></td>
-			<td class = "test">
+			<td>
 				<label>手动启动: <input type = "radio" width = "40%" value = "radio_manual" name = "start_method" checked = "checked" required = "required"  onclick = "Radio_Manual()"/></label>
 			</td>
 		</tr>
 		<tr>
 			<td class = "test_right" align = "right"></td>
-			<td class = "test" id = "start_method_value">
+			<td id = "start_method_value">
 			</td>
 		</tr>
         {% endifequal %}
 		
 		
 		<tr>
-			<td class = "test_right" align = "1right">if failed,send mail to:</td>
-			<td class = "test"><input class = "test" type = "text" name = "send_mail" value = "{{build_info.send_mail}}" required = "required"></td>
+			<td class = "test_right" align = "right">if failed,send mail to:</td>
+			<td><input class = "test" type = "text" name = "send_mail" value = "{{build_info.send_mail}}" required = "required"></td>
 		</tr>
 		
 		<!--{% for each_step in build_steps %}
@@ -208,22 +201,20 @@
 		-->
 		{% for each_step in all_list %}
 		<tr>
-			<td class = "test_right" align = "1right">script_content{{forloop.counter}}:</td>
-			<td class = "test"><textarea class = "test" type = "text" rows = 8% name = "script_content{{forloop.counter}}"  required = "required">{{each_step.script_content}}</textarea></td>
+			<td class = "test_right" align = "right">script_content{{forloop.counter}}:</td>
+			<td><textarea class = "test" type = "text" rows = 8% name = "script_content{{forloop.counter}}"  required = "required">{{each_step.script_content}}</textarea></td>
 			
 		</tr>
 
 		<tr>
-			<td class = "test_right" align = "1right">work_dir{{forloop.counter}}:</td>
-			<td class = "test"><input class = "test" type = "text" name = "work_dir{{forloop.counter}}" value = "{{each_step.work_dir}}" required = "required"></td>
+			<td class = "test_right" align = "right">work_dir{{forloop.counter}}:</td>
+			<td><input class = "test" type = "text" name = "work_dir{{forloop.counter}}" value = "{{each_step.work_dir}}" required = "required"></td>
 		</tr>
 
-		<tr name = "{{forloop.counter}}">
-			<td class = "test_right" align = "1right">description{{forloop.counter}}:</td>
-			<td class = "test"><input class = "test" type = "text" name = "description{{forloop.counter}}" value = "{{each_step.description}}" required = "required">
+		<tr>
+			<td class = "test_right" align = "right">description{{forloop.counter}}:</td>
+			<td><input class = "test" type = "text" name = "description{{forloop.counter}}" value = "{{each_step.description}}" required = "required">
                         <input type = 'button' onclick = 'deletetable(this)' value = '删除'>
-                        <input type = "button" onclick = "insert_table(this)" id= "description{{forloop.counter}}" value = "插入">
-                        <input type = "hidden" value = "1" />
                         </td>
 		</tr>
 		{% endfor %}
@@ -233,137 +224,41 @@
                 
 		<tr>
 			<td class = "test_right" align = "right"><!--new master:--></td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = hidden name = "new_master" value = "{{build_info.new_master}}" required = "required"></td>
+			<td><input class = "test" readonly = "readonly" type = hidden name = "new_master" value = "{{build_info.new_master}}" required = "required"></td>
 		</tr>
 
 		<tr>
 			<td class = "test_right" align = "right"><!--new factory:--></td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = hidden name = "new_factory" value = "{{build_info.new_factory}}" required = "required"></td>
+			<td><input class = "test" readonly = "readonly" type = hidden name = "new_factory" value = "{{build_info.new_factory}}" required = "required"></td>
 		</tr>
 
 		<tr>
 			<td class = "test_right" align = "right"><!--script path:--></td>
-			<td class = "test"><input class = "test" readonly = "readonly" type = hidden name = "scripts_path" value = "{{build_info.scripts_path}}" required = "required"></td>
+			<td><input class = "test" readonly = "readonly" type = hidden name = "scripts_path" value = "{{build_info.scripts_path}}" required = "required"></td>
 		</tr>
                 
 	</table>
+        
         <table id="add" width = "100%"></table>
 	
 	<p align = "center"><input type = "submit" value = "Submit" /></p>
-	<!--<input type = "button"  onclick="createTable()" value = "继续添加"/>-->
-  </form>
-  </td>
+	<input type = "button" onclick="createTable()" value = "继续添加"/>
+</form>
 
-  <td class = "left_position" ><body>&nbsp;</body></td>
-  </tr>
-</table>
+
 
 <script>
-
-var i = 101
-function createTable(){ 
-    var table = document.getElementById("add"); 
-	 
-    var row = table.insertRow();//创建一行 
-    var cell = row.insertCell();//创建一个单元 
-    cell.innerHTML="&nbsp;";
-	 
-    var row1 = table.insertRow();//创建一行 
-    var cell1 = row1.insertCell();//创建一个单元 
-    var script_content = "script_content" + i;
-    //var id_num = "id" + i;
-    cell1.width = "20%";//更改cell的各种属性 
-    cell1.innerHTML=script_content;
-    cell1 = row1.insertCell();//创建一个单元 
-    cell1.width = "80%";//更改cell的各种属性 
-    cell1.innerHTML="<textarea rows = 8% class = 'class_size' name = "+ script_content + " required = 'required' ></textarea>"; 
-     
-    var row2 = table.insertRow();//创建一行 
-    var cell2 = row2.insertCell();//创建一个单元 
-    var work_dir = "work_dir" + i;
-    cell2.width = "20%";//更改cell的各种属性 
-    cell2.innerHTML=work_dir;
-    cell2 = row2.insertCell();//创建一个单元 
-    cell2.width = "80%";//更改cell的各种属性 
-    cell2.innerHTML="<input type = 'text' name = "+ work_dir + " class = 'class_size' required = 'required'/>"; 
-	 
-    var row3 = table.insertRow();//创建一行 
-    var cell3 = row3.insertCell();//创建一个单元 
-    var description = "description" + i;
-    cell3.width = "20%";//更改cell的各种属性 
-    cell3.innerHTML=description;
-    cell3 = row3.insertCell();//创建一个单元 
-    cell3.width = "80%";//更改cell的各种属性 
-    cell3.innerHTML="<input type = 'text' name = " + description + " class = 'class_size' required = 'required'/><input type = 'button' onclick = 'deletetable_new(this)' value = '删除'>";
-	 
-    //div.appendChild(table);
-    i ++;
-} 
-
-
-function deletetable_new(obj){
+function deletetable(obj){
     var index = obj.parentNode.parentNode.rowIndex;
-    var table = document.getElementById("add");
+    var table = document.getElementById("update_table");
     //alert(index);
     table.deleteRow(index);
     table.deleteRow(index-1);
     table.deleteRow(index-2);
-    table.deleteRow(index-3);
+    //table.deleteRow(index-3);
     //i--;
 }
 
-function deletetable(obj){
-    var index = obj.parentNode.parentNode.rowIndex;
-    var table = document.getElementById("update_table");
-    table.deleteRow(index);
-    table.deleteRow(index-1);
-    table.deleteRow(index-2);
-}
-
-function insert_table(obj){
-    var index = obj.parentNode.parentNode.rowIndex;
-    var table = document.getElementById("update_table");
-    //var cur_index = table.getElementsByTagName("tr")[index].firstChild.innerHTML.split("description")[1].split(":")[0];
-    //var next_index = table.getElementsByTagName("tr")[index+3].firstChild.innerHTML.split("description")[1].split(":")[0];
-    var cur_index = table.getElementsByTagName("tr")[index].getAttribute("name");
-    var next_index = table.getElementsByTagName("tr")[index+3].getAttribute("name");
-    if (next_index == null){
-         data_flag = parseFloat(cur_index) + 1.0;
-         //alert(data_flag);
-    }
-    else{
-        data_flag = (parseFloat(cur_index) + parseFloat(next_index))/2.0;
-    }
-    row1 = table.insertRow(index+1);
-    script_content = "script_content" + data_flag;
-    cell11 = row1.insertCell()
-    cell11.width = "20%";//更改cell的各种属性 
-    cell11.innerHTML = script_content;
-    cell12 = row1.insertCell()
-    cell12.width = "80%";//更改cell的各种属性 
-    cell12.innerHTML="<textarea rows = 8% class = 'class_size' name = "+ script_content + " required = 'required' ></textarea>"; 
-    
-    row2 = table.insertRow(index+2);
-    work_dir = "work_dir" + data_flag;
-    cell21 = row2.insertCell()
-    cell21.width = "20%";//更改cell的各种属性 
-    cell21.innerHTML = work_dir;
-    cell22 = row2.insertCell()
-    cell22.width = "80%";//更改cell的各种属性 
-    cell22.innerHTML="<input type = 'text' name = "+ work_dir + " class = 'class_size' required = 'required'/>"; 
- 
-    row3 = table.insertRow(index+3);
-    row3.setAttribute("name",data_flag);
-    description = "description" + data_flag;
-    cell31 = row3.insertCell()
-    cell31.width = "20%";//更改cell的各种属性 
-    cell31.innerHTML = description;
-    cell32 = row3.insertCell()
-    cell32.width = "80%";//更改cell的各种属性 
-    cell32.innerHTML="<input type = 'text' name = " + description + " class = 'class_size' required = 'required'/>\
-                      <input type = 'button' onclick = 'deletetable(this)' value = '删除'>\
-                      <input type = 'button' onclick = 'insert_table(this)' value = '插入'>";
-}
 
 
 function Radio_Timing(){

@@ -1,10 +1,12 @@
 ﻿from django import forms
 from models import *
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+
 
 class UserForm(forms.ModelForm):
     class Meta:
-        model = Register
+        model = Register 
         widgets = {"passwd":forms.PasswordInput(), "repasswd":forms.PasswordInput()}
 
     def clean_repasswd(self):

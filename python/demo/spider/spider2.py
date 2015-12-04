@@ -4,6 +4,7 @@ import urllib
 
 print "\nurllib.quote(string[, safe])：对字符串进行编码。参数safe指定了不需要编码的字符\n"
 astr = urllib.quote('this is "K"')
+print urllib.quote('this is "K"','this is "K"')
 print astr
 
 print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"

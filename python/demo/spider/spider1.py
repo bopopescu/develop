@@ -16,6 +16,7 @@ print page.info()
 print "返回Http状态码。如果是http请求，成功则返回200,网址未找到则返回404"
 print page.getcode()
 print type(page.getcode())
+print page.code
 if page.getcode() == 200:
     print 11111111111111111111111
 print "返回请求的 url"

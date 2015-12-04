@@ -222,7 +222,7 @@
 			<td class = "test_right" align = "1right">description{{forloop.counter}}:</td>
 			<td class = "test"><input class = "test" type = "text" name = "description{{forloop.counter}}" value = "{{each_step.description}}" required = "required">
                         <input type = 'button' onclick = 'deletetable(this)' value = '删除'>
-                        <input type = "button" onclick = "insert_table(this)" id= "description{{forloop.counter}}" value = "插入">
+                        <input type = "button" onclick = "insert_table(this)" id= "description{{forloop.counter}}" value = "insert">
                         <input type = "hidden" value = "1" />
                         </td>
 		</tr>
@@ -362,7 +362,7 @@ function insert_table(obj){
     cell32.width = "80%";//更改cell的各种属性 
     cell32.innerHTML="<input type = 'text' name = " + description + " class = 'class_size' required = 'required'/>\
                       <input type = 'button' onclick = 'deletetable(this)' value = '删除'>\
-                      <input type = 'button' onclick = 'insert_table(this)' value = '插入'>";
+                      <input type = 'button' onclick = 'insert_table(this)' value = 'insert'>";
 }
 
 

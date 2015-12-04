@@ -11,12 +11,16 @@ import subprocess
 import time
 import smtplib
 from email.mime.text import MIMEText
+from django.contrib import auth
+from django.contrib.auth.models import User
+import settings
+#from DjangoVerifyCode import Code
 
 log = logging.getLogger("django")
-
+temp_file = os.path.dirname(__file__) + "/temp_file.txt"
 
 @csrf_exempt
-def register(request):
+def register_old(request):
     if request.method == "POST":
         form = UserForm(request.POST)
         if form.is_valid():
@@ -29,10 +33,39 @@ def register(request):
     return render_to_response("register.html",locals())
 
 @csrf_exempt
+def register(request):
+    if request.method == "POST":
+        form = UserForm(request.POST)
+        if form.is_valid():
+            #form.save()
+            username = request.POST.get("username","").strip()
+            password = request.POST.get("passwd","").strip()
+            email = request.POST.get("email","").strip()
+            request.session["username"] = username
+            user = User.objects.create_user(username,email,password)
+            user.save()
+            return HttpResponseRedirect("/display_all_records/")
+    else:
+        form=UserForm()
+    return render_to_response("register.html",locals())
+
+
+
+@csrf_exempt
 def login(request):
+    if request.session.has_key("username"):
+        return HttpResponseRedirect("/display_all_records/")
     if request.method == "POST":
         username = request.POST.get("username","").strip()
         passwd = request.POST.get("passwd","").strip()
+        user = auth.authenticate(username=username,password=passwd)
+        if user is not None:
+            auth.login(request,user)
+            request.session["username"] = username
+            return HttpResponseRedirect("/display_all_records/")
+        else:
+            return HttpResponse("<body style = 'background-color:#77ac98'><a href = ''>密码不正确,点击返回重新登录</a></body>")
+        """
         try:
             register = Register.objects.get(username = username)
         except Exception,e:
@@ -43,10 +76,15 @@ def login(request):
             return HttpResponseRedirect("/display_all_records/")
         else:
             return HttpResponse("<body style = 'background-color:#77ac98'><a href = ''>密码不正确,点击返回重新登录</a></body>")
+        """
     return render_to_response("login.html", locals())
 
-
 def logout(request):
+    auth.logout(request)
+    return HttpResponseRedirect("/display_all_records/")
+
+
+def logout_old(request):
     if request.session.has_key("username"):
         del request.session["username"]
         return HttpResponseRedirect("/display_all_records/")
@@ -87,11 +125,13 @@ def get_passwd(request):
     email = request.POST.get("email","").strip()
     if username and email:
         try:
-            register = Register.objects.get(username = username)
+            #register = Register.objects.get(username = username)
+            register = User.objects.get(username = username)
         except Exception,e:
             return HttpResponse("<body style = 'background-color:#77ac98'><a href = ''>用户名不存在,点击返回重新填写</a></body>")
         else:
-            passwd = register.passwd
+            #passwd = register.passwd
+            passwd = register.password
             content = "Hello,your password is: %s" % passwd
             title = "Find Password"
             send_mail([email],title,content)
@@ -157,7 +197,10 @@ def read_file_lines(filename):
 
 def create_slave(masterip,slave_path,slaveip,slave_platform,slavename):
     try:
-        create_slave_cmd = "buildslave create-slave " + slave_path + " " + masterip + ":9989 " + slavename + " 123456"
+        if slaveip == "10.10.2.97":
+            create_slave_cmd = "C:/Python27/Scripts/buildslave create-slave " + slave_path + " " + masterip + ":9989 " + slavename + " 123456"
+        else:
+            create_slave_cmd = "buildslave create-slave " + slave_path + " " + masterip + ":9989 " + slavename + " 123456"
         salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + create_slave_cmd + '"'
         #os.system(create_slave_cmd)
         os.system(salt_cmd)
@@ -180,7 +223,10 @@ def create_start_slave_script(slave_platform,slave_source_path,slavename):
 def start_slave_script(slaveip,slave_platform,slave_source_path,slavename):
     try:
         log.info("begin to start slave: %s!" % slavename)
-        start_slave_cmd = "buildslave start " + os.path.join(slave_source_path,slavename)
+        if slaveip == "10.10.2.97":
+            start_slave_cmd = "C:/Python27/Scripts/buildslave start " + os.path.join(slave_source_path,slavename)
+        else:
+            start_slave_cmd = "buildslave start " + os.path.join(slave_source_path,slavename)
         salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + start_slave_cmd + '"'
         subprocess.Popen(salt_cmd, shell = True)
         log.info("start slave cmd is: " + salt_cmd)
@@ -189,25 +235,63 @@ def start_slave_script(slaveip,slave_platform,slave_source_path,slavename):
         log.info(str(e))
 
 
-def create_new_master(master_template,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list,git_project_path_flag = False):
+def create_new_master(master_template,slaveip,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list,git_project_path_flag = False):
     content = read_file(master_template)
-    new_content = content.replace("buildername", buildername).replace("Slave_Name", slavename).replace("git_url", git_project_path).replace("branches_list", str(branches_list))\
+    new_content = content.replace("slave_ip",slaveip).replace("buildername", buildername).replace("Slave_Name", slavename).replace("git_url", git_project_path).replace("branches_list", str(branches_list))\
                   .replace("monitor_file_path", monitor_file_path).replace("start_hour",hour).replace("start_minute",minute).replace("send_mail_list",str(send_mail_list))
     if git_project_path_flag:
         new_content = new_content.replace("c['change_source'].append(cs_gitpoller)","#c['change_source'].append(cs_gitpoller)")
     write_file(new_master, new_content)
     log.info("create new master config file: %s successfully!" % new_master)
 
+def get_lock(locks_file, slaveip):
+    ip = slaveip.strip().split(".")[-1]
+    if os.path.exists(locks_file):
+        all_lines = read_file_lines(locks_file)
+        flag = True
+        for each_line in all_lines:
+            if each_line.strip().startswith("db_lock_" + ip) or "db_lock_" + ip in each_line:
+                flag = False
+                log.info("db_lock_" + ip + " already exists!")
+                break
+        if flag:
+            new_content = ""
+            db_lock = "db_lock_" + ip
+            new_content += "\n" + db_lock + "=locks.MasterLock('database_" + ip +  "')"
+            new_content += "\nbuild_lock_dict['" + db_lock + "'] = "+ db_lock
+            increase_file(locks_file, new_content)
+    else:
+        new_content = ""
+        db_lock = "db_lock_" + ip
+        new_content += "\n" + db_lock + "=locks.MasterLock('database_" + ip +  "')"
+        new_content += "\nbuild_lock_dict['" + db_lock + "'] = " + db_lock
+        #new_content += "db_lock_" + ip + "=locks.MasterLock('database_" + ip +  "')"
+        #new_content += "\nbuild_lock_list.append('" + "db_lock_" + ip + "')"
+        write_file(locks_file, new_content)
 
 
-def import_new_master(old_master,buildername):
+def import_new_master(old_master,slaveip,buildername):
     new_list = []
     all_lines = read_file_lines(old_master)
+    #flag = True
+    #ip = slaveip.strip().split(".")[-1]
+    #for each_line in all_lines:
+    #    if each_line.strip().startswith("db_lock_" + ip) or "db_lock_" + ip in each_line:
+    #        flag = False
+    #        log.info("db_lock_" + ip + " already exists!")
+    #        break
+
     for each_line in all_lines:
         if each_line.startswith("c = BuildmasterConfig = {}"):
             each_line += "\nimport master_" + buildername
+        #elif each_line.startswith("#BUILDLOCK") or "#BUILDLOCK" in each_line:
+        #    if flag:
+        #        each_line += "\ndb_lock_" + ip + "=locks.MasterLock('database_" + ip +  "')"
+        #        each_line += "\nbuild_lock_list.append('" + "db_lock_" + ip + "')"
         new_list.append(each_line)
+        
     new_list.append("c = master_" + buildername + ".update_params_dict(c)\n")
+    #new_list.append("master_" + buildername + ".get_lock(build_lock_list)\n")
     try:    
         fp = open(old_master, "w")
         for each_line in new_list:
@@ -241,6 +325,7 @@ def deal_with_data(input_data):
 
 def get_params(slave_platform,slavename,buildername):
     old_master = "/home/goland/buildbot/master/master.cfg"
+    locks_file = "/home/goland/buildbot/master/locks.py"
     master_template = "/home/goland/buildbot/master/master_template.cfg"
     factory_template = "/home/goland/buildbot/master/factory_template.py"
     new_master = "/home/goland/buildbot/master/master_" + buildername + ".py"
@@ -248,8 +333,11 @@ def get_params(slave_platform,slavename,buildername):
     if slave_platform.upper() == "WIN":
         slave_source_path = "X:/"
         slave_scripts_path = "d:/Buildbot_DVDFab/tool/scripts"
+    #elif slave_platform.upper() == "MAC":
+    #    slave_source_path = "/Volumes/X/"
+    #    slave_scripts_path = "/Volumes/DATA/Buildbot_DVDFab/tool/scripts"
     elif slave_platform.upper() == "MAC":
-        slave_source_path = "/Volumes/X/"
+        slave_source_path = "/Volumes/DATA"
         slave_scripts_path = "/Volumes/DATA/Buildbot_DVDFab/tool/scripts"
     elif slave_platform.upper() == "UBU":
         slave_source_path = "/home/goland/buildbot"
@@ -257,7 +345,7 @@ def get_params(slave_platform,slavename,buildername):
     src_scripts_path = "/home/goland/buildbot/scripts"
     scripts_path = os.path.join(src_scripts_path,slavename)
     builder_waterfall_address = "http://10.10.2.64:8010/waterfall?show=" + buildername
-    return old_master,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address
+    return old_master,locks_file,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address
 
 
 def make_dirs(slave_source_path,slave_scripts_path,slave_platform,slaveip):
@@ -282,6 +370,8 @@ def git_first_commit(src_scripts_path,scripts_path,slavename,slaveip,slave_platf
 
 
 def git_commit(src_scripts_path, scripts_path, slavename,slaveip,slave_platform):
+    git_add_cmd = "git add " + scripts_path    
+    subprocess.call(git_add_cmd, cwd = src_scripts_path, shell = True)
     git_commit_cmd = "git commit %s -m 'update for %s'" % (scripts_path, slavename)
     subprocess.call(git_commit_cmd, cwd = src_scripts_path, shell = True)
     git_push_origin = "git push origin master"
@@ -290,7 +380,7 @@ def git_commit(src_scripts_path, scripts_path, slavename,slaveip,slave_platform)
 
 
 def git_clone(slave_scripts_path,slavename,slaveip,slave_platform):
-    git_url = "git@10.10.2.31:documents/buildsystem.git"
+    git_url = "git@10.10.2.31:autobuild/auto_build.git"
     git_clone_cmd = "git clone " + git_url + " " + slave_scripts_path
     salt_cmd_git_clone = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + git_clone_cmd + '"'
     log.info("git clone cmd is: " + git_clone_cmd)    
@@ -308,6 +398,82 @@ def git_pull(slave_scripts_path, slaveip, slave_platform):
     salt_cmd_git_pull = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + git_pull_cmd + '"'
     subprocess.Popen(salt_cmd_git_pull, cwd = slave_scripts_path, shell = True)
     
+
+def get_submit_script_content_values_old(post_dict):
+    log.info("post params are: " + str(post_dict))
+    flag_str = "script_content"
+    temp_list = []
+    script_content_list = []
+    for each_key in post_dict.keys():
+        log.info("params is: " + each_key)
+        if flag_str in each_key:
+            temp_each_key = each_key.replace(flag_str,"")
+            try:
+                temp_list.append(int(temp_each_key))
+                log.info("int: " + temp_each_key)
+            except Exception,e:
+                temp_list.append(float(temp_each_key))
+                log.info("float: " + temp_each_key)
+    for record in sorted(temp_list):
+        script_content_list.append(flag_str + str(record).replace(".","__"))
+        log.info("step is: " + flag_str + str(record)) 
+    
+    #script_content_list = sorted([i.replace(".","__") for i in post_dict.keys() if "script_content" in i])
+    return script_content_list
+
+def get_submit_script_content_values(post_dict):
+    log.info("post params are: " + str(post_dict))
+    flag_str = "script_content"
+    temp_list = []
+    script_content_list = []
+    for each_key in post_dict.keys():
+        log.info("params is: " + each_key)
+        if flag_str in each_key:
+            temp_each_key = each_key.replace(flag_str,"")
+            try:
+                temp_list.append(int(temp_each_key))
+                log.info("int: " + temp_each_key)
+            except Exception,e:
+                temp_list.append(float(temp_each_key))
+                log.info("float: " + temp_each_key)
+    for record in sorted(temp_list):
+        script_content_list.append(flag_str + str(record))
+        log.info("step is: " + flag_str + str(record)) 
+    log.info("script content list is: " + str(script_content_list)) 
+    
+    #script_content_list = sorted([i.replace(".","__") for i in post_dict.keys() if "script_content" in i])
+    return script_content_list
+
+def get_submit_script_content_values_new(post_dict):
+    for i in post_dict.keys():
+        log.info("each key is: " + i)
+    script_content_list = sorted([i.replace(".","__") for i in post_dict.keys() if "script_content" in i])
+    return script_content_list
+
+
+def format_file(temp_file, script_file):
+    all_lines = read_file_lines(temp_file)
+    fp = open(script_file, "w")
+    for each_line in all_lines:
+        fp.write(each_line.strip("\r\n") + "\n")
+    fp.close()
+
+#def checkname(request):
+#    user = None
+#    if request.POST.has_key("slavename"):
+#        slavename = reuqest.POST["slavename"]
+#        result = {}
+#        user = Build_Info.objects.filter(slavename_iexact = slavename)
+#    if user:
+#        result = "1"
+#        result = simplejson.dumps(result)
+#    else:
+#        result = "0"
+#        result = simplejson.dumps(result)
+#    return HttpResponse(result, mimetype = 'application/javascript')
+
+
+
 @csrf_exempt
 def create_new_build(request):
     masterip = request.POST.get("masterip", "").strip()
@@ -327,6 +493,8 @@ def create_new_build(request):
     script_content1 = request.POST.get("script_content1", "").strip()
     work_dir1 = request.POST.get("work_dir1", "").strip()
     description1 = request.POST.get("description1", "").strip()
+    #write_file("/home/goland/auto_create_build/create_build/xdd.txt",request.POST["script_content1"])
+    #return HttpResponse(request.POST["script_content1"])
     if len(request.POST.values()) == 0:
         return render_to_response("error.html")
     if not start_method:
@@ -354,7 +522,7 @@ def create_new_build(request):
     else:
         git_project_path_flag = False
     
-    old_master,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address = get_params(slave_platform,slavename,buildername)
+    old_master,locks_file,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address = get_params(slave_platform,slavename,buildername)
     build_info = Build_Info(masterip = masterip, slaveip = slaveip, slave_platform = slave_platform, slavename = slavename, buildername = buildername,start_method = start_method,\
                             username = username, hour = hour,minute = minute,git_project_path = git_project_path,branches = branches,monitor_file_path = monitor_file_path,\
                             send_mail = send_mail, flag = 1, new_master = new_master, new_factory = new_factory,scripts_path = scripts_path)
@@ -372,24 +540,36 @@ def create_new_build(request):
     else:
         other_length = 7
     table_length = all_length - other_length
+    
+    script_content_list = get_submit_script_content_values(request.POST)
     if table_length > 0:
-        for each_num in xrange(1,(table_length/3)+1):
+        num = 1
+        for each_key in script_content_list:
+            each_num = each_key.replace("script_content","")
             if not os.path.exists(scripts_path):
                 os.makedirs(scripts_path, mode = 0777)
+            #if slave_platform == "Win":
+            #    filename = "script" + each_num + ".bat"    
+            #else:
+            #    filename = "script" + each_num + ".sh"
             if slave_platform == "Win":
-                filename = "script" + str(each_num) + ".bat"    
+                filename = "script" + str(num) + ".bat"
             else:
-                filename = "script" + str(each_num) + ".sh"
+                filename = "script" + str(num) + ".sh"
+            log.info("create new build, each key is: " + each_key)
             script_file = os.path.join(scripts_path, filename).replace("\\","/") 
-            slave_script_file = os.path.join(os.path.join(slave_scripts_path,slavename), filename).replace("\\","/") 
-            write_file(script_file, request.POST["script_content" + str(each_num)])
+            slave_script_file = os.path.join(os.path.join(slave_scripts_path,slavename), filename).replace("\\","/")
+            #write_file(script_file, request.POST[each_key].strip())
+            write_file(temp_file, request.POST[each_key].strip())
+            format_file(temp_file, script_file)
             build_steps = Build_Steps(build_info_id = build_info_id, script_content = script_file,slave_script_file = slave_script_file, \
-                                  work_dir = request.POST["work_dir" + str(each_num)], description = request.POST["description" + str(each_num)])
+                                  work_dir = request.POST["work_dir" + each_num], description = request.POST["description" + each_num])
             build_steps.save()
+            num += 1
     log.info("-----------------------------begin----------------------------------\n")
     log.info("master ip is: %s" % masterip)
-    log.info("slave ip is: %s" % slaveip)
-    log.info("slave platform is: %s" % slave_platform)
+    log.info("build ip is: %s" % slaveip)
+    log.info("build platform is: %s" % slave_platform)
     log.info("slavename is: %s" % slavename)
     log.info("buildername is: %s" % buildername)
     #make_dirs(slave_source_path,slave_scripts_path,slave_platform,slaveip)
@@ -399,8 +579,9 @@ def create_new_build(request):
     log.info(send_mail_list)
     slave_path = os.path.join(slave_source_path, slavename)
     create_slave(masterip,slave_path,slaveip,slave_platform,slavename)
-    create_new_master(master_template,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list,git_project_path_flag)
-    import_new_master(old_master,buildername)
+    create_new_master(master_template,slaveip,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list,git_project_path_flag)
+    import_new_master(old_master,slaveip,buildername)
+    get_lock(locks_file, slaveip)
     create_new_factory(build_info_id,slave_platform,factory_template,new_factory)
     restart_master()
     
@@ -463,7 +644,7 @@ def display_all_used_records(request):
 #display each record details
 def display_details(request,params):
     build_info = Build_Info.objects.get(id = params)
-    build_steps = Build_Steps.objects.filter(build_info_id = params)
+    build_steps = Build_Steps.objects.filter(build_info_id = params).order_by("slave_script_file")
     all_counts = build_steps.count()
     all_list = []
     for each_record in build_steps:
@@ -527,7 +708,7 @@ def update_info_page(request, params):
         hours = [i for i in xrange(24)]
         minutes = [i for i in xrange(60)]
         build_info= Build_Info.objects.get(id = params)
-        build_steps = Build_Steps.objects.filter(build_info_id = params)
+        build_steps = Build_Steps.objects.filter(build_info_id = params)#.order_by("slave_script_file")
         all_list = []
         for each_record in build_steps:
             context = {}
@@ -548,7 +729,7 @@ def update_info_page(request, params):
 @csrf_exempt
 def update_info(request,params):
     build_info = Build_Info.objects.filter(id=params)
-    build_steps = Build_Steps.objects.filter(build_info_id=params)
+    build_steps = Build_Steps.objects.filter(build_info_id=params)#.order_by("slave_script_file")
     masterip = request.POST.get("masterip", "").strip()
     slaveip = request.POST.get("slaveip", "").strip()
     slave_platform = request.POST.get("slave_platform", "").strip()
@@ -568,7 +749,8 @@ def update_info(request,params):
     new_master = request.POST.get("new_master","").strip()
     new_factory = request.POST.get("new_factory","").strip()
     scripts_path = request.POST.get("scripts_path","").strip()
-    
+   
+
     for each_value in request.POST.values():
         if not each_value.strip():
             return render_to_response("update_error.html", locals())
@@ -588,32 +770,78 @@ def update_info(request,params):
 
     build_info.update(masterip = masterip, slaveip = slaveip, slave_platform = slave_platform, slavename = slavename,buildername = buildername,\
                       start_method = start_method,username = username, hour = hour,minute = minute,git_project_path = git_project_path,branches = branches,\
-                      monitor_file_path = monitor_file_path,send_mail = send_mail, flag = 1,new_master = new_master,new_factory = new_factory,scripts_path = scripts_path)
+                      monitor_file_path = monitor_file_path,send_mail = send_mail, flag = 1)
 
+
+
+    old_master,locks_file,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address = get_params(slave_platform,slavename,buildername)
+    all_length = len(request.POST)
     all_count = build_steps.count()
+
+    #delete old steps before save new steps
+    for each_build_step in build_steps:
+        each_step = Build_Steps.objects.get(id = each_build_step.id)
+        each_step.delete()
+    """
+    #save new steps    
     if all_count > 0:
         for each_num in xrange(1,all_count+1):
+            if not os.path.exists(scripts_path):
+                os.makedirs(scripts_path, mode = 0777)
             if slave_platform == "Win":
                 filename = "script" + str(each_num) + ".bat"    
             else:
                 filename = "script" + str(each_num) + ".sh"
-            script_file = os.path.join(scripts_path, filename).replace("\\","/")
-            write_file(script_file, request.POST["script_content" + str(each_num)])
-            each_step = build_steps.filter(script_content = script_file)
-            each_step.update(build_info_id = params, script_content = script_file,\
-                             work_dir = request.POST["work_dir" + str(each_num)], description = request.POST["description" + str(each_num)])
+            script_file = os.path.join(scripts_path, filename).replace("\\","/") 
+            slave_script_file = os.path.join(os.path.join(slave_scripts_path,slavename), filename).replace("\\","/")
+            if request.POST.has_key("script_content" + str(each_num)): 
+                write_file(script_file, request.POST["script_content" + str(each_num)])
+                new_build_steps = Build_Steps(build_info_id = params, script_content = script_file,slave_script_file = slave_script_file, \
+                                  work_dir = request.POST["work_dir" + str(each_num)], description = request.POST["description" + str(each_num)])
+                new_build_steps.save()
+    """
+
+    script_content_list = get_submit_script_content_values(request.POST)
+    #return HttpResponse(script_content_list)
+    num = 1
+    for each_key in script_content_list:
+        each_num = each_key.replace("script_content","")
+        if not os.path.exists(scripts_path):
+            os.makedirs(scripts_path, mode = 0777)
+        #if slave_platform == "Win":
+        #    filename = "script" + each_num + ".bat"
+        #else:
+        #    filename = "script" + each_num + ".sh"
+        if slave_platform == "Win":
+            filename = "script" + str(num) + ".bat"
+        else:
+            filename = "script" + str(num) + ".sh"
+        script_file = os.path.join(scripts_path, filename).replace("\\","/")
+        slave_script_file = os.path.join(os.path.join(slave_scripts_path,slavename), filename).replace("\\","/")
+        #write_file(script_file, request.POST[each_key.replace("__",".")])
+        #write_file(script_file, request.POST[each_key].strip())
+        write_file(temp_file, request.POST[each_key].strip())
+        format_file(temp_file, script_file)
+        log.info("xudedong: " + each_key)
+        #build_steps = Build_Steps(build_info_id = params, script_content = script_file,slave_script_file = slave_script_file,\
+        #                          work_dir = request.POST["work_dir" + each_num.replace("__",".")], description = request.POST["description" + each_num.replace("__",".")])
+        build_steps = Build_Steps(build_info_id = params, script_content = script_file,slave_script_file = slave_script_file,\
+                                  work_dir = request.POST["work_dir" + each_num], description = request.POST["description" + each_num])
+        build_steps.save()
+        num += 1
+            
 
     log.info("update success!!")
     branches_list = deal_with_data(branches)
     send_mail_list = deal_with_data(send_mail)
-    old_master,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address = get_params(slave_platform,slavename,buildername)
-    create_new_master(master_template,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list,git_project_path_flag)
+    create_new_master(master_template,slaveip,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list,git_project_path_flag)
     create_new_factory(params,slave_platform,factory_template,new_factory)
     git_commit(os.path.dirname(scripts_path), scripts_path, slavename,slaveip,slave_platform)
     #git_pull(slave_scripts_path, slaveip, slave_platform)
     restart_master()
     log.info("-----------------------------end----------------------------------\n")
     return render_to_response("update_success.html",{"builder_waterfall_address":builder_waterfall_address})
+
 
 def delete_files(filename):
     if os.path.exists(filename):
@@ -623,7 +851,10 @@ def delete_files(filename):
 def stop_slave(slaveip,slave_platform,slave_source_path,slavename):
     try:
         log.info("begin to stop slave: %s!" % slavename)
-        stop_slave_cmd = "buildslave stop " + os.path.join(slave_source_path,slavename)
+        if slaveip == "10.10.2.97":
+            stop_slave_cmd = "C:/Python27/Scripts/buildslave stop " + os.path.join(slave_source_path,slavename)
+        else:
+            stop_slave_cmd = "buildslave stop " + os.path.join(slave_source_path,slavename)
         salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + stop_slave_cmd + '"'
         subprocess.Popen(salt_cmd, shell = True)
         log.info("stop slave cmd is: " + salt_cmd)
@@ -643,6 +874,9 @@ def update_master(masterip,buildername):
         elif each_line.strip().startswith("c = master_" + buildername + ".update_params_dict(c)"):
             log.info("remove this line: %s" % each_line)
             flag = 1
+        elif each_line.strip().startswith("master_" + buildername + ".get_lock(build_lock_list)"):
+            log.info("remove this line: %s" % each_line)
+            flag = 1
         else:
             new_line_list.append(each_line)
     if flag:
@@ -659,17 +893,22 @@ def delete(request, params):
         build_info = Build_Info.objects.get(id=params)
         masterip = build_info.masterip
         build_steps = Build_Steps.objects.filter(build_info_id=params)
-        build_info.flag = 2
-        build_info.save()
         masterip = build_info.masterip
         slaveip = build_info.slaveip
         slavename = build_info.slavename
         slave_platform = build_info.slave_platform
         buildername = build_info.buildername
-        old_master,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address = get_params(slave_platform,slavename,buildername)
+        old_master,locks_file, master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address = get_params(slave_platform,slavename,buildername)
         stop_slave(slaveip,slave_platform,slave_source_path,slavename)
         update_master(masterip,buildername)
         restart_master()
+        #build_info.slavename = 2
+        #build_info.buildername = 2
+        if not build_info.slavename.endswith("_del"):
+            build_info.slavename = build_info.slavename + "_del"
+            build_info.buildername = build_info.buildername + "_del"
+        build_info.flag = 2
+        build_info.save()
         return HttpResponseRedirect("/display_all_used_records/")
     else:
         return HttpResponse("<body style = 'background-color:#77ac98'><a href = '/login/'>请先登录</a></body>")
