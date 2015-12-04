@@ -782,7 +782,7 @@ build_lock = locks.SlaveLock("slave_builds",
     一般这种情况可以重启机器来解决。
 
 51：在本地配置git公钥
-   切记：windows下一定要在git bash窗口下运行，不要在cmd窗口中执行
+   切记：windows下一定要在git bash窗口下运行，不要在cmd窗口中执行。 并且将生成的文件拷贝到git的安装目录下的.ssh目录里。
 
    (1): 　git config --global user.name "dedong.xu"
 
@@ -1130,7 +1130,10 @@ LOGGING = {
     b: 用的是 onclick 和 onblur
 
        <input type = "text" value = "当前步骤" onclick="if(value==defaultValue){value='';this.style.color='#000'}" onBlur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" />
+   
+    c: 用placeholder 这个的话，用js判断时，value是空的。而且鼠标点击文本框，文字也不会消失，只有在输入的时候这些默认的文字才会消失
 
+       <input id = "project" class = "right_width" type = "text" name = "project_name" placeholder = "工程名必须是git的全路径。" />
 
 
 74：Linux下杀死进程的命令： kill -s 9 pid
@@ -1149,16 +1152,135 @@ LOGGING = {
 77：ps -ef | grep process_name   可以查看进程的名字
 
 
+78：js大小写字符串
+       将字符串小写：  "QuiQk".toLowerCase()
+       将字符串大写： "QuiQk".toUpperCase()
+
+
+79：js去空格函数
+
+function trimstr(strings){
+	return strings.replace(/(^\s*)|(\s*$)/g, "");
+}
+
+80：js字符串比较大小
+
+"a".localeCompare("b")表示a与b进行比较， a小于b，返回-1；a大于b，返回1；a等于b，返回0。
+
+
+81：注意要善于使用Django的模板引擎。尤其是{% extends base.html %}等类似的引擎。
+
+
+82：ln是linux中一个非常重要的命令，它的功能主要是为了某个文件在另外一个位置建立一个相同的链接，这个命令最常用的的参数是-s，具体用法如下：
+
+        ln -s 源文件 目标文件              -s是symbolic的意思。
+
+        ln -s 源文件 目标文件  创建软连接；   去掉 -s 参数可以创建硬链接。
+
+        例：ln  -s  /lib/lsb   /usr/lj
+
+        即：在usr目录下建立指向/lib/lsb目录的lj文件。
 
 
 
 
+83：如何安装salt-minion
+
+在 Ubuntu 上安装 salt minion：
+ sudo add-apt-repository ppa:saltstack/salt 
+ sudo apt-get update 
+ sudo apt-get install salt-minion
+
+
+84:Mysql的索引操作
+
+         A：建立索引
+        在执行CREATE TABLE语句时可以创建索引，也可以单独用CREATE INDEX或ALTER TABLE来为表增加索引。
+        
+        1）：使用create index方式建立
+         create index index_name on table_name(column_list)
+         索引名index_name不可选。另外，不能用CREATE INDEX语句创建PRIMARY KEY索引。
+
+        2）：使用alter table来创建普通索引， UNIQUE索引或者PRIMARY KEY索引
+
+        alter table table_name add INDEX index_name(column_list)
+        alter table table_name add UNIQUE (column_list)
+        alter table table_name add PRIMARY KEY (column_list)
+
+        其中table_name是要增加索引的表名，column_list指出对哪些列进行索引，多列时各列之间用逗号分隔。
+       索引名index_name可选，缺省时，MySQL将根据第一个索引列赋一个名称。
+       另外，ALTER TABLE允许在单个语句中更改多个表，因此可以在同时创建多个索引。
 
 
 
+       B： 删除索引
+
+       可利用ALTER TABLE或DROP INDEX语句来删除索引。类似于CREATE INDEX语句，DROP INDEX可以在ALTER TABLE内部作为一条语句处理
+
+       1):  DROP INDEX index_name ON table_name
+
+       2):  alter table table_name DROP INDEX index_name
+
+       3):  alter table table_name DROP PRIMARY KEY
+
+       注：前两条语句是等价的，删除掉table_name中的索引index_name。
+       第3条语句只在删除PRIMARY KEY索引时使用，因为一个表只可能有一个PRIMARY KEY索引，因此不需要指定索引名。
+      如果没有创建PRIMARY KEY索引，但表具有一个或多个UNIQUE索引，则MySQL将删除第一个UNIQUE索引
+      如果从表中删除了某列，则索引会受到影响。对于多列组合的索引，如果删除其中的某列，则该列也会从索引中删除。如果删除组成索引的所有列，则整个索引将被删除。
+
+
+      C:   查看索引
+      
+     1):  show index from table_name
+
+     2):  show keys from table_name
 
 
 
+84：Mysql性能优化
+
+       A：建立索引。 如上所示。
+
+        B：优化子查询-------------------- 使用连接查询寻代替子查询
+
+        很多查询中需要使用子查询。子查询可以使查询语句很灵活，但子查询的执行效率不高。MySQL需要为内层查询语句的查询结果建立一个临时表。
+        然后外层查询语句在临时表中查询记录。查询完毕后，MySQL需要插销这些临时表。所以在MySQL中可以使用连接查询来代替子查询。
+        连接查询不需要建立临时表，其速度比子查询要快。
+
+         C：优化数据库结构
+
+         1) ： 将字段很多的表分解成多个表
+
+         2）：增加中间表
+                   先分析经常需要同时查询的那几个表中的那些字段，然后将这些字段建立一个中间表，并将原来的那几个表的数据插入到中间表中，之后就可以使用中间表来进行查询和统计了。
+
+         3）：增加冗余字段-----------------------联表查询会浪费很多时间，所以有时候增加冗余字段是可以的。
+
+                   表的规范程度越高，表与表之间的关系就越多，查询时可能经常需要在多个表之间进行连接查询，则会降低查询速度。
+
+                   比如，学生的信息存储在student表中，院系的信息存储在department表中，通过student表中的dept_id字段与department表建立关联关系。
+                   如果要查询一个学生所在系的名称，必须从student表中拿到dept_id字段，然后根据这个编号去department表中查找系的名称。
+                   如果经常需要进行这个操作的话，连接查询会浪费很多时间。因此可以在student表中增加一个冗余字段dept_name，这样就不用每次都进行连接查询了。
+                  虽然表有些冗余，数据重复很多，但是可以提高查询速度。  其实就是一切以业务为主。
+
+
+        4）：优化插入记录的速度
+
+                  插入记录时，索引和唯一性校验都会影响到插入记录的速度。而且，一次插入多条记录和多次插入一条记录所消耗的时间是不一样的。
+
+                   a：禁用索引
+                   插入记录时，MySQL会根据表的索引对插入的记录进行排序。如果插入大量的数据时，这些排序会降低插入的速度。为了解决这种情况，在插入记录之前先禁用索引。等插入之后再启用索引。
+                   对于新创建的表，可以先不创建索引，等记录都导入之后再创建索引。这样可以提高导入数据的速度。
+
+                   禁用索引：alter table table_name DISABLE KEYS;
+                   启用索引：alter table table_name ENABLE  KEYS;
+                
+                   b：优化INSERT语句：
+                   当大量插入数据时，建议使用一个INSERT语句插入多条记录，而不是使用多次INSERT语句。这样可以减少与数据库之间的连接等操作。
+
+
+        5）：分析表， 检查表， 优化表
+         
 
 
 
