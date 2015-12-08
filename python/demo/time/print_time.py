@@ -6,9 +6,10 @@
 
 import re
 import sys
+total_list = []
 
 start_time = "2010-12-27"
-end_time = "2013-01-02"
+end_time = "2063-01-02"
 #month = [i for i in xrange(1,13)]
 #day = [i for i in xrange(1,32)]
 
@@ -36,7 +37,8 @@ def get_day(start_time,end_time,year, month, range_day_start,range_day_end):
         each_day = format_month_or_day(each_day)
         output_date = str(year) + "-" + month + "-" + each_day
         if start_time <= output_date <= end_time:
-            print output_date
+            #print output_date
+            total_list.append(output_date)
 
 def format_time(start_time,end_time):
     pattern = "^\d{4}-\d{2}-\d{2}$"
@@ -98,7 +100,10 @@ def format_time(start_time,end_time):
     #(截止年份小于起始年份)    
     else:
         print "截止日期小于起始日期，请重新输入。年份有错误"
+    return total_list
 
 if __name__ == "__main__":
-    format_time(start_time,end_time)
+    total_list = format_time(start_time,end_time)
+    #print total_list
+    print len(total_list)
     #format_time(sys.argv[1],sys.argv[2])
