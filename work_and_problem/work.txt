@@ -1313,9 +1313,9 @@ function trimstr(strings){
                       dict_result = chardet.detect(check_code)
                       bianma = dict_result["encoding"]
                      if bianma == None:
-                         pass
+                         checked_code = check_code
                       elif bianma.upper() == "UTF-8":
-                          pass
+                          checked_code = check_code 
                       else:
                           checked_code = check_code.decode("gb2312", "ignore").encode("utf-8")
                       return checked_code
