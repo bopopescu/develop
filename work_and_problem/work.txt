@@ -1237,7 +1237,7 @@ function trimstr(strings){
 
 
 
-84：Mysql性能优化
+85：Mysql性能优化
 
        A：建立索引。 如上所示。
 
@@ -1280,6 +1280,50 @@ function trimstr(strings){
 
 
         5）：分析表， 检查表， 优化表
+
+
+
+86：关于python解决插入Mysql数据库中文乱码的问题
+    
+        首先需要保证以下四项的编码都是utf-8
+        
+        A：代码                      
+        B：数据库连接                     
+        C：表的字符集格式              
+        D：插入的数据格式
+
+       每步的操作如下：
+
+       1）：保证代码的格式是utf-8，在代码最前面加上这句话
+                 #-*- encoding:utf-8 -*-
+
+      2）：程序里连接数据库的时候指定连接格式为utf8
+                 conn = MySQLdb.connect(host='localhost', user='root',passwd='xxxxx',charset='utf8')
+                 conn.select_db(db_name)
+                 cur = conn.cursor()
+
+       3）：保证表的字符集格式为utf-8， 在创建数据库的时候指定字符集为utf8的编码
+                 create database mydb character set utf8
+
+       4）：保证插如的数据格式为utf-8，分别为：保证读取的页面格式是utf-8 和 字符串格式也是 utf-8
+                  此处只是在python脚本里处理编码格式
+
+                  import chardet
+                  def detect_code(check_code): 
+                      dict_result = chardet.detect(check_code)
+                      bianma = dict_result["encoding"]
+                     if bianma == None:
+                         pass
+                      elif bianma.upper() == "UTF-8":
+                          pass
+                      else:
+                          checked_code = check_code.decode("gb2312", "ignore").encode("utf-8")
+                      return checked_code
+
+                  
+
+                   
+       
          
 
 
