@@ -10,11 +10,12 @@ cursor:pointer
 <!--d3d7d4-->
 <body style = "background-color:#77ac98">
 	<div align = 'center'>
-		<form action = '/search_info/' method = 'POST' onsubmit = "return NotEmpty()">
+		<form action = '.' method = 'GET' onsubmit = "return NotEmpty()">
 		    <select name = 'search_name'>
 		        <option value = 'slavename'>slavename</option>
 	                <option value = 'buildername'>buildername</option>
 		        <option value = 'slave_platform'>slave_platform</option>
+		        <option value = 'buildip'>buildip</option>
 		        <option value = 'username'>username</option>
 		    </select>
 		    <input type = 'text' id = "search_value" name = 'record_name'  value = '{{record_name}}' required = "required"/>
@@ -85,24 +86,38 @@ cursor:pointer
 		{% endfor %}
 	</table>
 	<br />
+     {% ifequal search_name ""%}  
+            {% ifequal count 0 %}
+            {% else %}
+		<a href = "?nowpage=1">首页</a>
+	    {% ifequal nowpage 1 %}
+	    {% else %}
+			<a href = "?nowpage={{pageup}}">上一页</a>
+           {% endifequal %}
+
+           {% ifequal nowpage pageall %}
+           {% else %}
+		<a href = "?nowpage={{pagedn}}">下一页</a>
+		{% endifequal %}
+			<a href = "?nowpage={{pageall}}">末页</a>
+	    {% endifequal %}
+    {% else %}
 	{% ifequal count 0 %}
 	{% else %}
-		<a href = "?nowpage=1">首页</a>
+		<a href = "?search_name={{search_name}}&record_name={{record_name}}&nowpage=1">首页</a>
 		{% ifequal nowpage 1 %}
 		{% else %}
-			<a href = "?nowpage={{pageup}}">上一页</a>
+			<a href = "?search_name={{search_name}}&record_name={{record_name}}&nowpage={{pageup}}">上一页</a>
 	{% endifequal %}
 
 	{% ifequal nowpage pageall %}
 	{% else %}
-		<a href = "?nowpage={{pagedn}}">下一页</a>
+		<a href = "?search_name={{search_name}}&record_name={{record_name}}&nowpage={{pagedn}}">下一页</a>
 		{% endifequal %}
-			<a href = "?nowpage={{pageall}}">末页</a>
+			<a href = "?search_name={{search_name}}&record_name={{record_name}}&nowpage={{pageall}}">末页</a>
 	{% endifequal %}
+    {% endifequal %}
 
-	{{p.count}}<br />
-	{{p.num_pages}}<br />
-	{{p.page_range}}
 </body>
 
 <script>

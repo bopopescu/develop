@@ -172,7 +172,7 @@ def read_file(filename):
     content = ""
     try:
         if os.path.exists(filename):
-            log.info("%s exists!" % filename)
+            #log.info("%s exists!" % filename)
             fp = open(filename, "r")
             content = fp.read()
             fp.close()
@@ -209,14 +209,24 @@ def create_slave(masterip,slave_path,slaveip,slave_platform,slavename):
         log.info(str(e))    
 
 
-def create_start_slave_script(slave_platform,slave_source_path,slavename):
+def create_start_slave_script(slaveip, slave_platform,slave_source_path,slavename):
     if slave_platform == "Win":
         extend_name = ".bat"
     else:
         extend_name = ""
     script_file = os.path.join(slave_source_path, "start_slave_" + slavename + extend_name)
     ########how to use salt################
-    write_file(script_file, "buildslave start ./" + slavename)
+    #write_file(script_file, "buildslave start ./" + slavename)
+    if slaveip == "10.10.2.97":
+        start_slave_cmd = "C:/Python27/Scripts/buildslave start ./" + slavename
+    else:
+        start_slave_cmd = "buildslave start ./" + slavename
+    create_script_cmd = "echo " + start_slave_cmd + " > " + script_file
+    salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + create_script_cmd + '"'
+    subprocess.Popen(salt_cmd, shell = True)
+    #chmod_cmd = "sudo chmod 777 " + script_file
+    #salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + chmod_cmd + '"'
+    #subprocess.Popen(salt_cmd, shell = True)
     return script_file
 
 
@@ -405,18 +415,15 @@ def get_submit_script_content_values_old(post_dict):
     temp_list = []
     script_content_list = []
     for each_key in post_dict.keys():
-        log.info("params is: " + each_key)
         if flag_str in each_key:
             temp_each_key = each_key.replace(flag_str,"")
             try:
                 temp_list.append(int(temp_each_key))
-                log.info("int: " + temp_each_key)
             except Exception,e:
                 temp_list.append(float(temp_each_key))
-                log.info("float: " + temp_each_key)
     for record in sorted(temp_list):
         script_content_list.append(flag_str + str(record).replace(".","__"))
-        log.info("step is: " + flag_str + str(record)) 
+        #log.info("step is: " + flag_str + str(record)) 
     
     #script_content_list = sorted([i.replace(".","__") for i in post_dict.keys() if "script_content" in i])
     return script_content_list
@@ -427,26 +434,22 @@ def get_submit_script_content_values(post_dict):
     temp_list = []
     script_content_list = []
     for each_key in post_dict.keys():
-        log.info("params is: " + each_key)
+        #log.info("params is: " + each_key)
         if flag_str in each_key:
             temp_each_key = each_key.replace(flag_str,"")
             try:
                 temp_list.append(int(temp_each_key))
-                log.info("int: " + temp_each_key)
             except Exception,e:
                 temp_list.append(float(temp_each_key))
-                log.info("float: " + temp_each_key)
     for record in sorted(temp_list):
         script_content_list.append(flag_str + str(record))
-        log.info("step is: " + flag_str + str(record)) 
+        #log.info("step is: " + flag_str + str(record)) 
     log.info("script content list is: " + str(script_content_list)) 
     
     #script_content_list = sorted([i.replace(".","__") for i in post_dict.keys() if "script_content" in i])
     return script_content_list
 
 def get_submit_script_content_values_new(post_dict):
-    for i in post_dict.keys():
-        log.info("each key is: " + i)
     script_content_list = sorted([i.replace(".","__") for i in post_dict.keys() if "script_content" in i])
     return script_content_list
 
@@ -456,6 +459,7 @@ def format_file(temp_file, script_file):
     fp = open(script_file, "w")
     for each_line in all_lines:
         fp.write(each_line.strip("\r\n") + "\n")
+        #fp.write(each_line.strip("\r\n"))
     fp.close()
 
 #def checkname(request):
@@ -493,8 +497,6 @@ def create_new_build(request):
     script_content1 = request.POST.get("script_content1", "").strip()
     work_dir1 = request.POST.get("work_dir1", "").strip()
     description1 = request.POST.get("description1", "").strip()
-    #write_file("/home/goland/auto_create_build/create_build/xdd.txt",request.POST["script_content1"])
-    #return HttpResponse(request.POST["script_content1"])
     if len(request.POST.values()) == 0:
         return render_to_response("error.html")
     if not start_method:
@@ -556,7 +558,6 @@ def create_new_build(request):
                 filename = "script" + str(num) + ".bat"
             else:
                 filename = "script" + str(num) + ".sh"
-            log.info("create new build, each key is: " + each_key)
             script_file = os.path.join(scripts_path, filename).replace("\\","/") 
             slave_script_file = os.path.join(os.path.join(slave_scripts_path,slavename), filename).replace("\\","/")
             #write_file(script_file, request.POST[each_key].strip())
@@ -586,19 +587,45 @@ def create_new_build(request):
     restart_master()
     
     git_clone(slave_scripts_path,slavename,slaveip,slave_platform)
+    create_start_slave_script(slaveip, slave_platform,slave_source_path,slavename)
     start_slave_script(slaveip,slave_platform,slave_source_path,slavename)
     log.info("-----------------------------end----------------------------------\n")
     return render_to_response("success.html",{"builder_waterfall_address":builder_waterfall_address})
 
-#fen ye xian shi
-def display_all_records(request):
+def search_result(search_name, record_name, flag):
+    build_info = ""
+    if search_name == "slavename" and record_name:
+        temp_build_info = Build_Info.objects.extra(where = ["slavename like'%%" + str(record_name) + "%%'"])
+    
+    elif search_name == "buildername" and record_name:
+        temp_build_info = Build_Info.objects.extra(where = ["buildername like'%%" + str(record_name) + "%%'"])
+    
+    elif search_name == "slave_platform" and record_name:
+        temp_build_info = Build_Info.objects.extra(where = ["slave_platform like'%%" + str(record_name) + "%%'"])
+    
+    elif search_name == "buildip" and record_name:
+        temp_build_info = Build_Info.objects.extra(where = ["slaveip like'%%" + str(record_name) + "%%'"])
+    
+    elif search_name == "username" and record_name:
+        temp_build_info = Build_Info.objects.extra(where = ["username like'%%" + str(record_name) + "%%'"])
+    
+    else:
+        temp_build_info = Build_Info.objects.all()
+
+    if flag == 1:
+        build_info = temp_build_info.filter(flag = 1)
+    else:
+        build_info = temp_build_info
+
+    return build_info     
+
+def fenye(nowpage, build_info):
     per_page_count = 20
-    nowpage = request.GET.get("nowpage","").strip()
     if nowpage == "":
         nowpage = 1
     else:
         nowpage = int(nowpage)
-    count = Build_Info.objects.all().count()
+    count = build_info.count()
     if count % per_page_count == 0:
         pageall = count / per_page_count
     else:
@@ -612,33 +639,28 @@ def display_all_records(request):
     else:
         pagedn = nowpage + 1
     start = per_page_count * (nowpage - 1)        
-    build_info = Build_Info.objects.all()[start:(start + per_page_count)]
+    build_info = build_info[start: (start + per_page_count)]
+    return build_info, nowpage, pageall, pageup, pagedn
+
+def display_all_records(request):
+    search_name = request.GET.get("search_name", "").strip()
+    record_name = request.GET.get("record_name", "").strip()
+    build_info = search_result(search_name, record_name, 2)
+    if not build_info:
+        return HttpResponseRedirect("/empty/") 
+    nowpage = request.GET.get("nowpage","").strip()
+    build_info, nowpage, pageall, pageup, pagedn = fenye(nowpage, build_info)
     return render_to_response("display_all_records.html", locals())
 
 
-#fen ye xian shi
 def display_all_used_records(request):
-    per_page_count = 20
+    search_name = request.GET.get("search_name", "").strip()
+    record_name = request.GET.get("record_name", "").strip()
+    build_info = search_result(search_name, record_name, 1) 
+    if not build_info:
+        return HttpResponseRedirect("/empty/") 
     nowpage = request.GET.get("nowpage","").strip()
-    if nowpage == "":
-        nowpage = 1
-    else:
-        nowpage = int(nowpage)
-    count = Build_Info.objects.filter(flag = 1).count()
-    if count % per_page_count == 0:
-        pageall = count / per_page_count
-    else:
-        pageall = count / per_page_count + 1
-    if nowpage <= 1:
-        pageup = 1
-    else:
-        pageup = nowpage - 1
-    if nowpage + 1 >= pageall:
-        pagedn = pageall
-    else:
-        pagedn = nowpage + 1
-    start = per_page_count * (nowpage - 1)        
-    build_info = Build_Info.objects.filter(flag = 1)[start:(start + per_page_count)]
+    build_info, nowpage, pageall, pageup, pagedn = fenye(nowpage, build_info)
     return render_to_response("display_all_used_records.html", locals())
 
 #display each record details
@@ -661,46 +683,6 @@ def display_details(request,params):
 
 def empty(request):
     return render_to_response("empty.html")
-
-
-@csrf_exempt
-def search_info(request):
-    flag = 0
-    search_name = request.POST.get("search_name", "").strip()
-    record_name = request.POST.get("record_name", "").strip()
-    if not record_name:
-        flag = 1
-
-    if search_name == "slavename" and record_name:
-        temp_build_info = Build_Info.objects.extra(where = ["slavename like'%%" + str(record_name) + "%%'"])
-        build_info = temp_build_info.filter(flag = 1)
-        build_info = temp_build_info
-        if not build_info:
-            return HttpResponseRedirect("/empty/")
-        
-    elif search_name == "buildername" and record_name:
-        temp_build_info = Build_Info.objects.extra(where = ["buildername like'%%" + str(record_name) + "%%'"])
-        build_info = temp_build_info.filter(flag = 1)
-        build_info = temp_build_info
-        if not build_info:
-            return HttpResponseRedirect("/empty/")
-    elif search_name == "slave_platform" and record_name:
-        temp_build_info = Build_Info.objects.extra(where = ["slave_platform like'%%" + str(record_name) + "%%'"])
-        build_info = temp_build_info.filter(flag = 1)
-        build_info = temp_build_info
-        if not build_info:
-            return HttpResponseRedirect("/empty/")
-    elif search_name == "username" and record_name:
-        temp_build_info = Build_Info.objects.extra(where = ["username like'%%" + str(record_name) + "%%'"])
-        build_info = temp_build_info.filter(flag = 1)
-        build_info = temp_build_info
-        if not build_info:
-            return HttpResponseRedirect("/empty/")
-    else:
-        return HttpResponseRedirect("/display_all_used_records/")
-    return render_to_response("display_all_records.html",locals())
-    return render_to_response("display_all_used_records.html",locals())
-
 
 
 def update_info_page(request, params):
@@ -737,7 +719,7 @@ def update_info(request,params):
     buildername = request.POST.get("buildername", "").strip()
     start_method = request.POST.get("start_method", "").strip()
     username = request.POST.get("username", "").strip()
-    username = request.session["username"]
+    #username = request.session["username"]
     hour = request.POST.get("hour", "200").strip()
     minute = request.POST.get("minute", "200").strip()
     empty_path = "git_project_path_" + buildername
@@ -782,27 +764,8 @@ def update_info(request,params):
     for each_build_step in build_steps:
         each_step = Build_Steps.objects.get(id = each_build_step.id)
         each_step.delete()
-    """
-    #save new steps    
-    if all_count > 0:
-        for each_num in xrange(1,all_count+1):
-            if not os.path.exists(scripts_path):
-                os.makedirs(scripts_path, mode = 0777)
-            if slave_platform == "Win":
-                filename = "script" + str(each_num) + ".bat"    
-            else:
-                filename = "script" + str(each_num) + ".sh"
-            script_file = os.path.join(scripts_path, filename).replace("\\","/") 
-            slave_script_file = os.path.join(os.path.join(slave_scripts_path,slavename), filename).replace("\\","/")
-            if request.POST.has_key("script_content" + str(each_num)): 
-                write_file(script_file, request.POST["script_content" + str(each_num)])
-                new_build_steps = Build_Steps(build_info_id = params, script_content = script_file,slave_script_file = slave_script_file, \
-                                  work_dir = request.POST["work_dir" + str(each_num)], description = request.POST["description" + str(each_num)])
-                new_build_steps.save()
-    """
 
     script_content_list = get_submit_script_content_values(request.POST)
-    #return HttpResponse(script_content_list)
     num = 1
     for each_key in script_content_list:
         each_num = each_key.replace("script_content","")
@@ -822,7 +785,6 @@ def update_info(request,params):
         #write_file(script_file, request.POST[each_key].strip())
         write_file(temp_file, request.POST[each_key].strip())
         format_file(temp_file, script_file)
-        log.info("xudedong: " + each_key)
         #build_steps = Build_Steps(build_info_id = params, script_content = script_file,slave_script_file = slave_script_file,\
         #                          work_dir = request.POST["work_dir" + each_num.replace("__",".")], description = request.POST["description" + each_num.replace("__",".")])
         build_steps = Build_Steps(build_info_id = params, script_content = script_file,slave_script_file = slave_script_file,\
@@ -902,8 +864,6 @@ def delete(request, params):
         stop_slave(slaveip,slave_platform,slave_source_path,slavename)
         update_master(masterip,buildername)
         restart_master()
-        #build_info.slavename = 2
-        #build_info.buildername = 2
         if not build_info.slavename.endswith("_del"):
             build_info.slavename = build_info.slavename + "_del"
             build_info.buildername = build_info.buildername + "_del"
