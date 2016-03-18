@@ -1,0 +1,225 @@
+﻿<html>
+    {% extends 'navmenu.html'%}
+	<!--<head>
+		<title>欢迎来到Git Log查询中心</title>
+	</head>
+	<body>
+		<h1 align = "center">欢迎来到Git Log查询中心</h1>
+		<div><a href = "/">首页</a>&nbsp;&nbsp;<a href = "/display_product_project/">查看产品与工程</a></div><br />-->
+		{% block content%}
+		<style>
+		.width_70 {width:70%}
+		.width_30 {width:30%}
+		.right_width {width:80%}
+		.left_width {width:20%}
+		tr{
+			height:2em
+		}
+		</style>
+		<form action = "/update_test_result/{{param}}" method = "POST" onsubmit = "return NotEmpty()">
+			{% csrf_token %}
+			<table width = "100%" id = "table" align = "center"  cellSpacing="5" cellPadding="0" border="0">
+				<tr>
+					<td class = "left_width" align = 'right'>提交者:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "commit_user" name = "commit_user" value = "{{commit_user}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>产品名:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "product" name = "product" value = "{{product}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>分支:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "branch_name" name = "branch_name" value = "{{branch_name}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>包名:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "package_name" name = "package_name" value = "{{package_name}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>包的地址:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "package_path" name = "package_path" value = "{{package_path}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>plcore分支:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "plcore_branch" name = "plcore_branch" value = "{{plcore_branch}}"></td>
+				</tr>
+
+                                {% for each_record in all_changelog_list %}
+				<tr>
+					<td class = "left_width" align = 'right'>changelog{{forloop.counter}}:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "changelog" name = "changelog" value = "{{each_record.changelog}}"/></td>
+
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>验证结果{{forloop.counter}}:</td>
+					<!--<td class = "right_width" ><textarea rows = 7 class = "right_width" type = "text" id = "verification_result" name = "verification_result">{{each_record.verification_result}}</textarea></td>-->
+                                        <td>{% ifequal each_record.verification_result "YES" %}
+                            YES<input type="radio" checked = "checked" name = "verification{{forloop.counter}}" value = "YES" />
+                            NO<input type="radio" name = "verification{{forloop.counter}}" value = "NO" />
+                            {% endifequal %}
+                            {% ifequal each_record.verification_result "NO" %}
+                            YES<input type="radio"  name = "verification{{forloop.counter}}" value = "YES" />
+                            NO<input type="radio" checked = "checked" name = "verification{{forloop.counter}}" value = "NO" />
+                            {% endifequal %}
+                            </td>
+				</tr>
+				<tr name = "{{forloop.counter}}">
+					<td class = "left_width" align = 'right'>备注说明{{forloop.counter}}:</td>
+					<td class = "right_width" ><textarea rows = 7 class = "right_width" type = "text" id = "remark_explantion" name = "remark_explantion">{{each_record.remark_explantion}}</textarea>
+                                        <input type = "button" onclick = 'deletetable(this)' value = '删除'>
+                                        <!--<input type = "button" onclick = 'inserttable(this)' id = "remark_explantion{{forloop.counter}}" value = '插入'>-->
+                                        </td>
+				</tr><tr></tr>
+                                {% endfor %}
+				<!--<tr>
+					<td class = "left_width" align = 'right'>changelog:</td>
+					<td class = "right_width" ><textarea rows = 10 class = "right_width" type = "text" id = "changelog" name = "changelog">{{changelog}}</textarea></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>验证结果:</td>
+					<td class = "right_width" ><textarea rows = 10 class = "right_width" type = "text" id = "verification_result" name = "verification_result">{{verification_result}}</textarea></td>
+				</tr>
+				<tr name = "{{forloop.counter}}">
+					<td class = "left_width" align = 'right'>备注说明:</td>
+					<td class = "right_width" ><textarea rows = 10 class = "right_width" type = "text" id = "remark_explantion" name = "remark_explantion">{{remark_explantion}}</textarea></td>
+				</tr>-->
+			</table>
+			<table id = "add_table" width = "100%"></table>
+			<table width = "100%">
+				<tr>
+					<td class = "left_width" align = 'right'>补充说明:</td>
+					<td class = "right_width" ><textarea rows = 10 class = "right_width" type = "text" id = "supplement_explantion" name = "supplement_explantion">{{supplement_explantion}}</textarea></td>
+				</tr>
+			</table>
+                    
+			<br />
+			<div align = "center"><input type = "submit" value = "Submit"/></div>
+			<input type = "button" onclick = "createTable()" value = "继续添加">
+		</form>
+		{% endblock %}
+	</body>
+</html>
+{% block footer%}
+<script>
+function trimstr(strings){
+    return strings.replace(/(^\s*)|(\s*$)/g, '');
+}
+
+function NotEmpty(){
+var commit_user_obj = document.getElementById("commit_user");
+var product_obj = document.getElementById("product");
+var package_name_obj = document.getElementById("package_name");
+
+if(trimstr(commit_user_obj.value) == ""){
+    alert("提交者不能为空");
+    return false;
+}
+
+if(trimstr(product_obj.value) == ""){
+    alert("产品名不能为空");
+    return false;
+}
+if(trimstr(package_name_obj.value) == ""){
+    alert("包名不能为空");
+    return false;
+}
+
+//var input_obj = document.getElementsByTagName("input");
+//var textarea_obj = document.getElementsByTagName("textarea");
+
+////检测input标签是否已填充内容
+//for(i=0;i<input_obj.length;i++){
+//    if(trimstr(input_obj[i].value) == ""){
+//	    alert("每一项都是必填项");
+//		return false;
+//	}
+//}
+
+////检测textarea标签是否已填充内容
+//for(i=0;i<textarea_obj.length;i++){
+//    if(trimstr(textarea_obj[i].value) == ""){
+//	    alert("每一项都是必填项");
+//		return false;
+//	}
+//}
+
+}
+
+function deletetable(obj){
+    var index = obj.parentNode.parentNode.rowIndex;
+    var table = document.getElementById("table");
+    table.deleteRow(index + 1);
+    table.deleteRow(index);
+    table.deleteRow(index - 1);
+    table.deleteRow(index - 2);
+}
+
+var i = 100
+function createTable(){
+    var table = document.getElementById("add_table");
+
+    //var row = table.insertRow();
+    //var cell = row.insertCell();
+    //cell.innerHTML = "&nbsp;";
+
+    var row1 = table.insertRow();
+    var cell1 = row1.insertCell();
+    var changelog = "changelog" + i;
+    var verification_result = "verification_result" + i;
+    cell1.width = "20%";
+    cell1.align = "right";
+    cell1.innerHTML = changelog;
+    cell1 = row1.insertCell();
+    cell1.width = "80%";
+    cell1.innerHTML = "<input class = 'width_70' type = 'text' name = " + changelog + " class = 'class_70' />&nbsp; YES:<input type = 'radio' value = 'YE    S' name = " + verification_result + ">&nbsp; NO:<input type = 'radio' value = 'NO' checked = 'checked' name = " + verification_result + ">";
+
+    var row2 = table.insertRow();
+    var cell2 = row2.insertCell();
+    var remark_explantion1 = "备注说明" + i;
+    var remark_explantion2 = "remark_explantion" + i;
+    cell2.width = "20%";
+    cell2.align = "right";
+    cell2.innerHTML = remark_explantion1;
+    cell2 = row2.insertCell();
+    cell2.width = "80%";
+    cell2.innerHTML = "<textarea rows = 7 class = 'right_width' name = " + remark_explantion2 + "></textarea><input type = 'button' onclick = 'deletetable(this)' value = '删除'>";
+    i++;
+}
+
+
+
+function inserttable(obj){
+    var index = obj.parentNode.parentNode.rowIndex;
+    var table = document.getElementById("table");
+    var cur_index = table.getElementsByTagName("tr")[index].getAttribute("name");
+    var next_index = table.getElementsByTagName("tr")[index+3].getAttribute("name");
+    if (next_index == null){
+        data_flag = parseFloat(cur_index) + 1.0;
+    }
+    else{
+        data_flag = (parseFloat(cur_index) + parseFloat(next_index))/2.0;
+    }
+    row1 = table.insertRow(index+1);
+    changelog = "changelog" + data_flag;
+    cell11 = row1.insertCell()
+    cell11.width = "20%";
+    cell11.innerHTML = changelog;
+    cell12 = row1.insertCell();
+    cell12.width = "80%";
+    cell12.innerHTML = "<input class = 'right_width' type = 'text' name = " + changelog + " class = 'right_width' />";
+    
+    row2 = table.insertRow(index+2);
+    verification_result = "verification_result" + data_flag;
+    cell21 = row2.insertCell()
+    cell21.width = "20%";
+    cell21.innerHTML = changelog;
+    cell22 = row2.insertCell();
+    cell22.width = "80%";
+    cell22.innerHTML = "YES<input type = 'radio' name = " + verification_result + "/>NO<input type = 'radio' checked = 'checked' name = " + verification_result + " />";
+}
+
+
+
+
+</script>
+{% endblock %}

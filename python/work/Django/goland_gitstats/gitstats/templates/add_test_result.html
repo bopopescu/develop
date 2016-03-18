@@ -1,0 +1,184 @@
+﻿<html>
+    {% extends 'navmenu.html'%}
+	<!--<head>
+		<title>欢迎来到Git Log查询中心</title>
+	</head>
+	<body>
+		<h1 align = "center">欢迎来到Git Log查询中心</h1>
+		<div><a href = "/">首页</a>&nbsp;&nbsp;<a href = "/display_product_project/">查看产品与工程</a></div><br />-->
+		{% block content%}
+		<style>
+		.right_width {width:80%}
+		.left_width {width:20%}
+		.width_70 {width:70%}
+		.width_10 {width:10%}
+		tr{
+			height:2em
+		}
+		</style>
+		<form action = "." method = "POST" onsubmit = "return NotEmpty()">
+			{% csrf_token %}
+			<table width = "100%" align = "center"  cellSpacing="5" cellPadding="0" border="0">
+				<tr>
+					<td class = "left_width" align = 'right'>提交者:</td>
+					<td class = "right_width">
+					<select class = "right_width" id = "commit_user" name = "commit_user">
+                                            <option></option>
+                                        {% for each_record in commit_user_list %}
+                                            <option value = "{{each_record}}">{{each_record}}</option>
+                                	{% endfor %}
+                                	</select>
+              				</td>
+				</tr>
+				<!--<tr>
+					<td class = "left_width" align = 'right'>提交者:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "commit_user" name = "commit_user"></td>
+				</tr>-->
+				<tr>
+					<td class = "left_width" align = 'right'>产品名:</td>
+					<td class = "right_width" >
+					<!--<input class = "right_width" type = "text" id = "product" name = "product">-->
+					<select class = "right_width" id = "product" name = "product">
+                                            <option></option>
+                                        {% for each_record in products %}
+                                            <option value = "{{each_record}}">{{each_record}}</option>
+                                	{% endfor %}
+                                	</select>
+					</td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>分支:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "branch_name" name = "branch_name"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>包名:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "package_name" name = "package_name"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>包的地址:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "package_path" name = "package_path"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>plcore分支:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" id = "plcore_branch" name = "plcore_branch"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>changelog1</td>
+					<td class = "right_width" ><input class = "width_70" type = "text" id = "changelog1" name = "changelog1">&nbsp;
+					<label>YES:<input  type = "radio"  value = "YES" name = "verification_result1"/></label>&nbsp;
+					<label>NO:<input  type = "radio"  value = "NO" checked = "checked" name = "verification_result1"/></label></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>备注说明1:</td>
+					<td class = "right_width" ><textarea rows = 5 class = "right_width" type = "text" id = "remark_explantion1" name = "remark_explantion1"></textarea></td>
+				</tr>
+				<!--<tr>
+					<td class = "left_width" align = 'right'>补充说明:</td>
+					<td class = "right_width" ><textarea rows = 5 class = "right_width" type = "text" id = "supplement_explantion" name = "supplement_explantion"></textarea></td>
+				</tr>-->
+			</table>
+                        <table id = "add_table" width = "100%"></table>
+				<table width = "100%">
+				<tr>
+					<td class = "left_width" align = 'right'>补充说明:</td>
+					<td class = "right_width" ><textarea rows = 5 class = "right_width" type = "text" id = "supplement_explantion" name = "supplement_explantion"></textarea></td>
+				</tr>
+			</table>
+			<br />
+			<div align = "center"><input type = "submit" value = "Submit"/></div>
+                        <table width = "100%"><tr><td align = "right" class = "left_width"><input type = "button" onclick = "createTable()" value = "继续添加"></td><td class = "right_width"></td></tr></table>
+		</form>
+		{% endblock %}
+	</body>
+</html>
+{% block footer%}
+<script>
+var i = 2
+function createTable(){
+    var table = document.getElementById("add_table");
+    
+    //var row = table.insertRow();
+    //var cell = row.insertCell();
+    //cell.innerHTML = "&nbsp;";
+
+    var row1 = table.insertRow();
+    var cell1 = row1.insertCell();
+    var changelog = "changelog" + i;
+    var changelog1 = "changelog" + i + ": ";
+    var verification_result = "verification_result" + i;
+    cell1.width = "20%";
+    cell1.align = "right";
+    cell1.innerHTML = changelog1;
+    cell1 = row1.insertCell();
+    cell1.width = "80%";
+    cell1.innerHTML = "<input class = 'width_70' type = 'text' name = " + changelog + " class = 'class_70' />&nbsp; <label>YES:<input type = 'radio' value = 'YES' name = " + verification_result + "></label>&nbsp; <label>NO:<input type = 'radio' value = 'NO' checked = 'checked' name = " + verification_result + "></label>"; 
+    
+    var row2 = table.insertRow();
+    var cell2 = row2.insertCell();
+    var remark_explantion1 = "备注说明" + i + ": ";
+    var remark_explantion2 = "remark_explantion" + i;
+    cell2.width = "20%";
+    cell2.align = "right";
+    cell2.innerHTML = remark_explantion1;
+    cell2 = row2.insertCell();
+    cell2.width = "80%";
+    cell2.innerHTML = "<textarea rows = 5 class = 'right_width' name = " + remark_explantion2 + "></textarea><input type = 'button' onclick = 'deletetable(this)' value = '删除'>"; 
+    i++;
+}
+
+function deletetable(obj){
+    var index = obj.parentNode.parentNode.rowIndex;
+    var table = document.getElementById("add_table");
+    table.deleteRow(index);
+    table.deleteRow(index-1);
+}
+
+
+
+function trimstr(strings){
+    return strings.replace(/(^\s*)|(\s*$)/g, '');
+}
+
+function NotEmpty(){
+var commit_user_obj = document.getElementById("commit_user");
+var product_obj = document.getElementById("product");
+var package_name_obj = document.getElementById("package_name");
+
+//if(trimstr(commit_user_obj.value) == ""){
+//    alert("提交者不能为空");
+//    return false;
+//}
+
+//if(trimstr(product_obj.value) == ""){
+//    alert("产品名不能为空");
+//    return false;
+//}
+//if(trimstr(package_name_obj.value) == ""){
+//    alert("包名不能为空");
+//    return false;
+//}
+
+var input_obj = document.getElementsByTagName("input");
+var textarea_obj = document.getElementsByTagName("textarea");
+
+//检测input标签是否已填充内容
+for(i=0;i<input_obj.length;i++){
+    if(trimstr(input_obj[i].value) == ""){
+	    alert("每一项都是必填项");
+		return false;
+	}
+}
+
+//检测textarea标签是否已填充内容
+for(i=0;i<textarea_obj.length;i++){
+    if(trimstr(textarea_obj[i].value) == ""){
+	    alert("每一项都是必填项");
+		return false;
+	}
+}
+
+}
+
+
+</script>
+{% endblock %}

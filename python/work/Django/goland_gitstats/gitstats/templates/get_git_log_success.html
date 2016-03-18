@@ -4,7 +4,7 @@
 
 <body>
 {% block content %}
-<h1>修改成功</h1>
+<h1>更新成功</h1>
 <h4 id = "time1"><a href = "">3秒钟之后将自动跳转至页面...</a></h4>
 {% endblock %}
 <!--</body>
@@ -15,7 +15,7 @@
 var t = 2
 function delay(){
 	var obj = document.getElementById("time1");
-	obj.innerHTML = '<a href = "/{{success_url}}/">' + t + '秒钟之后将自动跳转至页面...</a>';
+	obj.innerHTML = '<a href = "/">' + t + '秒钟之后将自动跳转至页面...</a>';
 	t--;
 	if (t == -1){
 		obj.innerHTML = "";
@@ -23,7 +23,7 @@ function delay(){
 	}
 }
 
-setTimeout("javascript:location.href = '/{{success_url}}/'", 3000);
+setTimeout("javascript:location.href = '/'", 3000);
 b = setInterval('delay()', 1000);
 </script>
 {% endblock %}

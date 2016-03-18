@@ -1,0 +1,81 @@
+﻿<html>
+    {% extends 'navmenu.html'%}
+	<!--<head>
+		<title>欢迎来到Git Log查询中心</title>
+	</head>
+	<body>
+		<h1 align = "center">欢迎来到Git Log查询中心</h1>
+		<div><a href = "/">首页</a>&nbsp;&nbsp;<a href = "/display_product_project/">查看产品与工程</a></div><br />-->
+		{% block content%}
+		<style>
+		.right_width {width:80%}
+		.left_width {width:20%}
+		tr{
+			height:2em
+		}
+		</style>
+		<form action = "." method = "POST" onsubmit = "return NotEmpty()">
+			{% csrf_token %}
+			<table width = "100%" align = "center"  cellSpacing="5" cellPadding="0" border="0">
+				<tr>
+					<td class = "left_width" align = 'right'>提交者:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" name = "commit_user" value = "{{product_name}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>产品名:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" name = "product" value = "{{product_name}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>包名:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" name = "package_name" value = "{{product_name}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>包的地址:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" name = "package_path" value = "{{product_name}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>plcore分支:</td>
+					<td class = "right_width" ><input class = "right_width" type = "text" name = "plcore_branch" value = "{{product_name}}"></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>changelog:</td>
+					<td class = "right_width" ><textarea class = "right_width" type = "text" name = "changelog" value = "{{product_name}}"></textarea></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>验证结果:</td>
+					<td class = "right_width" ><textarea class = "right_width" type = "text" name = "verification_result" value = "{{product_name}}"></textarea></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>备注说明:</td>
+					<td class = "right_width" ><textarea class = "right_width" type = "text" name = "remark_explantion" value = "{{product_name}}"></textarea></td>
+				</tr>
+				<tr>
+					<td class = "left_width" align = 'right'>补充说明:</td>
+					<td class = "right_width" ><textarea class = "right_width" type = "text" name = "supplement_explantion" value = "{{product_name}}"></textarea></td>
+				</tr>
+			</table>
+			<br />
+			<div align = "center"><input type = "submit" value = "Submit"/></div>
+		</form>
+		{% endblock %}
+	</body>
+</html>
+{% block footer%}
+<script>
+function trimstr(strings){
+    return strings.replace(/(^\s*)|(\s*$)/g, '');
+}
+
+function NotEmpty(){
+var input_obj = document.getElementsByTagName("input");
+var textarea_obj = document.getElementsByTagName("textarea");
+//检测input标签是否已填充内容
+for(i=0;i<input_obj.length;i++){
+    if(trimstr(input_obj[i].value) == ""){
+        alert("每一项都是必填项");
+        return false;
+	}
+}
+
+</script>
+{% endblock %}

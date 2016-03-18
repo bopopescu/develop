@@ -1,192 +1,153 @@
 ﻿<html>
     {% extends 'navmenu.html'%}
-
 	<!--<head>
 		<title>欢迎来到Git Log查询中心</title>
 	</head>
 	<body>
 		<h1 align = "center">欢迎来到Git Log查询中心</h1>
-		<div>
-			<a href = "/display_author/">所有作者</a>
-			<a href = "/display_project/">所有工程</a>
-			<a href = "/display_product_project/">产品与工程对应列表</a>
-		</div><br />-->
-		{% block content %}
-		<form action = "." method = "GET" onsubmit = "return test()">
-			
-			<strong>Author:</strong>
-			<select name = 'author'>
-				<option value = ''></option>		
-				{% for each_author in authors %}
-					{% ifequal each_author.name author %}
-						<option  selected = "selected" name = "author" value = '{{each_author.name}}'>{{each_author.name}}</option>
-					{% else %}
-						<option  name = "author" value = '{{each_author.name}}'>{{each_author.name}}</option>
-					{% endifequal %}
-				{% endfor %}
-			</select>
-
-			<strong>Product:</strong>
-			<select name = 'product' id = "product_id" onchange = "cut(this.value)">		
-				<option value = ''></option>		
-				{% for each_product in products %}
-					{% ifequal each_product.name product %}
-						<option  selected = "selected" value = '{{each_product.name}}'>{{each_product.name}}</option>
-					{% else %}
-						<option  value = '{{each_product.name}}'>{{each_product.name}}</option>
-					{% endifequal %}
-				{% endfor %}
-			</select>
-			
-			<!--<strong>Project:</strong>
-			<select name = 'project'>		
-				<option value = ''></option>		
-				{% for each_project in projects %}
-					{% ifequal each_project.name project %}
-						<option  selected = "selected" value = '{{each_project.name}}'>{{each_project.name}}</option>
-					{% else %}
-						<option  value = '{{each_project.name}}'>{{each_project.name}}</option>
-					{% endifequal %}
-				{% endfor %}
-			</select>-->
-			
+		<div><a href = "/">首页</a>&nbsp;&nbsp;<a href = "/add_product_project/">添加产品与工程</a></div><br />-->
+		{% block content %}		
+		<style>
+                    a:link {text-decoration:none;}
+                    a:visited {text-decoration:none;}
+                    a:active {text-decoration:none;}
+                    a:hover {text-decoration:none;}
+		</style>
+                <form action = "." method = "GET" onsubmit = "return test()">
+                    <strong>Product:</strong>
+                     <select name = "product" id = "product_id">
+                        <option value = ""></option>
+                        {% for each_product in products %}
+                            {% ifequal each_product.name product %}
+                                <option selected = "selected" value = "{{each_product.name}}">{{each_product.name}}</option>
+                            {% else %}
+                                <option value = "{{each_product.name}}">{{each_product.name}}</option>
+                            {% endifequal %}
+                        {% endfor %}
+                    </select>
+                    <!--<strong>提交者:</strong>
+                     <select name = "commit_user">
+                        <option value = ""></option>
+                        {% for each_user in commit_user_list %}
+                            {% ifequal each_user commit_user %}
+                                <option selected = "selected" value = "{{commit_user}}">{{commit_user_user}}</option>
+                            {% else %}
+                                <option value = "{{each_user}}">{{each_user}}</option>
+                            {% endifequal %}
+                        {% endfor %}
+                    </select>-->
+                    <strong>分支名:</strong>
+                     <select name = "branch_name">
+                        <option value = ""></option>
+                        {% for each_branch_name in branch_name_list %}
+                            {% ifequal each_branch_name branch_name %}
+                                <option selected = "selected" value = "{{each_branch_name}}">{{each_branch_name}}</option>
+                            {% else %}
+                                <option value = "{{each_branch_name}}">{{each_branch_name}}</option>
+                            {% endifequal %}
+                        {% endfor %}
+                    </select>
+                    <strong>plcore分支:</strong>
+                     <select name = "plcore_branch">
+                        <option value = ""></option>
+                        {% for each_plcore_branch in plcore_branch_list %}
+                            {% ifequal each_plcore_branch plcore_branch %}
+                                <option selected = "selected" value = "{{each_plcore_branch}}">{{each_plcore_branch}}</option>
+                            {% else %}
+                                <option value = "{{each_plcore_branch}}">{{each_plcore_branch}}</option>
+                            {% endifequal %}
+                        {% endfor %}
+                    </select>
+                    <strong>验证结果:</strong>
+                     <select name = "verification_result">
+                        <option value = ""></option>
+                        {% for each_result in verification_result_list %}
+                            {% ifequal each_result verification_result %}
+                                <option selected = "selected" value = "{{each_result}}">{{each_result}}</option>
+                            {% else %}
+                                <option value = "{{each_result}}">{{each_result}}</option>
+                            {% endifequal %}
+                        {% endfor %}
+                    </select>
 			<strong>Start Time:</strong> <input type = "text" id = "start_time" onfocus="HS_setDate(this)" readonly = "readonly" name = "start_time" value = "{{start_time}}" />
 			<strong>End Time:</strong> <input type = "text" id = "end_time" onfocus="HS_setDate(this)" readonly = "readonly" name = "end_time" value = "{{end_time}}" />
 			<input type = "submit" value = "Submit" />
-                <div id = "show"></div>               
-                <!--{% for each_record in checkbox_list %}
-		    <input type = "text" name = "selected_project" value = "{{each_record}}">	
-                {% endfor %}-->
-		</form>
+                </form>
+		<a href = "/add_test_result/"><span style = "font-size:2.5em"><strong>+</strong></span></a>	
                 
+                {% ifequal test_results_order '' %}
+                {% else %}
+                <div>
+                {% ifequal page 1 %}
+                    <span>首页</span>
+                {% else %}
+                    <span><a href = "?page=1">首页</a></span>
+                {% endifequal%}
+                
+                {% if test_results.has_previous %}
+                    <a href = "?page={{test_results.previous_page_number}}">&lt;上一页</a>
+                {% endif %}
+                <span>
+                    {% for each_page in page_range %}
+                        {% ifequal each_page test_results.number %}
+                            <span style = "font-size:1.8em">{{each_page}}</span>
+                        {% else %}
+                            <span><a href = '?page={{each_page}}' title = "第{{each_page}}页">{{each_page}}</a></span>
+                        {% endifequal %}
+                    {% endfor %}
+                </span>
 
-		{% ifequal commit_record '' %}
-		{% else %}
-                
-                <div>查询结果共计&nbsp;<strong><span style = "font-size:2.0em">{{all_length}}</span></strong>&nbsp;条记录</div>
-		<br />
-		<div>
-		    {% ifequal page 1 %}
-				<span>首页</span>
-			{% else %}
-				<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page=1">首页</a>
-			{% endifequal %}
-				
-			{% if commit_record.has_previous %}
-				<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{commit_record.previous_page_number}}">&lt;上一页</a>
-			{% endif %}
-			<span>
-				{% for each_page in page_range %}
-					{% ifequal each_page commit_record.number %}
-						<span style = "font-size:1.8em">{{each_page}}</span>
-					{% else %}
-						<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{each_page}}" title = "第{{each_page}}页">{{each_page}}</a>
-					{% endifequal %}
-				{% endfor %}
-			</span>
-			
-			{% if commit_record.has_next %}
-				<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{commit_record.next_page_number}}">下一页&gt;</a>
-			{% endif %}
-			{% ifequal page commit_record.paginator.num_pages %}
-				<span>尾页</span>
-			{% else %}
-				<a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{commit_record.paginator.num_pages}}">尾页</a>
-			{% endifequal %}
-			
-			<!--<span>[第{{commit_record.number}}/{{commit_record.paginator.num_pages}}]</span>-->
-			<span style = "font-size:1.5em">[第{{page}}/{{paginator.num_pages}}页]</span>
-			<br /><br />
-		</div>
-                {% if author %}
-                    <span>当前作者为:{{author}}</span>
-		{% endif %}
-		{% if product %}
-			<span>当前产品是: <span style = "font-size:1.5em"><strong>{{product}}</strong></span>,<br />
-                    <span>当前工程为:{{each_project}}</span>
-		{% endif %}
-                {% for each_project in format_project_list %}
-                    <span style = "font-size:1.5em"><strong>{{each_project}}</strong>;</span>
-		{% endfor %}
-                   <!--<br /> 
-                    起始时间:<span style = "font-size: 1.5em"><strong>{{start_time}}</strong></span>
-                    截止时间:<span style = "font-size: 1.5em"><strong>{{end_time}}</strong></span>
-	           -->
-        	{% if product %}
-                        <div>其安装包在nas上的路径为: <span style = "font-size:1.5em"><strong>{{package_nas_path}}</strong></span></div>
-		{% endif %}
-		<table border = "solid 3px red" width = "100%">
-			<tr align = "center" style = 'font-size:1.2em; background-color :gray; height:2em'>
-				<td><strong><a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{page}}&ziduan=id&sort={{sort}}">id</a></strong></td>
-				<td><strong><a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{page}}&ziduan=author&sort={{sort}}">author</a></strong></td>
-				<!--<td><strong>product</strong></td>-->
-				<td><strong><a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{page}}&ziduan=project&sort={{sort}}">project</a></strong></td>
-				<td><strong><a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{page}}&ziduan=branch_name&sort={{sort}}">branch name</a></strong></td>
-				<td><strong><a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{page}}&ziduan=commit_time&sort={{sort}}">commit time</a></strong></td>
-				<td><strong><a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{page}}&ziduan=commit_version&sort={{sort}}">commit version</a></strong></td>
-				<td><strong><a href = "?author={{author}}&product={{product}}&start_time={{start_time}}&end_time={{end_time}}&{{checkbox_url}}page={{page}}&ziduan=commit_message&sort={{sort}}">commit message</a></strong></td>
-				<!--<td><strong>package path</strong></td>-->
+                {% if test_results.has_next %}
+                    <a href = "?page={{test_results.next_page_number}}">下一页&gt;</a>
+                {% endif %}
+                {% ifequal page test_results.paginator.num_pages %}
+                    <span>尾页</span>
+                {% else %}
+                    <span><a href = "?page={{test_results.paginator.num_pages}}">尾页</a></span>
+                {% endifequal %}
+
+                </div>
+		<table  width = "100%" cellSpacing="5" cellPadding="0" border="0">
+			<tr align = "1center" style = 'font-size:1.2em; background-color :gray;height:2em'>
+				<td width = "5%"><strong><a href = "?product={{product}}&branch_name={{branch_name}}&plcore_branch={{plcore_branch}}&verification_result={{verification_result}}&start_time={{start_time}}&end_time={{end_time}}&page={{page}}&ziduan=id&sort={{sort}}">id</a></strong></td>
+				<td width = "5%"><strong><a href = "?product={{product}}&branch_name={{branch_name}}&plcore_branch={{plcore_branch}}&verification_result={{verification_result}}&start_time={{start_time}}&end_time={{end_time}}&page={{page}}&ziduan=commit_user&sort={{sort}}">提交者</a></strong></td>
+				<td width = "10%"><strong><a href = "?product={{product}}&branch_name={{branch_name}}&plcore_branch={{plcore_branch}}&verification_result={{verification_result}}&start_time={{start_time}}&end_time={{end_time}}&page={{page}}&ziduan=product&sort={{sort}}">产品名</a></strong></td>
+				<td width = "15%"><strong><a href = "?product={{product}}&branch_name={{branch_name}}&plcore_branch={{plcore_branch}}&verification_result={{verification_result}}&start_time={{start_time}}&end_time={{end_time}}&page={{page}}&ziduan=package_name&sort={{sort}}">包名</a></strong></td>
+				<td width = "5%"><strong><a href = "?product={{product}}&branch_name={{branch_name}}&plcore_branch={{plcore_branch}}&verification_result={{verification_result}}&start_time={{start_time}}&end_time={{end_time}}&page={{page}}&ziduan=branch_name&sort={{sort}}">分支</a></strong></td>
+				<!--<td><strong>包的地址</strong></td>-->
+				<td width = "8%"><strong><a href = "?product={{product}}&branch_name={{branch_name}}&plcore_branch={{plcore_branch}}&verification_result={{verification_result}}&start_time={{start_time}}&end_time={{end_time}}&page={{page}}&ziduan=plcore_branch&sort={{sort}}">plcore分支</a></strong></td>
+				<td width = "8%"><strong><a href = "?product={{product}}&branch_name={{branch_name}}&plcore_branch={{plcore_branch}}&verification_result={{verification_result}}&start_time={{start_time}}&end_time={{end_time}}&page={{page}}&ziduan=join_time&sort={{sort}}">创建时间</a></strong></td>
+				<td width = "44%"><strong><a href = "?product={{product}}&branch_name={{branch_name}}&plcore_branch={{plcore_branch}}&verification_result={{verification_result}}&start_time={{start_time}}&end_time={{end_time}}&page={{page}}&ziduan=verification_result&sort={{sort}}">changelog</a></strong></td>
+				<!--<td><strong>验证结果</strong></td>
+				<td><strong>备注说明</strong></td>
+				<td><strong>补充说明</strong></td>-->
+
 			</tr>
-			{% for record in commit_record_order %}
-				<tr align = "center" style = "font-size:1.2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}; height:2em">
-					<td>{{record.id}}</td>
-					<td>{{record.author}}</td>
-					<!--<td>{{product}}</td>-->
-					<td>{{record.project}}</td>
-					<td>{{record.branch_name}}</td>
-					<td>{{record.commit_time}}</td>
-					<td>{{record.commit_version}}</td>
-					<td>{{record.commit_message}}</td>
-					<!--<td>{{record.package_path}}</td>-->
+			{% for each_record, p in test_results_order %}
+				<tr align = "1center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.id}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.commit_user}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.product}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.package_name}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.branch_name}}</a></td>
+					<!--<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.package_path}}</a></td>-->
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.plcore_branch}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.join_time}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">
+                                        {% for each_log in p %}
+                                            第{{forloop.counter}}条: 验证结果:{{each_log.verification_result}}&nbsp;&nbsp;&nbsp;&nbsp;{{each_log.content}}<br /><hr />
+                                        {% endfor %}
+                                        </a></td>
+					<!--<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.changelog}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.verification_result}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.remark_explantion}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.supplement_explantion}}</a></td>-->
 				</tr>
 			{% endfor %}
-		</table>
-		
-		{% endifequal %}
-		<br /><br />
-		<div align = "center" style = "font-size:1.5em"><strong><i>{{empty_message}}</i></strong></div>
-
-<script type = "text/javascript" src = "/site_media/js/jquery-1.2.1.js"></script>
-<script type = "text/javascript">
-$(document).ready(function(){
-    $("#show").hide();
-    $("#product_id").change(function(){
-        $.ajax({
-            url:"/show_project/",
-            type:"POST",
-            data:{"product": $("#product_id").val()},
-            dataType:"html",
-            success:function(data){
-                console.log(11111);
-                $("#show").show().html(data);
-            },
-            error:function(){
-                $("#show").hide();
-                //alert("error");
-                //console.log(error);
-            }
-        })
-    });
-}); 
-
-
-function cut(val){
-    //location.href='?checkbox=' + val;
-}
-
-function datacheck(){
- if(判断条件){
- return "yes";
- }else{
- return "no";
- }
- }
- function formSubmit(){
- if(datacheck() == "yes"){
- this.form.submit();
- }
- }
-
+                </table>
+                {% endifequal %}
+                <div align = "center" style = "font-size:1.5em"><strong><i>{{empty_message}}</i></strong></div>
+<script  type = "text/javascript">
 function format_time(src_time){
 if(src_time.split("-")[1].length==1){month = 0 + src_time.split("-")[1]}else{month = src_time.split("-")[1]}
   if(src_time.split("-")[2].length==1){day = 0 + src_time.split("-")[2]}else{day = src_time.split("-")[2]}
@@ -414,9 +375,7 @@ function HS_setDate(inputObj){
 	calenderObj.targetObj = inputObj;
 	inputObj.parentNode.insertBefore(calenderObj,inputObj.nextSibling);
 }
-
-</SCRIPT>
-		{% endblock %}
-	</body>
+</script>
+            {% endblock %}
+         </body>
 </html>
-

@@ -1,0 +1,73 @@
+﻿<html>
+    {% extends 'navmenu.html'%}
+	<!--<head>
+		<title>欢迎来到Git Log查询中心</title>
+	</head>
+	<body>
+		<h1 align = "center">欢迎来到Git Log查询中心</h1>
+		<div><a href = "/">首页</a>&nbsp;&nbsp;<a href = "/add_product_project/">添加产品与工程</a></div><br />-->
+		{% block content %}		
+		<!--<table  width = "100%" cellSpacing="5" cellPadding="0" border="0">
+			<tr align = "center" style = 'font-size:1.2em; background-color :gray;height:2em'>
+				<td><strong>id</strong></td>
+				<td><strong>提交者</strong></td>
+				<td><strong>产品名</strong></td>
+				<td><strong>包名</strong></td>
+				<td><strong>包的地址</strong></td>
+				<td><strong>plcore分支</strong></td>
+				<td><strong>changelog</strong></td>
+				<td><strong>验证结果</strong></td>
+				<td><strong>备注说明</strong></td>
+				<td><strong>补充说明</strong></td>
+
+			</tr>-->
+			{% for each_record in test_results %}
+                            <table width = "100%">
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td width = "20%">id</td><td width = "80%" onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.id}}</a></td>
+				</tr>
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td>commit_user</td><td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.commit_user}}</a></td>
+				</tr>
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td>product</td><td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.product}}</a></td>
+				</tr>
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td>package_name</td><td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.package_name}}</a></td>
+				</tr>
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td>package_path</td><td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.package_path}}</a></td>
+				</tr>
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td>plcore branch</td><td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.plcore_branch}}</a></td>
+				</tr>
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td>changelog</td><td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.changelog}}</a></td>
+				</tr>
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td>验证结果</td><td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.verification_result}}</a></td>
+				</tr>
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td>备注说明</td><td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.remark_explantion}}</a></td>
+				</tr>
+				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td>补充说明</td><td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.supplement_explantion}}</a></td>
+				</tr>
+				<!--<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.id}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.commit_user}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.product}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.package_name}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.package_path}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.plcore_branch}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.changelog}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.verification_result}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.remark_explantion}}</a></td>
+					<td onClick = "window.open('/update_test_result/{{each_record.id}}')">{{each_record.supplement_explantion}}</a></td>
+				</tr>-->
+                            </table><br /><br />
+			{% endfor %}
+                <!--</table>-->
+                {% endblock %}
+         </body>
+</html>

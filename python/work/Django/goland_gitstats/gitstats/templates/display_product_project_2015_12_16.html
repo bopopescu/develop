@@ -6,7 +6,7 @@
 	<body>
 		<h1 align = "center">欢迎来到Git Log查询中心</h1>
 		<div><a href = "/">首页</a>&nbsp;&nbsp;<a href = "/add_product_project/">添加产品与工程</a></div><br />-->
-		{% block content %}		
+		{% block content %}
 		<table  width = "100%" cellSpacing="5" cellPadding="0" border="0">
 			<tr align = "center" style = 'font-size:1.2em; background-color :gray;height:2em'>
 				<td><strong>id</strong></td>
@@ -14,19 +14,21 @@
 				<!--<td><strong>builder名</strong></td>-->
 				<td><strong>工程名</strong></td>
 				<td><strong>安装包在nas上的位置</strong></td>
+				
+
 
 			</tr>
-			{% for each_product in product_list %}
-				<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
-					<td onClick = "window.open('/update_product_project/{{each_product.product_id}}')">{{each_product.product_id}}</a></td>
-					<td onclick = "window.open('/update_product_project/{{each_product.product_id}}')">{{each_product.product_name}}</a></td>
+			{% for each_product in products %}
+				<tr align = "center" style = "height:2em;background-color: {% cycle '#b7ddf7' '#def1ff'%}" class = "link_td">
+					<td onClick = "window.open('/update_product_project/{{each_product.id}}')">{{each_product.id}}</a></td>
+					<td onclick = "window.open('/update_product_project/{{each_product.id}}')">{{each_product.name}}</a></td>
 					<!--<td onclick = "window.open('/update_product_project/{{each_product.id}}')">{{each_product.builder_name}}</a></td>-->
-					<td onclick = "window.open('/update_product_project/{{each_product.product_id}}')">{{each_product.product_project_name}}</a></td>
-					<td onclick = "window.open('/update_product_project/{{each_product.product_id}}')">{{each_product.product_package_nas_path}}</a></td>
+					<td onclick = "window.open('/update_product_project/{{each_product.id}}')">{{each_product.project_name}}</a></td>
+					<td onclick = "window.open('/update_product_project/{{each_product.id}}')">{{each_product.package_nas_path}}</a></td>
 			
 				</tr>
 			{% endfor %}
-                </table>
-                {% endblock %}
-         </body>
+		</table>
+		{% endblock %}
+	</body>
 </html>

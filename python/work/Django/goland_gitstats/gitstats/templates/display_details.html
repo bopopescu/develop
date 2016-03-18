@@ -1,0 +1,75 @@
+﻿<html>
+    {% extends 'navmenu.html'%}
+	<!--<head>
+		<title>欢迎来到Git Log查询中心</title>
+	</head>
+	<body>
+		<h1 align = "center">欢迎来到Git Log查询中心</h1>
+		<div><a href = "/">首页</a>&nbsp;&nbsp;<a href = "/add_product_project/">添加产品与工程</a></div><br />-->
+		{% block content %}		
+		<table  width = "100%" cellSpacing="5" cellPadding="0" border="0">
+		<!--<tr align = "center" style = 'font-size:1.2em; background-color :gray;height:2em'>
+				<td><strong>id</strong></td>
+				<td><strong>提交者</strong></td>
+				<td><strong>产品名</strong></td>
+				<td><strong>包名</strong></td>
+				<td><strong>包的地址</strong></td>
+				<td><strong>plcore分支</strong></td>
+				<td><strong>changelog</strong></td>
+				<td><strong>验证结果</strong></td>
+				<td><strong>备注说明</strong></td>
+				<td><strong>补充说明</strong></td>
+
+			</tr>-->
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color:#b7ddf7" class = "link_td">
+			    <td><strong>id</strong></td><td width = "80%" onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{test_result.id}}</td><td></td>
+			</tr>
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color:#def1ff" class = "link_td">
+			    <td><strong>提交者</strong></td><td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{test_result.commit_user}}</td><td></td>
+			</tr>
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color:#b7ddf7" class = "link_td">
+			    <td><strong>产品名</strong></td><td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{test_result.product}}</td><td></td>
+			</tr>
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color:#b7ddf7" class = "link_td">
+			    <td><strong>分支</strong></td><td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{test_result.branch_name}}</td><td></td>
+			</tr>
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color:#def1ff" class = "link_td">
+			    <td><strong>包名</strong></td><td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{test_result.package_name}}</td><td></td>
+			</tr>
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color:#b7ddf7" class = "link_td">
+			    <td><strong>包的地址</strong></td><td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{test_result.package_path}}</td><td></td>
+			</tr>
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color:#def1ff" class = "link_td">
+			    <td><strong>plcore分支</strong></td><td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{test_result.plcore_branch}}</td><td></td>
+			</tr>
+        
+                        {% for each_record in changelog %}
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: #b7ddf7" class = "link_td">
+			    <td><strong>changelog{{forloop.counter}}</strong></td>
+                            <td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{each_record.content}}
+                            </td>
+
+                            <td>{% ifequal each_record.verification_result "YES" %}
+                            验证结果: YES<input type="radio" checked = "checked" name = "verification{{forloop.counter}}" value = "YES" />
+                            NO<input type="radio" name = "verification{{forloop.counter}}" value = "NO" />
+                            {% endifequal %}
+                            {% ifequal each_record.verification_result "NO" %}
+                            验证结果: YES<input type="radio"  name = "verification{{forloop.counter}}" value = "YES" />
+                            NO<input type="radio" checked = "checked" name = "verification{{forloop.counter}}" value = "NO" />
+                            {% endifequal %}
+                            </td>
+			</tr>
+			<!--<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: #def1ff" class = "link_td">
+			    <td><strong>验证结果{{forloop.counter}}</strong></td><td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{each_record.verification_result}}</td>
+			</tr>-->
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: #b7ddf7" class = "link_td">
+			    <td><strong>备注说明{{forloop.counter}}</strong></td><td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{each_record.remark_explantion}}</td><td></td>
+			</tr><tr></tr><tr></tr>
+                        {% endfor %}
+			<tr align = "center" style = "font-size: 1.2em; height:2em;background-color: #def1ff" class = "link_td">
+			    <td><strong>补充说明</strong></td><td onClick = "window.open('/update_test_result/{{test_result.id}}', '_self')">{{test_result.supplement_explantion}}</td><td></td>
+			</tr>
+                </table>
+                {% endblock %}
+         </body>
+</html>
