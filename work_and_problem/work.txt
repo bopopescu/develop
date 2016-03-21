@@ -1378,10 +1378,179 @@ function trimstr(strings){
 
 
 
+90:   [python]解决 64 位 windows 下使用 pip 安装带 c 扩展的模块时，出现 "ValueError: [u'path']" 错误
+
+        这是因为在编译 c 扩展程序时，出现了错误。
+
+        解决办法是，安装 Visual Studio 2008 Professional x64，并且在安装时选中 x64 compiler tools:
+
+        buildbot安装也需要如此。
+
+91：可以通过类名访问其属性。
+
+       setattr(object, name, value)可以修改对象的属性。例如：setattr(a, "name", "xdd")
+
+
+92:   _init__(self)#在继承体系中，如果父类有__init__函数，子类必须在__init__函数中显式的调用父类的.
+        如果不显示调用的话，最直接的表现是参数传不进去，只能使用类的初始化变量。
+
+
+93：sys.argv[0][sys.argv[0].rfind(os.sep)+1:]可以获得脚本自身的名字， sys.argv[0]则是脚本的全路径。
+
+
+94：在windows下如果已经设置了第86个问题里面的所有步骤，但是还是无法向数据库插入中文的话，查看一下cmd窗口的字符集（cmd窗口右键属性即可查看），如果是gbk的话，需要在mysql命令行里运行set names gbk之后，才能插入中文。
+
+
+95：在处理编码的时候，如果希望由一种编码转换为另一种编码，则需要中间转换为python的内部编码即unicode，即
+
+        原有编码---decode-->python内部编码(unicode)---encode-->目的编码
+
+        字符的编码是按照某种规则在单字节字符和多字节字符之间进行转换的某种方法。从单字节到多字节叫做decoding，从多字节到单字节叫做 encoding。
+        在这些规则中经常用到的无非是UTF-8和GB2312两种。
+        
+
+
+96：enumerate函数
+
+        一般情况下对一个列表或数组既要遍历索引又要遍历元素时，会这样写：
+       for i in xrange(len(list)):
+           print i, list[i]
+
+       enumerate会将数组或列表组成一个索引序列。使我们再获取索引和索引内容的时候更加方便如下：
+       
+        for index, text in enumerate(list):
+            print index, text
+
+
+97：异常时循环(这里的循环只在没有异常引发的情况下才会退出)
+
+       while 1：
+           try：
+               do something
+           except:
+               do some other things
+           else:
+               break
 
 
 
+98：下面这句代码的作用就是在安装的时候，到了许可协议那一页，默认选择的是 我接受协议 按钮
+        procedure InitializeWizard();
+        begin
+          WizardForm.LICENSEACCEPTEDRADIO.Checked := true;
+        end;
 
+99：python class继承
+
+        __metaclass__ = type           #这句话就指定了所有的类都是新式类
+
+        子类的构造方法调用父类的构造方法来确保进行基本的初始化有两种方法：
+         1）： 调用未绑定的超类构造方法               （适用于新式类和旧式类）
+                     Bird.__init__(self)                                   (其中Bird为父类)
+
+         2）：使用super函数                                        （仅仅适用于新式类）
+                     super(RunBird, slef).__init__()              （其中RunBird为子类）
+
+        class Bird:
+            def __init__(self):
+                """__init__ 是构造方法"""
+                self.hungry = True
+        
+            def eat(self):
+                if self.hungry:
+                    print "I am hungry, I want to eat!"
+                    self.hungry = False
+               else:
+                    print "No thanks, I am not hungry!"
+            
+        b = Bird()
+        b.eat()
+        b.eat()
+
+        class SongBird(Bird):
+            def __init__(self):
+                """下面这句代码是直接调用未绑定的超类构造方法"""
+                Bird.__init__(self)
+                self.sound = "Squawk"
+               #self.hungry = True
+           def sing(self):
+                print self.sound
+
+        sb = SongBird()
+        sb.sing()
+        sb.eat()
+        sb.eat()
+
+        class RunBird(Bird):
+            def __init__(self):
+                """下面这句代码使用super函数来确保子类的构造方法调用父类的构造方法进行基本的初始化"""
+                super(RunBird, self).__init__()
+                self.run = "fast"
+            def running(self):
+                print "I am a running bird!"
+        rb = RunBird()
+        rb.running()
+        rb.eat()
+        rb.eat()
+
+
+100： python类的动态性
+        类可以动态增加属性
+        也可以动态增加方法，不过只是接受的是返回值。
+
+
+
+101：HTTP协议六种请求方法
+    标准Http协议支持六种请求方法，即：
+    1，GET        2，HEAD      3，PUT      4，DELETE      5，POST      6，OPTIONS
+
+    1，GET：请求指定的页面信息，并返回实体主体。   GET可以说是最常见的了，它本质就是发送一个请求来取得服务器上的某一资源。
+          资源通过一组HTTP头和呈现数据（如HTML文本，或者图片或者视频等）返回给客户端。GET请求中，永远不会包含呈现数据。
+
+    2，HEAD：只请求页面的首部， HEAD和GET本质是一样的，区别在于HEAD不含有呈现数据，而仅仅是HTTP头信息。有的人可能觉得这个方法没什么用，其实不是这样的。
+          想象一个业务情景：欲判断某个资源是否存在，我们通常使用GET，但这里用HEAD则意义更加明确。
+
+    3：PUT：从客户端向服务器传送的数据取代指定的文档的内容。  这个方法比较少见。HTML表单也不支持这个。本质上来讲，PUT和POST极为相似，都是向服务器发送数据。
+          但他们之间有一个重要区别，PUT通常指定了资源的存放位置，而POST则没有，POST的数据存放位置由服务器自己决定。
+
+    4：DELETE：请求服务器删除指定的页面。删除某一个资源。基本上这个也很少见，不过还是有一些地方比如amazon的S3云服务里面就用的这个方法来删除资源。
+
+    5：POST：向服务器提交数据。这个方法用途广泛，几乎目前所有的提交操作都是靠这个完成。
+
+    6：OPTIONS：这个方法很有趣，但极少使用。它用于获取当前URL所支持的方法。若请求成功，则它会在HTTP头中包含一个名为“Allow”的头，值是所支持的方法，如“GET,POST”。
+
+
+    建议:
+    1、get方式的安全性较Post方式要差些，包含机密信息的话，建议用Post数据提交方式;
+    2、在做数据查询时，建议用Get方式;而在做数据添加、修改或删除时，建议用Post方式;
+   3、 GET请求将提交的数据放置在HTTP请求协议头中， POST提交的数据则放在实体数据中
+
+
+102：Mysql获取最后一条插入记录的id：
+
+          mysql命令是select last_insert_id();
+
+          python的方法是  cursor.lastrowid 可以获取最后一条插入记录的id。
+
+          python的举例：
+
+         #-*- coding:utf-8 -*-
+         import MySQLdb
+
+         def insert_table(tb_name, column_name):
+            conn = MySQLdb.connect(host = DB_HOST, user = DB_USER, passwd = DB_PASSWORD,charset='utf8')   
+            conn.select_db(DB_NAME)        
+            cursor = conn.cursor()     
+            insert_sql = 'insert into %s (name) values("%s")' % (tb_name, column_name)
+            cursor.execute(insert_sql)
+            conn.commit()
+            print "当前记录的id是: %d"  % cursor.lastrowid
+            cursor.close()   
+            conn.close()
+
+
+        if __name__ == "__main__":
+            insert_table("emps", "name")
 
 
 
