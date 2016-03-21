@@ -115,6 +115,7 @@ def send_mail(mail_dict, title, content, mailto_one, filename):
         try:
             s = smtplib.SMTP()
             s.connect(mail_dict['mail_host'], "25")
+            s.starttls()   #启动安全传输模式
             s.login(mail_dict['mail_user'], mail_dict['mail_passwd'])
             s.sendmail(me, mailto_one, msg.as_string())
             s.close()

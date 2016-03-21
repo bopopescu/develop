@@ -1,3 +1,5 @@
+#-*- encoding:utf-8 -*-
+
 import os,mimetypes
 import time
 import datetime
@@ -253,6 +255,7 @@ def send_mail(mail_dict, title, content, mailto_one, filename = ""):
             initlog("1111111111111111")
             s.connect(mail_dict['mail_host'], "25")
             initlog("2222222222222222")
+            s.starttls()   #启动安全传输模式
             s.login(mail_dict['mail_user'], mail_dict['mail_passwd'])
             initlog("3333333333333333")
             s.sendmail(me, mailto_one, msg.as_string())
