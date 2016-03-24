@@ -7,6 +7,7 @@ import functools
 """
 
 def deco(func):
+    print func.__name__, 11111111111111
     @functools.wraps(func)
     def wrapper(x):
         print "start"

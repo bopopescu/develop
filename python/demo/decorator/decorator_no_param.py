@@ -29,10 +29,10 @@ def timeit(func):
 
 
 """
-    被装饰的函数不带参数
+    被装饰的函数不带参数,其实也可以带参数，即魔法参数，这样就不用担心有无参数的问题了。
 """
 @timeit
-def foo():
+def foo(*args, **kwargs):
     print 111111
 
 print foo

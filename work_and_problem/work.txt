@@ -1528,29 +1528,71 @@ function trimstr(strings){
 
 102：Mysql获取最后一条插入记录的id：
 
-          mysql命令是select last_insert_id();
+          a):   mysql命令是select last_insert_id();
 
-          python的方法是  cursor.lastrowid 可以获取最后一条插入记录的id。
-
-          python的举例：
-
-         #-*- coding:utf-8 -*-
-         import MySQLdb
-
-         def insert_table(tb_name, column_name):
-            conn = MySQLdb.connect(host = DB_HOST, user = DB_USER, passwd = DB_PASSWORD,charset='utf8')   
-            conn.select_db(DB_NAME)        
-            cursor = conn.cursor()     
-            insert_sql = 'insert into %s (name) values("%s")' % (tb_name, column_name)
-            cursor.execute(insert_sql)
-            conn.commit()
-            print "当前记录的id是: %d"  % cursor.lastrowid
-            cursor.close()   
-            conn.close()
+                重点: 假如你使用一条INSERT语句插入多个行， LAST_INSERT_ID() 只返回插入的第一行数据时产生的值。其原因是这使依靠其它服务器复制同样的 INSERT语句变得简单。
 
 
-        if __name__ == "__main__":
-            insert_table("emps", "name")
+          b):   python的方法是  cursor.lastrowid 可以获取最后一条插入记录的id。
 
+                 python的举例：
+
+                 #-*- coding:utf-8 -*-
+                 import MySQLdb
+
+                 def insert_table(tb_name, column_name):
+                     conn = MySQLdb.connect(host = DB_HOST, user = DB_USER, passwd = DB_PASSWORD,charset='utf8')   
+                     conn.select_db(DB_NAME)        
+                     cursor = conn.cursor()     
+                     insert_sql = 'insert into %s (name) values("%s")' % (tb_name, column_name)
+                     cursor.execute(insert_sql)
+                     conn.commit()
+                     print "当前记录的id是: %d"  % cursor.lastrowid
+                     cursor.close()   
+                     conn.close()
+
+
+                if __name__ == "__main__":
+                    insert_table("emps", "name")
+
+
+103:  可以使用mysql的insert语句，一次插入多行： INSERT INTO tb_name (name) VALUES ("qwe"),("asd"),("zxc");
+
+
+104:  mysql在插入记录时如果不指定表的字段名，则主键id一项对应给NULL值即可。例如：INSERT INTO tb_name  VALUES (NULL, "qwe");
+         指定主键id时，也可以传给NULL。例如：INSERT INTO tb_name(id, name)  VALUES (NULL, "qwe");
+
+
+105: yield的使用：
+     在python中，当你定义一个函数，使用了yield关键字时，这个函数就是一个生成器，它的执行会和其他普通的函数有很多不同，函数返回的是一个对象，而不是你平常
+     所用return语句那样，能得到结果值。如果想取得值，那得调用next()函数.
+     每当调用一次迭代器的next函数，生成器函数运行到yield之处，返回yield后面的值且在这个地方暂停，所有的状态都会被保持住，直到下次next函数被调用，或者碰到异常循环退出。
+
+     例如下面这个函数就只会输出1， yield后面的a += 1,以及print a语句都不会执行，除非再次调用next()方法。
+
+    def test():
+        a = 1
+        print a
+        yield a
+        a += 1
+        print a
+
+    if __name__ == "__main__":
+        test().next()
+
+
+
+106：python的值传递和引用传递区别：
+    1）：值传递：方法调用时，实际参数把它的值传递给对应的形式参数，方法执行中形式参数值的改变不影响实际参数的值。
+    2）：引用传递：也称为传地址,方法调用时，实际参数的引用(地址，而不是参数的值)被传递给方法中相对应的形式参数，
+         在方法执行中，对形式参数的操作实际上就是对实际参数的操作，方法执行中形式参数值的改变将会影响实际参数的值。
+    3）：数字、字符或者元组等不可变对象类型 值传递。
+         字典或者列表 等可变对象类型 引用传递。
+
+    注：
+    和其他语言不一样，传递参数的时候，python不允许程序员选择采用传值还是传引用。
+    Python参数传递采用的肯定是“传对象引用”的方式。实际上，这种方式相当于传值和传引用的一种综合。
+    如果函数收到的是一个可变对象（比如字典或者列表）的引用，就能修改对象的原始值－－相当于通过“传引用”来传递对象。
+    如果函数收到的是一个不可变对象（比如数字、字符或者元组）的引用，就不能直接修改原始对象－－相当于通过“传值'来传递对象。
 
 
