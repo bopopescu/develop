@@ -1547,52 +1547,153 @@ function trimstr(strings){
                      insert_sql = 'insert into %s (name) values("%s")' % (tb_name, column_name)
                      cursor.execute(insert_sql)
                      conn.commit()
-                     print "当前记录的id是: %d"  % cursor.lastrowid
+		     print "当前记录的id是: %d"  % cursor.lastrowid
                      cursor.close()   
                      conn.close()
+                     
 
 
                 if __name__ == "__main__":
                     insert_table("emps", "name")
 
 
-103:  可以使用mysql的insert语句，一次插入多行： INSERT INTO tb_name (name) VALUES ("qwe"),("asd"),("zxc");
-
-
+103：Mysql获取当前操作的行数：
+          cursor.rowcount
+	  
+          可以使用mysql的insert语句，一次插入多行： INSERT INTO tb_name (name) VALUES ("qwe"),("asd"),("zxc");
 104:  mysql在插入记录时如果不指定表的字段名，则主键id一项对应给NULL值即可。例如：INSERT INTO tb_name  VALUES (NULL, "qwe");
          指定主键id时，也可以传给NULL。例如：INSERT INTO tb_name(id, name)  VALUES (NULL, "qwe");
 
+105：python assert用法
+          a)：assert语句用来声明某个条件是真的。
+          b)：如果你非常确信某个你使用的列表中至少有一个元素，而你想要检验这一点，并且在它非真的时候引发一个错误，那么assert语句是应用在这种情形下的理想语句。
+          c)：当assert语句失败的时候，会引发AssertionError。
 
-105: yield的使用：
-     在python中，当你定义一个函数，使用了yield关键字时，这个函数就是一个生成器，它的执行会和其他普通的函数有很多不同，函数返回的是一个对象，而不是你平常
-     所用return语句那样，能得到结果值。如果想取得值，那得调用next()函数.
-     每当调用一次迭代器的next函数，生成器函数运行到yield之处，返回yield后面的值且在这个地方暂停，所有的状态都会被保持住，直到下次next函数被调用，或者碰到异常循环退出。
+          断言的使用场景
+          a): 防御型的编程
+          b): 运行时检查程序逻辑
+          c): 检查约定
+          d):程序常量,检查程序的不变量
+          e): 检查文档,断言是一种防御型编程，同时也是一种文档
 
-     例如下面这个函数就只会输出1， yield后面的a += 1,以及print a语句都不会执行，除非再次调用next()方法。
+          下面是我建议的不要用断言的场景：
 
-    def test():
-        a = 1
-        print a
-        yield a
-        a += 1
-        print a
+          不要用它测试用户提供的数据
+          不要用断言来检查你觉得在你的程序的常规使用时会出错的地方。断言是用来检查非常罕见的问题。你的用户不应该看到任何断言错误，如果他们看到了，这是一个bug，修复它。
+          有的情况下，不用断言是因为它比精确的检查要短，它不应该是懒码农的偷懒方式。
+          不要用它来检查对公共库的输入参数，因为它不能控制调用者，所以不能保证调用者会不会打破双方的约定。
+          不要为你觉得可以恢复的错误用断言。换句话说，不用改在产品代码里捕捉到断言错误。
+          不要用太多断言以至于让代码很晦涩。
 
-    if __name__ == "__main__":
-        test().next()
+106: yield的使用：
+在python中，当你定义一个函数，使用了yield关键字时，这个函数就是一个生成器，它的执行会和其他普通的函数有很多不同，函数返回的是一个对象，而不是你平常
+所用return语句那样，能得到结果值。如果想取得值，那得调用next()函数.
+每当调用一次迭代器的next函数，生成器函数运行到yield之处，返回yield后面的值且在这个地方暂停，所有的状态都会被保持住，直到下次next函数被调用，或者碰到异常循环退出。
+
+例如下面这个函数就只会输出1， yield后面的a += 1,以及print a语句都不会执行，除非再次调用next()方法。
+def test():
+    a = 1
+    print a
+    yield a
+    a += 1
+    print a
+
+if __name__ == "__main__":
+    test().next()
+
+107：列表去重的一种方法：
+          注：边循环边操作列表是不对的，容易引起错误。
+          def delRepeat(liebiao):
+              for x in liebiao[:]:
+                  print x, liebiao.count(x)
+                  while liebiao.count(x)>1:
+                      liebiao.pop(liebiao.index(x))
+               return liebiao
 
 
+108：列表去重的几种方法       
 
-106：python的值传递和引用传递区别：
-    1）：值传递：方法调用时，实际参数把它的值传递给对应的形式参数，方法执行中形式参数值的改变不影响实际参数的值。
-    2）：引用传递：也称为传地址,方法调用时，实际参数的引用(地址，而不是参数的值)被传递给方法中相对应的形式参数，
-         在方法执行中，对形式参数的操作实际上就是对实际参数的操作，方法执行中形式参数值的改变将会影响实际参数的值。
-    3）：数字、字符或者元组等不可变对象类型 值传递。
-         字典或者列表 等可变对象类型 引用传递。
+          def delRepeat1(src_li):
+	new_li = []
+	for i in src_li:
+	    if i not in new_li:
+	        new_li.append(i)   
+	print new_li 
+	
+            def delRepeat2(src_li):
+	for i in src_li[:]:
+	    while src_li.count(i) > 1:
+	        src_li.pop(src_li.index(i))
+	print src_li
 
-    注：
-    和其他语言不一样，传递参数的时候，python不允许程序员选择采用传值还是传引用。
-    Python参数传递采用的肯定是“传对象引用”的方式。实际上，这种方式相当于传值和传引用的一种综合。
-    如果函数收到的是一个可变对象（比如字典或者列表）的引用，就能修改对象的原始值－－相当于通过“传引用”来传递对象。
-    如果函数收到的是一个不可变对象（比如数字、字符或者元组）的引用，就不能直接修改原始对象－－相当于通过“传值'来传递对象。
+           def delRepeat3(src_li):
+                  new_list = []
+	flag = True
+	if "" in src_li:
+	    flag = False
+	src_li.sort()
+	src_li.append("")
 
+	for i in xrange(len(src_li) - 1):
+	    if i != len(src_li) - 1 and src_li[i] != src_li[i+1]:
+	        new_li.append(src_li[i])
+	if flag:
+	    new_li.remove("")
+	print new_li
+
+
+            def delRepeat4(src_li):
+	"""这种方法非常快"""
+	aa = set(src_li)
+	print aa
+	
+            def delRepeat5(src_li):
+	"""这种方法非常快"""
+	l2 = {}.fromkeys(src_li).keys()
+	print l2
+
+
+            def delRepeat6(src_li):
+	src_li.sort()
+	new_li = src_li[:]
+	for i in xrange(len(src_li) - 1):
+	    if i != len(src_li) - 1 and src_li[i] == src_li[i+1]:
+	        new_li.pop(src_li[i])
+	print new_li
+
+            def delRepeat7(src_li):
+                 new_li = []
+                 print [new_li.append(i) for i in src_li if i not in new_li]
+
+
+            """下面这两种方法也非常快"""
+            如果想要保持原来的顺序的话，可以这样做
+
+            def delRepeat8(l1):
+                l1 = ['b','c','d','b','c','a','a']
+                l2 = list(set(l1))
+                l2.sort(key=l1.index)
+
+            也可以这样做
+            def delRepeat9(l1):
+                l1 = ['b','c','d','b','c','a','a']
+                l2 = sorted(set(l1),key=l1.index)
+
+
+109：python的值传递和引用传递区别：
+          1）：值传递：方法调用时，实际参数把它的值传递给对应的形式参数，方法执行中形式参数值的改变不影响实际参数的值。
+          2）：引用传递：也称为传地址,方法调用时，实际参数的引用(地址，而不是参数的值)被传递给方法中相对应的形式参数，
+                    在方法执行中，对形式参数的操作实际上就是对实际参数的操作，方法执行中形式参数值的改变将会影响实际参数的值。
+          3）：数字、字符或者元组等不可变对象类型 值传递。
+                    字典或者列表 等可变对象类型 引用传递。
+
+          注：
+          和其他语言不一样，传递参数的时候，python不允许程序员选择采用传值还是传引用。
+          Python参数传递采用的肯定是“传对象引用”的方式。实际上，这种方式相当于传值和传引用的一种综合。
+          如果函数收到的是一个可变对象（比如字典或者列表）的引用，就能修改对象的原始值－－相当于通过“传引用”来传递对象。
+          如果函数收到的是一个不可变对象（比如数字、字符或者元组）的引用，就不能直接修改原始对象－－相当于通过“传值'来传递对象。
+
+1110：装饰器是一个很著名的设计模式，经常被用于有切面需求的场景，较为经典的有插入日志、性能测试、事务处理等。
+          装饰器是解决这类问题的绝佳设计，有了装饰器，我们就可以抽离出大量函数中与函数本身无关的雷同代码并继续重用。
+          概括地讲，装饰器的作用就是为已经存在的对象添加额外的功能。
 
