@@ -1510,12 +1510,12 @@ function trimstr(strings){
     2，HEAD：只请求页面的首部， HEAD和GET本质是一样的，区别在于HEAD不含有呈现数据，而仅仅是HTTP头信息。有的人可能觉得这个方法没什么用，其实不是这样的。
           想象一个业务情景：欲判断某个资源是否存在，我们通常使用GET，但这里用HEAD则意义更加明确。
 
-    3：PUT：从客户端向服务器传送的数据取代指定的文档的内容。  这个方法比较少见。HTML表单也不支持这个。本质上来讲，PUT和POST极为相似，都是向服务器发送数据。
+    3：PUT：用于修改某个内容 。 从客户端向服务器传送的数据取代指定的文档的内容。  这个方法比较少见。HTML表单也不支持这个。本质上来讲，PUT和POST极为相似，都是向服务器发送数据。
           但他们之间有一个重要区别，PUT通常指定了资源的存放位置，而POST则没有，POST的数据存放位置由服务器自己决定。
 
     4：DELETE：请求服务器删除指定的页面。删除某一个资源。基本上这个也很少见，不过还是有一些地方比如amazon的S3云服务里面就用的这个方法来删除资源。
 
-    5：POST：向服务器提交数据。这个方法用途广泛，几乎目前所有的提交操作都是靠这个完成。
+    5：POST：用于添加新的内容。 向服务器提交数据。这个方法用途广泛，几乎目前所有的提交操作都是靠这个完成。
 
     6：OPTIONS：这个方法很有趣，但极少使用。它用于获取当前URL所支持的方法。若请求成功，则它会在HTTP头中包含一个名为“Allow”的头，值是所支持的方法，如“GET,POST”。
 
@@ -1693,7 +1693,287 @@ if __name__ == "__main__":
           如果函数收到的是一个可变对象（比如字典或者列表）的引用，就能修改对象的原始值－－相当于通过“传引用”来传递对象。
           如果函数收到的是一个不可变对象（比如数字、字符或者元组）的引用，就不能直接修改原始对象－－相当于通过“传值'来传递对象。
 
-1110：装饰器是一个很著名的设计模式，经常被用于有切面需求的场景，较为经典的有插入日志、性能测试、事务处理等。
+110：装饰器是一个很著名的设计模式，经常被用于有切面需求的场景，较为经典的有插入日志、性能测试、事务处理等。
           装饰器是解决这类问题的绝佳设计，有了装饰器，我们就可以抽离出大量函数中与函数本身无关的雷同代码并继续重用。
           概括地讲，装饰器的作用就是为已经存在的对象添加额外的功能。
+
+
+111：MySQL事务处理和锁机制
+
+          SQL 标准中定义了 4 个隔离级别： read uncommited ， read commited ， repeatable read ， serializable 。
+
+          1):  read uncommited 即脏读，一个事务修改了一行，另一个事务也可以读到该行。如果第一个事务执行了回滚，那么第二个事务读取的就是从来没有正式出现过的值。
+          2):  read commited 即一致读，试图通过只读取提交的值的方式来解决脏读的问题，但是这又引起了不可重复读取的问题。
+                一个事务执行一个查询，读取了大量的数据行。在它结束读取之前，另一个事务可能完成了对数据行的更改。当第一个事务试图再次执行同一个查询，服务器就会返回不同的结果。
+          3):  epeatable read 即可重复读，在一个事务对数据行执行读取或写入操作时锁定了这些数据行。但是这种方式又引发了幻想读的问题。
+                因为只能锁定读取或写入的行，不能阻止另一个事务插入数据，后期执行同样的查询会产生更多的结果。
+          4):  serializable(可串行读) 模式中，事务被强制为依次执行。这是 SQL 标准建议的默认行为。
+
+
+112： django处理一个Request的过程是首先通过django 中间件，然后再通过默认的URL方式进 行的。所以说我们要做的就是在django 中间件这个地方把所有Request拦截住，
+           用我们自己的方式完成处理以后直接返回Response,那么我们可以简化原来的设计思路，把中间件不能处理的 Request统统不管，丢给Django去处理。
+
+113：Python中is和 == 的区别 
+          Python中的对象包含三要素：id、type、value；其中id用来唯一标识一个对象，type标识对象的类型，value是对象的值。
+          is判断的是a对象是否就是b对象，是通过id来判断的；   ==判断的是a对象的值是否和b对象的值相等，是通过value来判断的
+
+          如果你要比较两个值是否相同就用==,如果比较是否是同一个对象就用is.
+          其实python中的is比较的对象很像C语言中的指针,只有地址相同的指针才是同一个指针.
+
+
+114：__new__方法接受的参数虽然也是和__init__一样，但__init__是在类实例创建之后调用，而 __new__方法正是创建这个类实例的方法。
+         如果__new__没有返回实例，则会导致__init__无法执行。
+
+          def __new__(cls, *args, **kwargs):
+              print "in new"
+              return object.__new__(cls, *args, **kwargs)
+          有返回值的话，就可以执行__init__了。
+          注：__new__     
+           a:  是真正的构造方法，通过它可以创建对象，返回值是一个实例。
+           b:  将实例传送给__init__方法。
+           c:  将参数也传送给__init__
+           d:  使用__new__时一定是新式类。
+
+
+115：在Python内部会暂时存储并重复使用短字符串（20个字符）。也就是说当创建短字符串的时候会首先到字符串的内存区域查找是否已经有该字符串相等的值存在，如果有则会指向该内存区域，否则重新开辟内存。
+           Python只是暂时存储短字符串，像这样中间有空格的字符串和较长的字符串，Python是不会存储的。也就是说，像这样的字符串创建时，Python会直接开辟内存
+
+116：Python中的作用域
+          Python 中，一个变量的作用域总是由在代码中被赋值的地方所决定的。
+
+          函数定义了本地作用域，而模块定义的是全局作用域，              如果想要在函数内定义全局作用域，需要加上global修饰符。
+
+          变量名解析：LEGB原则
+
+          补：上面的变量规则只适用于简单对象，当出现引用对象的属性时，则有另一套搜索规则:属性引用搜索一个或多个对象，而不是作用域，并且有可能涉及到所谓的"继承"
+
+
+117：新式类和旧式类的区别：
+           a:写法上有区别，类命名时一般新式类class A(object)，旧式类 class A:
+           b:新式类继承是广度优先， 旧式类继承是深度优先。
+            新式类继承时，先把第一级父类从左到右查找一遍，找到就继承。如果没有找到，则从第二级父类开始查找。
+            旧式类继承时，优先查找第一个父类及其父类的方法和属性。没有的话，再找第二个父类及其父类的方法和属性。
+
+
+
+118：python实现单例模式
+
+          a: 直接写一个单例模式的类
+          class Singleton(object):
+              __instance = None
+           
+              def __new__(cls, *args, **kwargs):
+                  if cls.__instance is None:
+                      cls.__instance = object.__new__(cls, *args, **kwargs)
+                      #cls.__instance = super(Singleton,cls).__new__(cls, *args, **kwargs)
+                  return cls.__instance
+    
+         s1 = Singleton()
+         print id(s1)
+         s2 = Singleton()
+         print id(s2)
+
+
+         b: 使用装饰器来装饰类，使其成为单例模式
+        def singleton(cls):
+            instance = {}
+            def _singleton(*args, **kwargs):
+                if cls not in instance:
+                    instance[cls] = cls(*args, **kwargs)
+                return instance[cls]
+            return _singleton
+
+        @singleton
+        class D(object):
+            d = 1
+    
+        d1 = D()
+        d2 = D()
+        print id(d1)
+        print id(d2)
+
+
+119：二分查找方法的时间复杂度是 log2(N)。
+
+
+120：索引是对记录集的多个字段进行排序的方法。
+
+
+121：安装vs时，一定要选中x64 compiler tools，否则会导致buildbot-slave安装报错。error：Unable to find vcvarsall.bat。
+
+
+
+122：python求一个列表里子列表的最大和。
+     输入一个整型数组，数据元素有正数也有负数，求元素组合成连续子数组之和最大的子数组，要求时间复杂度为O(n)。
+	 
+	 思路：当我们加上一个正数时，和会增加；当我们加上一个负数时，和会减少。
+	 如果当前得到的和是个负数，那么这个和在接下来的累加中应该抛弃并重新清零，不然的话这个负数将会减少接下来的和。
+	 
+	li = [-9,-1,-5,-3,-7,3,-2,10,14,-16]
+	"""该函数可以获取到列表里面子列表的最大和，还有起始和结束下标，以及子列表"""
+	def sub_list_max_sum(li):
+		maxSum = 0
+		curSum = 0
+		start_index = 0
+		end_index = 0
+		for i in xrange(len(li)):
+			curSum += li[i]
+			if curSum < 0:
+				curSum = 0
+				start_index = i + 1
+                continue
+			
+			if maxSum < curSum:
+				maxSum = curSum
+				end_index = i
+					
+		if maxSum == 0:
+			maxSum = li[0]
+			for i in xrange(len(li)):
+				if maxSum < li[i]:
+					maxSum = li[i]
+		print "最大和为: ", maxSum   
+		print "开始下标: ", start_index, "结束下标: ", end_index   
+		print "子列表为: ", li[start_index: end_index+1] 
+
+	if __name__ == "__main__":
+		sub_list_max_sum(li)
+	 
+	 
+123: python写一个函数计算计算当参数为N的值 例如：1-2+3-4+5-6+7-8+9-10
+     def get_sum(n):
+		t = 0
+		s = ""
+		for i in xrange(1, n+1):
+			if i % 2 == 0:
+				i = -i
+			t += i
+		print t
+		
+	if __name__ == "__main__":
+		get_sum(8) 
+          
+124：enumerate可以接受第二个参数(第二个参数是下标，默认是0.即下标从0开始)  
+     enumerate('abc',index)
+	 
+125：字典/集合 解析（python版本2.7以及以上可用）
+     你可能知道列表解析，但不知道字典/集合解析。字典/集合解析简单而且高效
+
+	 my_dict = {i: i * i for i in xrange(100)}
+	 my_set = {i * 15 for i in xrange(100)}
+	 
+126：一些两位数加上18，它们的个、十位恰好位置对调了，求出这些数。
+    for i in xrange(1,10):
+		for j in xrange(1,10):
+			if 10*i+j + 18 == 10*j+i:
+				print 10*i+j	 
+	 
+127：python使用 with 语句操作文件对象	 
+          with open(r'somefileName') as somefile:
+            for line in somefile:
+                print line
+                # ...more code
+
+         这里使用了 with 语句，不管在处理文件过程中是否发生异常，都能保证 with 语句执行完毕后已经关闭了打开的文件句柄。如果使用传统的 try/finally 范式，则要使用类似如下代码：
+         清单 3. try/finally 方式操作文件对象
+            somefile = open(r'somefileName')
+            try:
+                for line in somefile:
+                    print line
+                    # ...more code
+            finally:
+                somefile.close()
+
+
+128：nginx + uWSGI + Django
+       1)：保证Django应用正常。
+       2)：配置好uWSGI
+       3)：配置好nginx
+
+       a：当Django应用可以正常启动后，先配置好uWSGI，测试使用uWSGI作为web服务器来运行Django应用。
+             在Django工程目录（manage.py同级目录）下创建django_wsgi.py和uwsgi_socket.xml文件，其中django_wsgi.py这个文件是连通uWSGI和Django的，而uwsgi_socket.xml是连通uWSGI和nginx的。
+
+             django_wsgi.py内容如下
+             #!/usr/bin/env python
+            
+#coding:utf-8
+            
+
+import os
+            
+import sys
+reload(sys)
+            
+sys.setdefaultencoding("utf8")
+            
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+           
+from django.core.handlers.wsgi import WSGIHandler
+           
+application = WSGIHandler()
+
+           uwsgi_socket.xml内容如下
+           <uwsgi>
+           
+<socket>10.10.2.64:8801</socket>
+        
+          <chdir>/home/goland/develop/goland_gitstats</chdir>
+       
+          <module>django_wsgi</module>
+        
+          <process>4</process> <!--process number-->
+    
+          <daemonize>uwsgi.log</daemonize>
+
+          </uwsgi>
+
+      b: 配置nginx的配置文件
+          在http里配置
+          server{
+           
+                    listen 8802;
+           
+                    server_name 10.10.2.64;
+            
+            
+                    location / {
+               
+                        include uwsgi_params;
+                
+                        uwsgi_pass 10.10.2.64:8801;
+                    
+                    }
+
+
+
+                    location /media {
+
+                        alias /home/goland/develop/goland_gitstats/gitstats/templates/media/;
+
+                   }
+
+        }
+
+
+129： python获取函数名
+     
+       a: 在外部获取函数名
+       def  test():
+           pass
+        test.__name__
+        除此之外还可以：getattr(test, '__name__')
+
+
+        b: 在函数内部获取函数名
+        使用sys模块的方法
+         def test():
+             print sys._getframe().f_code.co_name
+
+
+
+
+
+
+
+
 
