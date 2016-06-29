@@ -3,9 +3,9 @@
     created by
     author: dedong.xu
     date: 2016-06-29
-    this script is to be used to backup database data, and join in windows scheduled task
+    this script is to be used to backup database data, and joins the windows scheduled task
 """
-import sys
+
 import os
 import time, datetime
 import shutil
@@ -36,9 +36,7 @@ class Copy_Files(object):
 
     def transform_time(self, modify_time):
         transfered_time = time.localtime(modify_time)
-        year = transfered_time.tm_year
-        mon = transfered_time.tm_mon
-        day = transfered_time.tm_mday
+        year, mon, day = transfered_time.tm_year, transfered_time.tm_mon, transfered_time.tm_mday
         if mon < 10:
             str_mon = "0" + str(mon)
         else:
