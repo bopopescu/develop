@@ -13,33 +13,34 @@
 	{% else %}
 	    <p><a href = "/login/">登录</a><!--&nbsp;<a href = "/register/">注册</a>--></p>
     {% endif %}
-	<a href = "/display_all_used_records/">首页</a>
+	<a href = "/display_all_used_records/?product={{product}}">首页</a>
 	<!--<p><a href = "/" target = _blank><input type = "submit" value = "添加"/></a></p>-->
-	<p><input type = "submit" value = "添加" onClick = "window.open('/','_self')"/>
+	<p><input type = "submit" value = "添加" onClick = "window.open('/?product={{product}}','_self')"/>
 	<!--<p><a href = "/update_info_page/{{build_info.id}}" target = _blank><strong>修改</strong></a></p>-->
-	<input type = "submit" value = "修改" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')"/>
+	<input type = "submit" value = "修改" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')"/>
 	<!--<input type = "submit" value = "删除" onClick = "window.open('/delete/{{build_info.id}}','_self')"/></p>-->
 	<!--<a href = "/delete/{{build_info.id}}" onClick = "delcfm()"><input type = "button" value = "删除" onClick = "1delcfm()"/></a></p>-->
 	<!--<p><a href = "/delete/{{build_info.id}}" onClick = "delcfm()"><strong>删除</strong></a></p>-->
 	
 
         <input type = "button" value = "删除" onClick = "del()">
+	<input type = "submit" value = "复制" onClick = "window.open('/copy_build_info_page/{{build_info.id}}/?product={{product}}','_self')"/>
         <table width = "100%" border = "solid 3px red">
-		<tr><td class = "left_position">id</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.id}}</td></tr>
-		<tr><td class = "left_position">slavename</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.slavename}}</td></tr>
-		<tr><td class = "left_position">buildername</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.buildername}}</td></tr>
-		<tr><td class = "left_position">masterip</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.masterip}}</td></tr>
-		<tr><td class = "left_position">slaveip</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.slaveip}}</td></tr>
-		<tr><td class = "left_position">slave_platform</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.slave_platform}}</td></tr>
-		<tr><td class = "left_position">username</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.username}}</td></tr>
-		<tr><td class = "left_position">start_method</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.start_method}}</td></tr>
+		<tr><td class = "left_position">id</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.id}}</td></tr>
+		<tr><td class = "left_position">slavename</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.slavename}}</td></tr>
+		<tr><td class = "left_position">buildername</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.buildername}}</td></tr>
+		<tr><td class = "left_position">masterip</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.masterip}}</td></tr>
+		<tr><td class = "left_position">slaveip</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.slaveip}}</td></tr>
+		<tr><td class = "left_position">slave_platform</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.slave_platform}}</td></tr>
+		<tr><td class = "left_position">username</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.username}}</td></tr>
+		<tr><td class = "left_position">start_method</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.start_method}}</td></tr>
 		{% ifequal  build_info.start_method "radio_timing"%}
-		<tr><td class = "left_position">start_time</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.hour}}:{{build_info.minute}}</td></tr>
+		<tr><td class = "left_position">start_time</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.hour}}:{{build_info.minute}}</td></tr>
 		{% endifequal %}
 		{% ifequal  build_info.start_method "radio_trigger"%}
-		<tr><td class = "left_position">git project url</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.git_project_path}}</td></tr>
-		<tr><td class = "left_position">branches</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.branches}}</td></tr>
-		<tr><td class = "left_position">monitor file path</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{build_info.monitor_file_path}}</td></tr>
+		<tr><td class = "left_position">git project url</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.git_project_path}}</td></tr>
+		<tr><td class = "left_position">branches</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.branches}}</td></tr>
+		<tr><td class = "left_position">monitor file path</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{build_info.monitor_file_path}}</td></tr>
 		{% endifequal %}
 		{% ifequal  build_info.start_method "radio_manual"%}
 		{% endifequal %}
@@ -52,10 +53,10 @@
 
 		{% endfor %}-->
 		{% for each_step in all_list %}
-				<tr><td class = "left_position">script_content{{forloop.counter}}</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{each_step.script_content}}</td></tr>
-				<tr><td class = "left_position">work_dir{{forloop.counter}}</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{each_step.work_dir}}</td></tr>
-				<tr><td class = "left_position">description{{forloop.counter}}</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}','_self')">{{each_step.description}}</td></tr>
-
+                                <tr style = "background-color:#a1a3a6"><td></td><td>&nbsp;</td></tr>
+				<tr><td class = "left_position">script_content{{forloop.counter}}</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{each_step.script_content}}</td></tr>
+				<tr><td class = "left_position">work_dir{{forloop.counter}}</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{each_step.work_dir}}</td></tr>
+				<tr><td class = "left_position">description{{forloop.counter}}</td><td class = "class_size" onClick = "window.open('/update_info_page/{{build_info.id}}/?product={{product}}','_self')">{{each_step.description}}</td></tr>
 		{% endfor %}
 		
 	</table>
@@ -73,7 +74,7 @@ function delcfm(){
 function del(){
     var flag = confirm("  确定要删除吗?");
     if(flag){
-                document.location.href = "/delete/{{build_info.id}}"
+                document.location.href = "/delete/{{build_info.id}}/?product={{product}}"
             }else
 
             {return false}

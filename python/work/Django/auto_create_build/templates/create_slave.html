@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns= "http://www.w3.org/1999/xhtml" > 
+<style>
+	.class_size {width:80%}
+	.left_position {width:20%}
+	.span_color {color:red}
+	.input_size width{width:40%}
+</style>
+<head>
+    <meta http-equiv= "Content-Type" content= "text/html; charset=utf-8" /> 
+    <title>Create Slave</title>
+	<meta>
+	</meta>
+</head>
+
+<body style = "background-color:#77ac98">
+	<table width = "100%" id = "testtable">
+		<tr>
+			<td class = "left_position" style = "background-color:"><body>&nbsp;</body></td>
+			<td>
+			   <h1 align = "center"><b>Create Slave</b></h1>
+			   
+			   <!--<p align= ""><a href = "/test_salt/" target = _blank><strong>测试Salt</strong></a>
+			   <a href = "/display_all_records/?product={{product}}" target = _blank><strong>所有记录</strong></a>
+			   <a href = "/display_all_used_records/?product={{product}}" target = _blank><strong>所有在用的记录</strong></a></p>
+			   -->
+                           <form action = "." method = "POST" onsubmit = "return NotEmpty();">
+			        {% csrf_token %}
+				<table align = "center" width = "100%">
+					<tr>
+						<td class = "left_position"><span class = "span_color"><!--*--></span>master ip:</td>
+
+						<td class = "class_size">
+                                                    <input type = "text" readonly name = "masterip" class = "class_size" value = "10.10.2.64" />
+						</td>
+					</tr>
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>product:</td>
+						<td class = "class_size">
+							<select id = "product" name = "product" class = "class_size">
+								<option value = "DVDFab">DVDFab</option>
+								<option value = "VidOn">VidOn</option>
+							</select>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>build ip:</td>
+
+						<td class = "class_size">
+							 <input type = "text" id = "slaveip" name = "slaveip" class = "class_size" value = "格式为xx.xx.x.x(x)(x)；括号里表示为非必须" 
+							 onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
+							 onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" required = "required" />
+						</td>
+					</tr>
+					
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>build platform:</td>
+						<td class = "class_size">
+							<select id = "slave_platform_id" name = "slave_platform" class = "class_size">
+								<option value = "Win">Win</option>
+								<option value = "Mac">Mac</option>
+								<option value = "Ubu">Ubuntu</option>
+							</select>
+						</td>
+					</tr>
+						
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>slavename:</td>
+						<td class = "class_size">
+							 <input type = "text" id = "slavename" name = "slavename" value = "只支持数字字母下划线！且不能以数字开头！" onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
+							onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" class = "class_size" required = "required" />
+                                                <strong><span style = "font-size:1.25em"><span id = "show" style = "color:red"></span></span></strong>
+						</td>
+					</tr>
+						
+					<tr>
+						<td class = "left_position"><span class = "span_color">*</span>buildername:</td>
+						<td class = "class_size">
+							<input type = "text" id = "buildername" name = "buildername" value = "只支持数字字母下划线！且不能以数字开头！" onfocus="if(value==defaultValue){value='';this.style.color='#000'}"
+							onblur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999" class = "class_size" required = "required" />
+                                                <strong><span style = "font-size:1.25em"><span id = "builder_show" style = "color:red"></span></span></strong>
+						</td>
+					</tr>
+						
+				</table>
+				<table id="add" width = "100%"></table>
+				<br />
+				<div align = "center"><input type = "submit" id = "submit" value = "Submit"/></div>
+				</form>
+			</td>
+		
+			<td width = "20%" style = "background-color:">&nbsp;</td>
+		</tr>
+	</table>	
+</body>
+</html> 
+<script type = "text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+<script type = "text/javascript">
+var ajax_slavename_flag = 0;
+var ajax_buildername_flag = 0;
+
+$(document).ready(function(){
+    $("#show").hide();
+    $("#slavename").blur(function(){
+        $.ajax({
+            url: "/checkslavename1/",
+            type: "POST",
+            data: {"slavename": $("#slavename").val()},
+            dataType: "html",
+            success: function(data){
+                //alert(slavename.value + " already exists!");
+                console.log(data)
+                $("#show").show().html(data);
+                if (data){
+                    ajax_slavename_flag = 1;
+                }
+                else{
+                    ajax_slavename_flag = 0;
+                };
+                return false;
+            },
+            error:function(){
+                $("#show").hide();
+                //alert("error");
+            }
+        })
+    });
+});
+
+$(document).ready(function(){
+    $("#builder_show").hide();
+    $("#buildername").blur(function(){
+        $.ajax({
+            url: "/checkbuildername1/",
+            type: "POST",
+            data: {"buildername": $("#buildername").val()},
+            dataType: "html",
+            success: function(data){
+                //alert("buildername already exists!");
+                console.log(data)
+                $("#builder_show").show().html(data);
+                if (data){
+                    ajax_buildername_flag = 1;
+                }
+                else{
+                    ajax_buildername_flag = 0;
+                };
+            },
+            error:function(){
+                $("#builder_show").hide();
+                //alert("error");
+            }
+        })
+    });
+});
+
+
+
+function showdiv(){
+    var divMusicLst = document.getElementById("divid");
+    if(divMusicLst.style.display == "none")
+    {
+        divMusicLst.style.display = "block";
+    }
+    else
+    {
+        divMusicLst.style.display = "none"
+    }
+}
+
+
+
+
+function alert_prompt()
+{
+    var obj = document.getElementById("submit");
+    alert("该过程会操作git，需要一定的时间, 请耐心等待，不要再次提交!");
+}
+
+function trimStr(strings){
+    return strings.replace(/(^\s*)|(\s*$)/g,'');
+}
+
+
+function NotEmpty(){
+    var slaveip_obj = document.getElementById("slaveip");
+    var slavename_obj = document.getElementById("slavename");
+    var buildername_obj = document.getElementById("buildername");
+    var input_obj = document.getElementsByTagName("input");
+    var msg = "每一项都是必填项，请填写完整之后再提交！";
+
+    //check slaveip is valid
+    reg_slaveip = /^(\d{2}\.\d{2}\.\d{1}\.\d{1,3})$/;
+    flag_slaveip = slaveip_obj.value.search(reg_slaveip)
+    if (flag_slaveip == -1){
+        alert("build ip格式不正确，请重新填写！格式为xx.xx.x.x(x)(x)；括号里表示非必须")
+        return false;
+    }
+
+    //检查slavename格式是否有效
+    reg_slavename = /^[^0-9]\w*$/;
+    flag_slavename = slavename_obj.value.search(reg_slavename)
+    if (flag_slavename == -1){
+        alert("slavename格式不正确，请重新填写！只支持数字字母下划线！且不能以数字开头！")
+        return false;
+    }
+    
+
+    //检查buildername格式是否有效
+    reg_buildername = /^([^0-9]\w*)$/;
+    flag_buildername = buildername_obj.value.search(reg_buildername)
+    if (flag_buildername == -1){
+        alert("buildername格式不正确，请重新填写！只支持数字字母下划线！且不能以数字开头！")
+        return false;
+    }
+
+    //检查salvename 和 buildername是否相同，如果相同就提示用户，然后禁止提交；不相同则通过
+    if (slavename_obj.value == buildername_obj.value){
+        alert("slavename和buildername不能相等，请重新填写！");
+        return false;
+    }
+	
+    //检测input标签是否已填充内容
+    for(k=0;k<input_obj.length;k++){
+        if (input_obj[k].id != "new_path" && input_obj[k].id != "old_path"){
+            if (trimStr(input_obj[k].value) == ""){
+            //if (input_obj[j].value.replace(/(^\s*)|(\s*$)/g,"") == ""){
+                alert(input_obj[k].id)
+                alert(msg);
+                return false;
+            }
+        }
+    }
+
+   
+    /*if (ajax_slavename_flag == 1){
+        alert("slavename: " + slavename.value + " already exists!");
+        return false;
+    }
+
+    if (ajax_buildername_flag == 1){
+        alert("buildername: " + buildername.value + " already exists!");
+        return false;
+    }*/
+ 
+    alert("该过程会操作git，需要一定的时间, 请耐心等待，不要再次提交!");
+}
+
+
+
+</script>
+
+
+
+
+
