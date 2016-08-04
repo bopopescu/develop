@@ -1,0 +1,17 @@
+{
+    "server":"hk-1.xt.lianjiang.moe",
+    "server_port":16148,
+    "local_address":"127.0.0.1",
+    "local_port":1080,
+    "password":"BmuMiF",
+    "timeout":120,
+    "method":"rc4-md5",
+    "protocol":"auth_sha1",
+    "protocol_param":"",
+    "obfs":"http_simple",
+    "obfs_param":"bing.com",
+    "redirect":"",
+    "dns_ipv6":false,
+    "fast_open":false,
+    "workers":1
+}
