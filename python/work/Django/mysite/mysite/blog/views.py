@@ -15,100 +15,231 @@ import os
 import subprocess
 import tempfile, zipfile 
 from django.core.servers.basehttp import FileWrapper
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib import auth
+from mysite import settings
 
+from django.core.paginator import Paginator,InvalidPage, EmptyPage,PageNotAnInteger
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 @csrf_exempt
 def index(request):
-    os.startfile('D:/DVDFab90/DVDFab.exe')
-    cmd = 'D:/DVDFab90/DVDFab.exe /MODE "OPENSOURCE" /SRC "Z:/ELEMENTARY_S1_D3.iso" /DUMPSOURCEINFO "d:/test/xudedong/ELEMENTARY_S1_D3.iso.xml" /SILENCE /CLOSE'
-    #cmd = "call D:/test/test.bat"
-    subprocess.call(cmd, shell=True)
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-    result_out = p.stdout.read()
-    result_err = p.stderr.read()
-    fp = open("d:/test/test_out.txt","w")
-    fp.write(result_out)
-    fp.close()
-    fp = open("d:/test/test_err.txt","w")
-    fp.write(result_err)
-    fp.close()
+    import getpass
+    user = getpass.getuser()
+    return render_to_response('base.html',{"user":user})
+
+"""
+def client(request):
+    #client = Client.objects.all()
+    #client = Client.objects.all().values()[1]
+    ziduan = request.GET.get("ziduan","").strip()
+    desc = request.GET.get("desc","").strip()
+    if ziduan == "id":
+        if desc == "1" or desc == "":
+            client = Client.objects.all().order_by(ziduan)
+            desc = 2
+        elif desc == "2":
+            client = Client.objects.all().order_by("-" + ziduan)
+            desc = 1
+        else:
+            desc = 1
+            client = Client.objects.all()
+    elif ziduan == "PC_name":
+        if desc == "1" or desc == "":
+            client = Client.objects.all().order_by(ziduan)
+            desc = 2
+        elif desc == "2":
+            client = Client.objects.all().order_by("-" + ziduan)
+            desc = 1
+        else:
+            desc = 1
+            client = Client.objects.all()
+    else:
+        client = Client.objects.all()
+
+    return render_to_response('client.html', locals())
+"""
+
+#Áî®ÂàÜÈ°µÁ±ªÂàÜÈ°µÊòæÁ§∫
+@login_required
+def test(request):
+    sessions = Session.objects.all()
+    after_range_num = 5      #ÂΩìÂâçÈ°µÈù¢‰πãÂâçÊòæÁ§∫5È°µ
+    befor_range_num = 4      #ÂΩìÂâçÈ°µÈù¢‰πãÂêéÊòæÁ§∫4È°µ
+    #Â¶ÇÊûúËØ∑Ê±ÇÁöÑÈ°µÁ†ÅÂ∞ë‰∫é1ÊàñËÄÖÁ±ªÂûãÈîôËØØÔºåÂàôË∑≥ËΩ¨Ëá≥Á¨¨1È°µ
+    try:              
+        page = int(request.GET.get("page",1))
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+
+    ziduan = request.GET.get("ziduan","").strip()
+    sort = request.GET.get("sort","").strip()
+          
+    paginator = Paginator(sessions,10)   #ËÆæÁΩÆsessionÂú®ÊØèÈ°µÊòæÁ§∫ÁöÑÊï∞ÈáèÔºåËøôÈáå‰∏∫10
+
+    #Ë∑≥ËΩ¨Ëá≥ËØ∑Ê±ÇÈ°µÈù¢ÔºåÂ¶ÇÊûúËØ•È°µ‰∏çÂ≠òÂú®ÊàñËÄÖË∂ÖËøáÂàôË∑≥ËΩ¨Âà∞Â∞æÈ°µ
+    try:
+        session_list = paginator.page(page)     
+    except (EmptyPage,InvalidPage,PageNotAnInteger):
+        page = paginator.num_pages
+        session_list = paginator.page(page)
+        
+    # 1 and "" ‰ª£Ë°®ÈôçÂ∫èÔºå 2‰ª£Ë°®ÂçáÂ∫è    
+    record_list = ["index", "Num"] 
+    for record in record_list: 
+        if ziduan == record:
+            #ÈôçÂ∫è
+            if sort == "1":
+                #session_list‰∏çÊòØ‰∏Ä‰∏™listÔºåËÄåÊòØ‰∏Ä‰∏™Á±ªÁöÑÂØπË±°
+                session_list = paginator.page(page)
+                session_list_new = session_list
+                sort = "2"
+            #ÂçáÂ∫è
+            elif sort == "2":
+                session_list = paginator.page(page)
+                #ÁªèËøáÂàáÁâá‰πãÂêéÔºåÊâçÊòØ‰∏Ä‰∏™listÔºåsession_list.object_list‰πüÊòØ‰∏Ä‰∏™list
+                session_list_new = session_list[::-1]
+                sort = "1"
+            else:
+                session_list = paginator.page(page)
+                session_list_new = session_list
+                sort = "2"
+            break
+    if ziduan not in record_list:
+        session_list = paginator.page(page)
+        session_list_new = session_list
+        #sort = "2"
+
+    if page >= after_range_num:
+        page_range = paginator.page_range[page - after_range_num : page + befor_range_num]
+    else:
+        page_range = paginator.page_range[0: page + befor_range_num]
+    return render_to_response("test.html",locals())
+
+
+def fenye(request):
+    sessions = Session.objects.all()
+    after_range_num = 5
+    befor_range_num = 4
+    try:
+        page = int(request.GET.get("page",1))
+    except ValueError:
+        page = 1
+    paginator = Paginator(sessions,50)
+
+    #Ë∑≥ËΩ¨Ëá≥ËØ∑Ê±ÇÈ°µÈù¢ÔºåÂ¶ÇÊûúËØ•È°µ‰∏çÂ≠òÂú®ÊàñËÄÖË∂ÖËøáÂàôË∑≥ËΩ¨Ëá≥Â∞æÈ°µ
+    try:
+        session_list = paginator.page(page)
+    except (EmptyPage, InvalidPage, PageNotAnInteger):
+        page = paginator.num_pages
+        session_list = paginator.page(paginator.num_pages)
+    if page >= after_range_num:
+        page_range = paginator.page_range[page - after_range_num: page + befor_range_num]
+    else:
+        page_range = paginator.page_range[0: page + befor_range_num]
+    return render_to_response("test.html",locals())
     
-    return render_to_response('base.html') 
+
+@csrf_exempt
+def register(request):
+    #return HttpResponse(settings.BASE_DIR)
+    if request.method == "POST":
+        form = UserForm(request.POST)
+        if form.is_valid():
+            username = request.POST.get("username","").strip()
+            password = request.POST.get("password","").strip()
+            email = request.POST.get("email","").strip()
+            user = User.objects.create_user(username,email,password)
+            user.save()
+            request.session["username"] = username
+            return HttpResponseRedirect("/test/")
+    else:
+        form = UserForm()
+    return render_to_response("register.html",locals())
+
+@csrf_exempt
+def login(request,template_name=''):
+    if request.session.has_key("username"):
+        return HttpResponseRedirect("/test/")
+    if request.method == "POST":
+        username = request.POST.get("username","").strip()
+        password = request.POST.get("password","").strip()
+        user = auth.authenticate(username=username,password=password)
+        if user is not None:
+            auth.login(request,user)
+            request.session["username"] = username
+            return HttpResponseRedirect("/test/")
+        else:
+            return HttpResponse("<a href = ''>ËØ∑ÈáçÊñ∞ÁôªÈôÜ</a>")
+    return render_to_response("login.html", locals())
+
+
+def logout(request):
+    auth.logout(request)
+    return HttpResponseRedirect("/index/")
+
+
+def get_check_code_image(request,image = "media/checkcode.gif"):
+    import Image, ImageDraw, ImageFont,random
+    im = Image.open(image)
+    draw = ImageDraw.Draw(im)
+    mp = md5.new()
+    mp_src = mp.update(str(datetime.now()))
+    mp_src = mp.hexdigest()
+    rand_str = mp_src[0:4]
+    draw.text((10,10),rand_str[0],font = ImageFont.truetype("ARIAL.TTF",random.randrange(25,50)))
+    draw.text((48,10),rand_str[1],font = ImageFont.truetype("ARIAL.TTF",random.randrange(25,50)))
+    draw.text((85,10),rand_str[2],font = ImageFont.truetype("ARIAL.TTF",random.randrange(25,50)))
+    draw.text((120,10),rand_str[3],font = ImageFont.truetype("ARIAL.TTF",random.randrange(25,50)))
+    del draw
+    reuqest.session["checkcode"] = rand_str
+    buf = cStringIO.StringIO()
+    im.save(buf,"gif")
+    return HttpResponse(buf.getvalue(),"image/gif")
+
 
 def new_add_case(request):
-    Num = request.GET.get('Num','')
-    Num_test_link = request.GET.get('Num_test_link','')
-    Iso_type = request.GET.get('Iso_type','')
-    Mode = request.GET.get('Mode','')
-    Src_iso = request.GET.get('Src_iso','')
-    Dest_type = request.GET.get('Dest_type','')
-    Out_disc = request.GET.get('Out_disc','')
-    Profile = request.GET.get('Profile','')
-    Enable_2Dto3D = request.GET.get('Enable_2Dto3D','')
-    Remove_HD_audio = request.GET.get('Remove_HD_audio','')
+    Num = request.GET.get('Num','').strip()
+    Num_test_link = request.GET.get('Num_test_link','').strip()
+    Iso_type = request.GET.get('Iso_type','').strip()
+    Mode = request.GET.get('Mode','').strip()
+    Src_iso = request.GET.get('Src_iso','').strip()
+    Dest_type = request.GET.get('Dest_type','').strip()
+    Out_disc = request.GET.get('Out_disc','').strip()
+    Profile = request.GET.get('Profile','').strip()
+    Enable_2Dto3D = request.GET.get('Enable_2Dto3D','').strip()
+    Remove_HD_audio = request.GET.get('Remove_HD_audio','').strip()
     
-    Video_decoder_H264 = request.GET.get('Video_decoder_H264','')
-    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','')    
-    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','')
-    Video_encoder_H264 = request.GET.get('Video_encoder_H264','')
-    BD3D_convert_type = request.GET.get('BD3D_convert_type','')
-    Compress_to_AC3 = request.GET.get('Compress_to_AC3','')
-    DVDFab_description = request.GET.get('DVDFab_description','')
-    Src_folder = request.GET.get('Src_folder','')
-    Src_path = request.GET.get('Src_path','')
+    Video_decoder_H264 = request.GET.get('Video_decoder_H264','').strip()
+    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','').strip()
+    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','').strip()
+    Video_encoder_H264 = request.GET.get('Video_encoder_H264','').strip()
+    BD3D_convert_type = request.GET.get('BD3D_convert_type','').strip()
+    Compress_to_AC3 = request.GET.get('Compress_to_AC3','').strip()
+    DVDFab_description = request.GET.get('DVDFab_description','').strip()
+    Src_folder = request.GET.get('Src_folder','').strip()
+    Src_path = request.GET.get('Src_path','').strip()
     
-    Audio = request.GET.get('Audio','')
-    Audio_type = request.GET.get('Audio_type','')
-    Change_play_order = request.GET.get('Change_play_order','')
-    Copy_IFO = request.GET.get('Copy_IFO','')
-    Display_forced_sub = request.GET.get('Display_forced_sub','')
-    Jump_menu = request.GET.get('Jump_menu','')
-    Jump_main = request.GET.get('Jump_main','')
-    
-    Remove_DTS = request.GET.get('Remove_DTS','')
-    Path_player = request.GET.get('Path_player','')
-    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','')
-    Remove_menu = request.GET.get('Remove_menu','')
-    Remove_PGC = request.GET.get('Remove_PGC','')
-    Rewind = request.GET.get('Rewind','')
-    Subtitle = request.GET.get('Subtitle','')
-    Title = request.GET.get('Title','')
-    Volume = request.GET.get('Volume','')
-    
-    Num = Num.strip()
-    Num_test_link = Num_test_link.strip()
-    Iso_type = Iso_type.strip()
-    Mode = Mode.strip()
-    Src_iso = Src_iso.strip()
-    Dest_type = Dest_type.strip()
-    Out_disc = Out_disc.strip()
-    Profile = Profile.strip()
-    Enable_2Dto3D = Enable_2Dto3D.strip()
-    Remove_HD_audio = Remove_HD_audio.strip()
-    Video_decoder_H264 = Video_decoder_H264.strip()
-    Video_decoder_VC1 = Video_decoder_VC1.strip()
-    Video_decoder_MPEG2 = Video_decoder_MPEG2.strip()
-    Video_encoder_H264 = Video_encoder_H264.strip()
-    BD3D_convert_type = BD3D_convert_type.strip()
-    Compress_to_AC3 = Compress_to_AC3.strip()
-    DVDFab_description = DVDFab_description.strip()
-    Src_folder = Src_folder.strip()
-    Src_path = Src_path.strip()
-    Audio = Audio.strip()
-    Audio_type = Audio_type.strip()
-    Change_play_order = Change_play_order.strip()
-    Copy_IFO = Copy_IFO.strip()
-    Display_forced_sub = Display_forced_sub.strip()
-    Jump_menu = Jump_menu.strip()
-    Jump_main = Jump_main.strip()
-    Remove_DTS = Remove_DTS.strip()
-    Path_player = Path_player.strip()
-    Preserve_menu_disc2 = Preserve_menu_disc2.strip()
-    Remove_menu = Remove_menu.strip()
-    Remove_PGC = Remove_PGC.strip()
-    Rewind = Rewind.strip()
-    Subtitle = Subtitle.strip()
-    Title = Title.strip()
-    Volume = Volume.strip()
+    Audio = request.GET.get('Audio','').strip()
+    Audio_type = request.GET.get('Audio_type','').strip()
+    Change_play_order = request.GET.get('Change_play_order','').strip()
+    Copy_IFO = request.GET.get('Copy_IFO','').strip()
+    Display_forced_sub = request.GET.get('Display_forced_sub','').strip()
+    Jump_menu = request.GET.get('Jump_menu','').strip()
+    Jump_main = request.GET.get('Jump_main','').strip()
+    Remove_DTS = request.GET.get('Remove_DTS','').strip()
+    Path_player = request.GET.get('Path_player','').strip()
+    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','').strip()
+    Remove_menu = request.GET.get('Remove_menu','').strip()
+    Remove_PGC = request.GET.get('Remove_PGC','').strip()
+    Rewind = request.GET.get('Rewind','').strip()
+    Subtitle = request.GET.get('Subtitle','').strip()
+    Title = request.GET.get('Title','').strip()
+    Volume = request.GET.get('Volume','').strip()
     
     case = Case(Num = Num, Num_test_link = Num_test_link, Iso_type = Iso_type,Mode = Mode, Src_iso = Src_iso, Dest_type = Dest_type, Out_disc = Out_disc, Profile = Profile, Enable_2Dto3D = Enable_2Dto3D, \
                Remove_HD_audio = Remove_HD_audio, Video_decoder_H264 = Video_decoder_H264, Video_decoder_VC1 = Video_decoder_VC1, Video_decoder_MPEG2 = Video_decoder_MPEG2, \
@@ -123,15 +254,10 @@ def new_add_case(request):
  
  
 def new_add_client(request):
-     PC_name = request.POST.get('PC_name','')
-     PC_ip = request.POST.get('PC_ip','')
-     Dvdfab_path = request.POST.get('Dvdfab_path','')
-     Dest_path = request.POST.get('Dest_path','')
-     
-     PC_name = PC_name.strip()
-     PC_ip = PC_ip.strip()
-     Dvdfab_path = Dvdfab_path.strip()
-     Dest_path = Dest_path.strip()
+     PC_name = request.POST.get('PC_name','').strip()
+     PC_ip = request.POST.get('PC_ip','').strip()
+     Dvdfab_path = request.POST.get('Dvdfab_path','').strip()
+     Dest_path = request.POST.get('Dest_path','').strip()
      
      client = Client(PC_name = PC_name, PC_ip = PC_ip, Dvdfab_path = Dvdfab_path, Dest_path = Dest_path)
      context = {'request':request,
@@ -143,42 +269,25 @@ def new_add_client(request):
                 }
      if PC_name and PC_ip :
          client.save()
+         #last_id = Client.objects.latest("id").id
          return HttpResponseRedirect('/client/')
      return render_to_response('new_client.html',context,context_instance=RequestContext(request))
  
  
 def new_add_BD(request):
-    Name = request.GET.get('Name','')
-    Video_info = request.GET.get('Video_info','')
-    Audio_info = request.GET.get('Audio_info','')
-    File_size = request.GET.get('File_size','')
-    
-    Channel = request.GET.get('Channel','')
-    Framerate = request.GET.get('Framerate','')
-    Standard = request.GET.get('Standard','')
-    Scan_type = request.GET.get('Scan_type','')
-    
-    Numbers_jar = request.GET.get('Numbers_jar','')
-    Company = request.GET.get('Company','')
-    Locations = request.GET.get('Locations','')
-    Description = request.GET.get('Description','')
-    Volume_label = request.GET.get('Volume_label','')
-    
-    Name = Name.strip()
-    Video_info = Video_info.strip()
-    Audio_info = Audio_info.strip()
-    File_size = File_size.strip()
-    
-    Channel = Channel.strip()
-    Framerate = Framerate.strip()
-    Standard = Standard.strip()
-    Scan_type = Scan_type.strip()
-    
-    Numbers_jar = Numbers_jar.strip()
-    Company = Company.strip()
-    Locations = Locations.strip()
-    Description = Description.strip()
-    Volume_label = Volume_label.strip()
+    Name = request.GET.get('Name','').strip()
+    Video_info = request.GET.get('Video_info','').strip()
+    Audio_info = request.GET.get('Audio_info','').strip()
+    File_size = request.GET.get('File_size','').strip()
+    Channel = request.GET.get('Channel','').strip()
+    Framerate = request.GET.get('Framerate','').strip()
+    Standard = request.GET.get('Standard','').strip()
+    Scan_type = request.GET.get('Scan_type','').strip()
+    Numbers_jar = request.GET.get('Numbers_jar','').strip()
+    Company = request.GET.get('Company','').strip()
+    Locations = request.GET.get('Locations','').strip()
+    Description = request.GET.get('Description','').strip()
+    Volume_label = request.GET.get('Volume_label','').strip()
     
     bd = Samples(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, Scan_type = Scan_type, \
             Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
@@ -190,36 +299,18 @@ def new_add_BD(request):
  
  
 def new_add_DVD(request):
-    Name = request.GET.get('Name','')
-    Video_info = request.GET.get('Video_info','')
-    Audio_info = request.GET.get('Audio_info','')
-    File_size = request.GET.get('File_size','')
-    
-    Channel = request.GET.get('Channel','')
-    Framerate = request.GET.get('Framerate','')
-    Standard = request.GET.get('Standard','')
-    Scan_type = request.GET.get('Scan_type','')
-    
-    Company = request.GET.get('Company','')
-    Locations = request.GET.get('Locations','')
-    Description = request.GET.get('Description','')
-    Volume_label = request.GET.get('Volume_label','')
-    
-    Name = Name.strip()
-    Video_info = Video_info.strip()
-    Audio_info = Audio_info.strip()
-    File_size = File_size.strip()
-    
-    Channel = Channel.strip()
-    Framerate = Framerate.strip()
-    Standard = Standard.strip()
-    Scan_type = Scan_type.strip()
-    
-   
-    Company = Company.strip()
-    Locations = Locations.strip()
-    Description = Description.strip()
-    Volume_label = Volume_label.strip()
+    Name = request.GET.get('Name','').strip()
+    Video_info = request.GET.get('Video_info','').strip()
+    Audio_info = request.GET.get('Audio_info','').strip()
+    File_size = request.GET.get('File_size','').strip()
+    Channel = request.GET.get('Channel','').strip()
+    Framerate = request.GET.get('Framerate','').strip()
+    Standard = request.GET.get('Standard','').strip()
+    Scan_type = request.GET.get('Scan_type','').strip()
+    Company = request.GET.get('Company','').strip()
+    Locations = request.GET.get('Locations','').strip()
+    Description = request.GET.get('Description','').strip()
+    Volume_label = request.GET.get('Volume_label','').strip()
     
     dvd = DVD_samples(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, Scan_type = Scan_type, \
                  Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
@@ -232,37 +323,19 @@ def new_add_DVD(request):
  
  
 def new_add_BD3D(request):
-    Name = request.GET.get('Name','')
-    Video_info = request.GET.get('Video_info','')
-    Audio_info = request.GET.get('Audio_info','')
-    File_size = request.GET.get('File_size','')
-    
-    Channel = request.GET.get('Channel','')
-    Framerate = request.GET.get('Framerate','')
-    Standard = request.GET.get('Standard','')
-    Scan_type = request.GET.get('Scan_type','')
-    
-    Numbers_jar = request.GET.get('Numbers_jar','')
-    Company = request.GET.get('Company','')
-    Locations = request.GET.get('Locations','')
-    Description = request.GET.get('Description','')
-    Volume_label = request.GET.get('Volume_label','')
-    
-    Name = Name.strip()
-    Video_info = Video_info.strip()
-    Audio_info = Audio_info.strip()
-    File_size = File_size.strip()
-    
-    Channel = Channel.strip()
-    Framerate = Framerate.strip()
-    Standard = Standard.strip()
-    Scan_type = Scan_type.strip()
-    
-    Numbers_jar = Numbers_jar.strip()
-    Company = Company.strip()
-    Locations = Locations.strip()
-    Description = Description.strip()
-    Volume_label = Volume_label.strip()
+    Name = request.GET.get('Name','').strip()
+    Video_info = request.GET.get('Video_info','').strip()
+    Audio_info = request.GET.get('Audio_info','').strip()
+    File_size = request.GET.get('File_size','').strip()
+    Channel = request.GET.get('Channel','').strip()
+    Framerate = request.GET.get('Framerate','').strip()
+    Standard = request.GET.get('Standard','').strip()
+    Scan_type = request.GET.get('Scan_type','').strip()
+    Numbers_jar = request.GET.get('Numbers_jar','').strip()
+    Company = request.GET.get('Company','').strip()
+    Locations = request.GET.get('Locations','').strip()
+    Description = request.GET.get('Description','').strip()
+    Volume_label = request.GET.get('Volume_label','').strip()
     
     bd3d = BD3D_samples(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, Scan_type = Scan_type, \
             Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
@@ -274,15 +347,10 @@ def new_add_BD3D(request):
 
 
 def new_add_version(request):
-    Version = request.POST.get('Version','')
-    Create_time = request.POST.get('Create_time','')
-    Description = request.POST.get('Description','')
-    Notes = request.POST.get('Notes','')
-    
-    Version = Version.strip()
-    Create_time = Create_time.strip()
-    Description = Description.strip()
-    Notes = Notes.strip()
+    Version = request.POST.get('Version','').strip()
+    Create_time = request.POST.get('Create_time','').strip()
+    Description = request.POST.get('Description','').strip()
+    Notes = request.POST.get('Notes','').strip()
     
     version = Versions(Version = Version, Create_time = Create_time, Description = Description, Notes = Notes)
     context = {'request':request,
@@ -309,24 +377,18 @@ def case(request):
         qs = Case.objects.filter(Q(Mode__iexact = 'fulldisc') | Q(Mode__iexact = 'mainmovie')).order_by('Num') 
         case = qs.filter(Q(Iso_type__iexact = 'BD')).order_by("Num")   
     elif case_type == 'BC_P0_2':
-        qs = Case.objects.filter(Num__gte = '026').order_by('Num')
-        case = qs.filter(Num__lte = '050')     
+        case = Case.objects.filter(Num__gte = '026').order_by('Num').filter(Num__lte = '050')
+        
     elif case_type == 'BC_P1_1':
-        qs = Case.objects.filter(Num__gte = '051').order_by('Num')
-        case = qs.filter(Num__lte = '076')
+        case = Case.objects.filter(Num__gte = '051').order_by('Num').filter(Num__lte = '076')
     elif case_type == "BC_P1_2":
-        qs = Case.objects.filter(Q(Mode = "bdfulldisc") | Q(Mode = "bdmainmovie")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "101")
-        case = qs1.filter(Num__lte = "125")              
+        case = Case.objects.filter(Q(Mode = "bdfulldisc") | Q(Mode = "bdmainmovie")).order_by("Num").filter(Num__gte = "101").filter(Num__lte = "125")
     elif case_type == 'BC_P1_3':
-        qs = Case.objects.filter(Num__gte = '701').order_by('Num')
-        case = qs.filter(Num__lte = '730')    
+        case = Case.objects.filter(Num__gte = '701').order_by('Num').filter(Num__lte = '730')
     elif case_type == 'BC_P2':
-        qs = Case.objects.filter(Num__gte = "151").order_by("Num")
-        case = qs.filter(Num__lte = "175")
+        case = Case.objects.filter(Num__gte = "151").order_by("Num").filter(Num__lte = "175")
     elif case_type == 'BC_P3':
-        qs = Case.objects.filter(Num__gte = "176").order_by("Num")
-        case = qs.filter(Num__lte = "200")
+        case = Case.objects.filter(Num__gte = "176").order_by("Num").filter(Num__lte = "200")
     
     #Blu_ Ripper    
     elif case_type == 'Blu_Ripper':
@@ -334,24 +396,20 @@ def case(request):
         #case = qs.exclude(Q(Mode__icontains = "dvd") | Q(Mode__icontains = "3d")).order_by("Num")      
     elif case_type == "BR_P0":
         qs = Case.objects.filter(Q(Mode__icontains = "Ripper") & Q(Iso_type__iexact = "BD")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "201").order_by("Num")
-        case = qs1.filter(Num__lte = "290")       
+        case = qs.filter(Num__gte = "201").order_by("Num").filter(Num__lte = "290")       
     elif case_type == "BR_P1":
         qs = Case.objects.filter(Q(Mode__icontains = "Ripper") & Q(Iso_type__iexact = "BD")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "291").order_by("Num")
-        case = qs1.filter(Num__lte = "380")    
+        case = qs.filter(Num__gte = "291").order_by("Num").filter(Num__lte = "380")    
     elif case_type == "BR_P2":
         qs = Case.objects.filter(Q(Mode__icontains = "Ripper") & Q(Iso_type__iexact = "BD")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "381").order_by("Num")
-        case = qs1.filter(Num__lte = "400")   
+        case = qs.filter(Num__gte = "381").order_by("Num").filter(Num__lte = "400")   
     
     #DVD_Copy        
     elif case_type == 'DVD_Copy':
         qs = Case.objects.filter(Q(Mode__iexact = "fulldisc") | Q(Mode__iexact = "mainmovie")).order_by("Num")
         case = qs.filter(Q(Iso_type__iexact = 'DVD')).order_by("Num")
     elif case_type == 'DC_P0':
-        qs = Case.objects.filter(Num__gte = "601").order_by("Num")
-        case = qs.filter(Num__lte = "620")
+        case = Case.objects.filter(Num__gte = "601").order_by("Num").filter(Num__lte = "620")
 
     #DVD_Ripper        
     elif case_type == 'DVD_Ripper':
@@ -359,33 +417,20 @@ def case(request):
         case = qs.filter(Q(Num__gte = "401") & Q(Num__lte = "600")).order_by("Num")    
     elif case_type == 'DR_P0':
         qs = Case.objects.filter(Q(Mode__icontains = "Ripper") & Q(Iso_type = "DVD")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "401").order_by("Num")
-        case = qs1.filter(Num__lte = "500")
+        case = qs.filter(Num__gte = "401").order_by("Num").filter(Num__lte = "500")
     elif case_type == 'DR_P1':
         qs = Case.objects.filter(Q(Mode__icontains = "Ripper") & Q(Iso_type = "DVD")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "501").order_by("Num")
-        case = qs1.filter(Num__lte = "600")
-        
-
+        case = qs.filter(Num__gte = "501").order_by("Num").filter(Num__lte = "600")
    
     #Blu_DVD
     elif case_type == 'Blu_DVD':
         cae = Case.objects.filter(Q(Mode__iexact = "bluraydvd")).order_by("Num")
         case = Case.objects.filter(Q(Num__gte = "801") & Q(Num__lte = "824")).order_by("Num") 
     elif case_type == 'BD_P0':
-        qs = Case.objects.filter(Num__gte = "801").order_by("Num")
-        case = qs.filter(Num__lte = "824")    
-    #elif case_type == 'BD_P1':
-    #    qs = Case.objects.filter(Num__gte = "801").order_by("Num")
-    #    case = qs.filter(Num__lte = "824")    
-    #elif case_type == 'BD_P2':
-    #    qs = Case.objects.filter(Num__gte = "801").order_by("Num")
-    #    case = qs.filter(Num__lte = "824")
-    
+        case = Case.objects.filter(Num__gte = "801").order_by("Num").filter(Num__lte = "824")    
     #Blu_3D        
     elif case_type == 'Blu_3D':
         case = Case.objects.filter(Q(Mode__icontains = "bluray3d")).order_by("Num")  
-        #case = qs.filter(Q(Num__gte = "901") & Q(Num__lte = "950"))
     elif case_type == 'B3_P0':
         qs = Case.objects.filter(Num__gte = "901").order_by("Num")
         case = qs.filter(Num__lte = "950")       
@@ -398,30 +443,21 @@ def case(request):
         case = Case.objects.filter(Q(Mode__icontains = "Converter")).order_by("Num")  
     elif case_type == 'VC_P0':
         qs = Case.objects.filter(Q(Mode__icontains = "Converter")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "1000")
-        case = qs1.filter(Num__lte = "1100")     
-    #elif case_type == 'VC_P1':
-    #    qs = Case.objects.filter(Q(Mode__icontains = "video")).order_by("Num")
-    #    qs1 = qs.filter(Num__gte = "1051")
-    #    case = qs1.filter(Num__lte = "1100")
+        case = qs.filter(Num__gte = "1000").filter(Num__lte = "1100")     
 
     #2Dto3D
     elif case_type == '2Dto3D':
         qs = Case.objects.filter(Q(Enable_2Dto3D__icontains = "yes")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "1101")
-        case = qs1.filter(Num__lte = "1399")          
+        case = qs.filter(Num__gte = "1101").filter(Num__lte = "1399")          
     elif case_type == '2T3_DR':
         qs = Case.objects.filter(Q(Enable_2Dto3D__icontains = "yes")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "1101")
-        case = qs1.filter(Num__lte = "1199")     
+        case = qs.filter(Num__gte = "1101").filter(Num__lte = "1199")     
     elif case_type == '2T3_BR':
         qs = Case.objects.filter(Q(Enable_2Dto3D__icontains = "yes")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "1201")
-        case = qs1.filter(Num__lte = "1299")
+        case = qs.filter(Num__gte = "1201").filter(Num__lte = "1299")
     elif case_type == '2T3_VC':
         qs = Case.objects.filter(Q(Enable_2Dto3D__icontains = "yes")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "1301")
-        case = qs1.filter(Num__lte = "1399")
+        case = qs.filter(Num__gte = "1301").filter(Num__lte = "1399")
     
     #Mini_test_set
     elif case_type == 'Mini_test_set':  
@@ -459,12 +495,7 @@ def case(request):
 
     elif case_type == 'BDC_P0':
         qs = Case.objects.filter(Q(Mode__iexact = "creator")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "4012")
-        case = qs1.filter(Num__lte = "4029")     
-    #elif case_type == 'BDC_P1':
-    #    qs = Case.objects.filter(Q(Mode__iexact = "creator")).order_by("Num")
-    #    qs1 = qs.filter(Num__gte = "4051")
-    #    case = qs1.filter(Num__lte = "4100")
+        case = qs.filter(Q(Num__gte = "4012") & Q(Num__lte = "4029"))
         
     #DVDCreator
     elif case_type == 'DVDCreator':
@@ -473,38 +504,40 @@ def case(request):
 
     elif case_type == 'DVD_DVD5':
         qs = Case.objects.filter(Q(Mode__iexact = "creator")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "4000")
-        case = qs1.filter(Num__lte = "4005")     
+        case = qs.filter(Num__gte = "4000").filter(Num__lte = "4005")     
     elif case_type == 'DVD_DVD9':
         qs = Case.objects.filter(Q(Mode__iexact = "creator")).order_by("Num")
-        qs1 = qs.filter(Num__gte = "4006")
-        case = qs1.filter(Num__lte = "4011")
+        case = qs.filter(Num__gte = "4006").filter(Num__lte = "4011")
                
     else:
         qs = Case.objects.filter(Num__gte = "001").order_by("Num")
         case = qs.filter(Num__lte = "025")
-    
     return render_to_response('case.html', locals())
+
+
+def get_src_path(iso_type, case):
+    if Iso_type.upper() == 'BD':
+        Src_path = '/U_nas/volume1/bd/' + case.Src_iso
+    elif Iso_type.upper() == 'DVD':
+        Src_path = '/U_nas/volume2/dvd/' + case.Src_iso
+    else:
+        Src_path = '/U_nas/volume3/video/' + case.Src_iso
+    return Src_path
+
 
 @csrf_exempt  
 def insert_session(request):  
-
         checkbox = request.POST.getlist('checkbox')
-        #return HttpResponse(checkbox)
         pc_name_list = request.POST.getlist('pc_name')
         dvdfab_path_list = request.POST.getlist('dvdfab_path')
         num_list = request.POST.getlist('num')
         select_version_list = request.POST.getlist('select_version')
         Start_time = time.strftime('%Y-%m-%d %H:%M:%S')
-        start_time = Start_time.replace('-','_')
-        start_time = start_time.replace(':','_')
+        start_time = Start_time.replace('-','_').replace(":", "_")
         path = start_time.replace(' ','_')
-        #return HttpResponse(checkbox)
-        #return HttpResponse(num_list)
         for num in checkbox :
             index = num_list.index(num)
             PC_name = pc_name_list[index]   
- 
             Dvdfab_path = dvdfab_path_list[index]
             Version = select_version_list[index]   
             client_dest_path = Client.objects.filter(PC_name = PC_name).values()[0]['Dest_path']
@@ -513,7 +546,6 @@ def insert_session(request):
             Num = case.Num
             Iso_type = case.Iso_type
             Mode = case.Mode
-            
             Out_disc = case.Out_disc
             Remove_HD_audio = case.Remove_HD_audio
             BD3D_convert_type = case.BD3D_convert_type
@@ -522,7 +554,6 @@ def insert_session(request):
             Video_decoder_H264 = case.Video_decoder_H264
             Video_decoder_VC1 = case.Video_decoder_VC1
             Video_decoder_MPEG2 = case.Video_decoder_MPEG2
-            
             Video_encoder_H264 = case.Video_encoder_H264
             Profile = case.Profile
             Enable_2Dto3D = case.Enable_2Dto3D
@@ -532,7 +563,6 @@ def insert_session(request):
             #Dest_type = case.Dest_type
             Audio = case.Audio
             Audio_type = case.Audio_type
-    
             Change_play_order = case.Change_play_order
             Copy_IFO = case.Copy_IFO
             Display_forced_sub = case.Display_forced_sub
@@ -542,7 +572,6 @@ def insert_session(request):
             Path_player = case.Path_player
             Preserve_menu_disc2 = case.Preserve_menu_disc2
             Remove_DTS = case.Remove_DTS
-
             Remove_menu = case.Remove_menu
             Remove_PGC = case.Remove_PGC
             Rewind = case.Rewind
@@ -551,38 +580,12 @@ def insert_session(request):
             Volume =case.Volume
     
             Num_test_link =  case.Num_test_link
-            '''
-            if Mode.upper().startswith('BD') or Mode.upper().startswith('BLURAY'):
-                Src_path = '/U_nas/volume1/bd/' + case.Src_iso
-                
-            elif Mode.upper().startswith('DVD') or Mode.upper().startswith('FULLDISC'):
-                Src_path = '/U_nas/volume2/dvd/' + case.Src_iso
-            else:
-                Src_path = '/U_nas/volume3/video/' + case.Src_iso
-            '''
-            if Iso_type.upper() == 'BD':
-                Src_path = '/U_nas/volume1/bd/' + case.Src_iso
-            elif Iso_type.upper() == 'DVD':
-                Src_path = '/U_nas/volume2/dvd/' + case.Src_iso
-            else:
-                Src_path = '/U_nas/volume3/video/' + case.Src_iso
-                
+            Src_path = get_src_path(iso_type, case)
             Start_time = time.strftime('%Y-%m-%d %H:%M:%S')
-            Sub_num = ''
-            End_time = '' 
-            Total_time = ''
-            
-            Web_log_path = ''
-            Log_folder_path = ''
-            Dvdfab_path = ''  
-            Current_src_path = '' 
-            
-            Folder_size = ''
             DVDFab_description = case.DVDFab_description
-            Result = ''
-            Developer = ''
             Flag = 0
-            Dest_path = ''          
+            Sub_num = End_time = Total_time = Web_log_path = Log_folder_path = Dvdfab_path = Current_src_path = Folder_size = Result = Developer = Dest_path = ''
+            
             session = Session(PC_name = PC_name, Num = Num, Iso_type = Iso_type, Mode = Mode, Out_disc = Out_disc, Remove_HD_audio = Remove_HD_audio, BD3D_convert_type = BD3D_convert_type,\
                              Compress_to_AC3 = Compress_to_AC3, Video_decoder_H264 = Video_decoder_H264, Video_decoder_VC1 = Video_decoder_VC1,\
                              Video_decoder_MPEG2 = Video_decoder_MPEG2, Video_encoder_H264 = Video_encoder_H264, Profile =Profile, Enable_2Dto3D = Enable_2Dto3D,\
@@ -595,44 +598,33 @@ def insert_session(request):
             session.save()  
          
             session = Session.objects.filter(Num = num)[0]
-            
             if case.Dest_type.upper() == 'ISO':
-                #Dest_path = client_dest_path + '/' + path  + '_' + num + '/'+case.Src_iso
-                if '/' in client_dest_path:
-                    if client_dest_path.endswith('/'):
-                        Dest_path = client_dest_path + str(session.id) + '_'+ path  + '_' + num + '/'+case.Src_iso
-                    else:
-                        Dest_path = client_dest_path + '/' + str(session.id) + '_'+ path  + '_' + num + '/'+case.Src_iso
-                elif '\\' in client_dest_path:     
-                    if client_dest_path.endswith('\\'):
-                        Dest_path = client_dest_path + str(session.id) + '_'+ path  + '_' + num + '\\'+case.Src_iso
-                    else:
-                        Dest_path = client_dest_path + '\\' + str(session.id) + '_'+ path  + '_' + num + '\\'+case.Src_iso
-                else:
-                    Dest_path = client_dest_path + '/' + str(session.id) + '_'+ path  + '_' + num + '/'+case.Src_iso
-                    
+                name = str(session.id) + '_'+ path  + '_' + num + '/' + case.Src_iso
             else: 
-                if '/' in client_dest_path:
-                    if client_dest_path.endswith('/'):
-                        Dest_path = client_dest_path + str(session.id) + '_'+ path  + '_' + num
-                    else:
-                        Dest_path = client_dest_path + '/' + str(session.id) + '_'+ path  + '_' + num
-                elif '\\' in client_dest_path:     
-                    if client_dest_path.endswith('\\'):
-                        Dest_path = client_dest_path + str(session.id) + '_'+ path  + '_' + num
-                    else:
-                        Dest_path = client_dest_path + '\\' + str(session.id) + '_'+ path  + '_' + num
-                else:
-                    Dest_path = client_dest_path + '/' + str(session.id) + '_'+ path  + '_' + num
-            #Dest_path = Dest_path.replace('/','\\')
+                name = str(session.id) + '_'+ path  + '_' + num
+            Dest_path = os.path.join(client_dest_path, name)
             session.Dest_path = Dest_path
             session.save()
         return  HttpResponseRedirect('/case/') 
                 
 
+
 def client(request):
+    ziduan = request.GET.get("ziduan","").strip()
+    desc = request.GET.get("desc","").strip()
     client = Client.objects.all()
-    #client = Client.objects.all().values()[1] 
+    record_list = ["id", "PC_name", "PC_ip", "Dvdfab_path", "Dest_path"]
+    for record in record_list:
+        if ziduan == record:
+            if desc == "1" or desc == "":
+                client = Client.objects.all().order_by(ziduan)
+                desc = 2
+            elif desc == "2":
+                client = Client.objects.all().order_by("-" + ziduan)
+                desc = 1
+            else:
+                desc = 1
+                client = Client.objects.all()
     return render_to_response('client.html', locals())
 
 
@@ -665,15 +657,17 @@ def all_samples(request):
 
 def session(request): 
     nowpage = request.GET.get('nowpage','')
+    ziduan = request.GET.get("ziduan","").strip()
+    sort = request.GET.get("sort","").strip()
     if nowpage == '':
         nowpage = 1
     else:
         nowpage = int(nowpage)
     count = Session.objects.count()
-    if count % 100 == 0:
-        pageall = count / 100
+    if count % 10 == 0:
+        pageall = count / 10
     else:
-        pageall = count / 100 + 1
+        pageall = count / 10 + 1
     if nowpage - 1 < 1:
         pageup = 1
     else:
@@ -682,74 +676,37 @@ def session(request):
         pagedn = pageall
     else:
         pagedn = nowpage + 1
-    start = 100*(nowpage - 1)    
-    session = Session.objects.all().order_by('-id')[start:(start + 100)]
+    start = 10*(nowpage - 1)
+    if ziduan == "index":
+        if sort == "1" or sort == "":
+            sort = "2"
+            session = Session.objects.all().order_by('-id')[start:(start + 10)]
+        elif sort == "2":
+            sort = "1"
+            session = Session.objects.all().order_by('-id')[start:(start + 10)][::-1]
+    else:
+        session = Session.objects.all().order_by('-id')[start:(start + 10)]
     return render_to_response('session.html', locals())
 
  
 def search_session(request):
-    api = request.GET.get('api','')         #index, Mode, PC_name, Num, Result ....
-    api_name = request.GET.get('api_name','')
-    sample_name = request.GET.get('sample_name','')
-    api_name = api_name.strip()
-    sample_name = sample_name.strip()
- 
-    '''
-    if Mode.upper().startswith('BD') or Mode.upper().startswith('BLURAY'):
-        Src_path = '/U_nas/volume1/bd/' + case.Src_iso           
-    elif Mode.upper().startswith('DVD') or Mode.upper().startswith('FULLDISC'):
-        Src_path = '/U_nas/volume2/dvd/' + case.Src_iso
-    else:
-        Src_path = '/U_nas/volume3/video/' + case.Src_iso
-    '''
- 
-    if api == 'id' and api_name:
-        session = Session.objects.extra(where = ["id like'%%"+ str(api_name) + "%%'"])
-        if not session:
-            return render_to_response('error.html')
-    
-    elif api == 'Mode' and api_name:
-        session = Session.objects.extra(where = ["Mode like'%%"+ str(api_name) + "%%'"])
-        if not session:
-            return render_to_response('error.html')
-                
-    elif api == 'Src_path' and api_name:
-        session = Session.objects.extra(where = ["Src_path like'%%"+ str(api_name) + "%%'"])
-        if not session:
-            return render_to_response('error.html')
-        
-    elif api == 'Num' and api_name:
-        session = Session.objects.extra(where = ["Num like'%%"+ str(api_name) + "%%'"])
-        if not session:
-            return render_to_response('error.html')
-    
-    elif api == 'Result' and api_name:
-        session = Session.objects.extra(where = ["Result like'%%"+ str(api_name) + "%%'"])
-        if not session:
-            return render_to_response('error.html')
-        
-    elif api == 'Out_disc' and api_name:
-        session = Session.objects.extra(where = ["Out_disc like'%%"+ str(api_name) + "%%'"])
-        if not session:
-            return render_to_response('error.html')
-        
-    elif api == 'PC_name' and api_name:
-        session = Session.objects.extra(where = ["PC_name like'%%"+ str(api_name) + "%%'"])
-        if not session:
-            return render_to_response('error.html')
-        
-    elif api == 'Profile' and api_name:
-        session = Session.objects.extra(where = ["Profile like'%%"+ str(api_name) + "%%'"])
-        if not session:
-            return render_to_response('error.html')
-        
-    elif api == 'Developer' and api_name:
-        session = Session.objects.extra(where = ["Developer like'%%"+ str(api_name) + "%%'"])
-        if not session:
-            return render_to_response('error.html')
+    api = request.GET.get('api','').strip()         #index, Mode, PC_name, Num, Result ....
+    api_name = request.GET.get('api_name','').strip()
+    sample_name = request.GET.get('sample_name','').strip()
+    if api_name:
+        record_list = ["id", "Mode", "Src_path", "Num", "Result", "Out_dics", "PC_name", "Profile", "Developer"]
+        for each_record in record_list:
+            if api == each_record:
+                search_str = "%s like '%%%%%s%%%%'" % (each_record, str(api_name))
+                #search_str = "Name like '%%" + str(all_type) + "%%'"
+                session = Session.objects.extra(where = [search_str])
+                if not session:
+                    return render_to_response('error.html')
+                else:
+                    break
+        return render_to_response('session.html',locals()) 
     else:
         return HttpResponseRedirect('/session/')
-    return render_to_response('session.html',locals())
  
  
 def search_DVD(request):  
@@ -778,46 +735,28 @@ def test_result(request):
     days_info_list = []
     PC_name = request.POST.get('PC_name', '').strip()
     check_Flag = request.POST.get('check_Flag', '').strip()
-    ziduan = request.GET.get('ziduan','')
-    test_api = request.POST.get('test_api','')
+    ziduan = request.GET.get('ziduan','').strip()
+    test_api = request.POST.get('test_api','').strip()
     test_name = request.POST.get('test_name','').strip()
     Flag = request.POST.get('Flag','').strip()
     Flag_old = request.POST.get('Flag_old','').strip()
-    
     update_flag_from_day = request.POST.get('update_flag_from_day','').strip()
     update_flag_to_day = request.POST.get('update_flag_to_day','').strip()
     PC_name_by_day = request.POST.get('PC_name_by_day', '').strip()
     Flag_old_by_day = request.POST.get('Flag_old_by_day','').strip()
     Flag_by_day = request.POST.get('Flag_by_day','').strip()
-    
-    if '/' in update_flag_from_day:
-        update_flag_from_day = update_flag_from_day.replace('/','-')
-    if '.' in test_name:
-        update_flag_from_day = update_flag_from_day.replace('.','-')
-    if ',' in test_name:
-        update_flag_from_day = update_flag_from_day.replace(',','-')
-    
-    if '/' in update_flag_to_day:
-        update_flag_to_day = update_flag_to_day.replace('/','-')
-    if '.' in test_name:
-        update_flag_to_day = update_flag_to_day.replace('.','-')
-    if ',' in test_name:
-        update_flag_to_day = update_flag_to_day.replace(',','-')
-    
+    update_flag_from_day = update_flag_from_day.replace('/','-').replace(".","-").replace(",","-")
+    update_flag_to_day = update_flag_to_day.replace('/','-').replace(".","-").replace(",","-")
     
     client = Client.objects.all().order_by('PC_name') 
     days = request.POST.get('days','').strip()
-    if days:  
-        try:
-            days = int(days)      
-        except Exception:
-            pass     
-        else:
-            if days == 0:
-                pass
-            else:
-                web = Web_params(Days_display = days)   
-                web.save()
+    try:
+        days = int(days)      
+        if days != 0:
+            web = Web_params(Days_display = days)   
+            web.save()
+    except Exception:
+        pass     
             
     if test_api == 'id' and test_name: 
         test_name = test_name.split(',') 
@@ -835,517 +774,207 @@ def test_result(request):
                 list_str_int.append(i)       
         for i in list_str_int:
             qs = Session.objects.filter(id = i)
-            if Flag_old:
-                session = qs.filter(Flag = Flag_old)
-            else:
-                session = qs
+            session = qs.filter(Flag = Flag_old) if Flag_old else qs
             if Flag:
                 session.update(Flag = Flag)        
-            #if not session:
-            #    return render_to_response('error.html')  
     elif test_api == 'PC_name' and test_name:      
         test_name = test_name.split(',')
         for i in test_name:
             qs = Session.objects.filter(PC_name = i)    
-            if Flag_old:
-                session = qs.filter(Flag = Flag_old)
-            else:
-                session = qs
+            session = qs.filter(Flag = Flag_old) if Flag_old else qs
             if Flag:
                 session.update(Flag = Flag)        
-            #if not session:
-            #    return render_to_response('error.html')        
     elif test_api == 'Init_time' and test_name:      
-        if '/' in test_name:
-            test_name = test_name.replace('/','-')
-        if '.' in test_name:
-            test_name = test_name.replace('.','-')
-        if ',' in test_name:
-            test_name = test_name.replace(',','-')
-            
+        test_name = test_name.replace('/','-').replace(".","-").replace(",","-")
         qs = Session.objects.filter(Init_time = test_name)  
-        if Flag_old:
-            session = qs.filter(Flag = Flag_old)
-        else:
-            session = qs  
+        session = qs.filter(Flag = Flag_old) if Flag_old else qs
         if Flag:
             session.update(Flag = Flag)  
-        #if not session:
-        #    return render_to_response('error.html')  
     elif test_api == 'Flag_1':
-        #if test_name: 
-        #    qs = Session.objects.filter(Flag = int(test_name))
-        #else:
-        #    qs = Session.objects.all()
-        if Flag_old:
-            session = Session.objects.filter(Flag = Flag_old)
-        else:
-            session = Session.objects.all()
+        session = Session.objects.filter(Flag = Flag_old) if Flag_old else Session.objects.all()
         if Flag:
             session.update(Flag = Flag)
-            #if not session:
-            #    return render_to_response('error.html')   
-    else:
-        pass
     
     if update_flag_from_day:
         qs = Session.objects.filter(Init_time__gte = update_flag_from_day)
-        if update_flag_to_day:
-            qs0 = qs.filter(Init_time__lte = update_flag_to_day)
-        else:
-            qs0 = qs
-        if PC_name_by_day:
-            qs1 = qs0.filter(PC_name = PC_name_by_day)
-        else:
-            qs1 = qs0
-        if Flag_old_by_day:
-            session = qs1.filter(Flag = Flag_old_by_day)
-        else:
-            session = qs1
+        qs0 = qs.filter(Init_time__lte = update_flag_to_day) if update_flag_to_day else qs
+        qs1 = qs0.filter(PC_name = PC_name_by_day) if PC_name_by_day else qs0
+        session = qs1.filter(Flag = Flag_old_by_day) if Flag_old_by_day else qs1
         if Flag_by_day:
             session.update(Flag = Flag_by_day)
             
     web_params = Web_params.objects.all() 
-    if web_params:  
-        days = int(web_params[0].Days_display)     
-    else:
-        days = 7
-        
+    days = int(web_params[0].Days_display) if web_params else 7    
     now_day = datetime.datetime.now()
-    for day in range(days):   
-        if ziduan == 'Index':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('id')
-        elif ziduan == 'Num':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Num')
-        elif ziduan =='Mode':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Mode')
-        elif ziduan == 'PC_name':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('PC_name')
-        elif ziduan == 'Out_disc':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Out_disc')
-        elif ziduan == 'Remove_HD_audio':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Remove_HD_audio')
-        elif ziduan == 'BD3D_convert_type':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('BD3D_convert_type')
-        elif ziduan == 'Compress_to_AC3':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Compress_to_AC3')
-        elif ziduan == 'Video_decoder_H264':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Video_decoder_H264')
-        elif ziduan == 'Video_decoder_VC1':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Video_decoder_VC1')
-        elif ziduan == 'Video_decoder_MPEG2':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Video_decoder_MPEG2')
-        elif ziduan == 'Video_encoder_H264':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Video_encoder_H264')
-        elif ziduan == 'Enable_2Dto3D':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Enable_2Dto3D')
-        elif ziduan == 'Profile':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Profile')
-        elif ziduan == 'Src_path':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Src_path')
-        elif ziduan == 'Dest_path':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Dest_path')
-        elif ziduan == 'Start_time':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Start_time')
-        elif ziduan == 'End_time':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('End_time')
-        elif ziduan == 'Total_time':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Total_time')
-        elif ziduan == 'Folder_size':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Folder_size')
-        elif ziduan == 'DVDFab_description':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('DVDFab_description')
-        elif ziduan == 'Result':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Result')
-        elif ziduan == 'Developer':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Developer')
-        elif ziduan == 'Flag':
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('Flag')
-        else:
-            session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day))
-        if PC_name:
-            session1 = session.filter(PC_name = PC_name) 
-            #if not session1:
-            #    return render_to_response('error.html') 
-        else:
-            session1 = session  
-        if check_Flag:
-            session2 = session1.filter(Flag = check_Flag)
-        else:
-            session2 = session1
+    for day in range(days):
+        record_list = ["Index", "Num", "Mode","PC_name","Out_disc","Remove_HD_audio","BD3D_convert_type","Compress_to_AC3",\
+                       "Video_decoder_H264","Video_decoder_VC1","Video_decoder_MPEG2","Video_encoder_H264","Enable_2Dto3D",\
+                       "Profile","Src_path","Dest_path","Start_time","End_time","Total_time","Folder_size","DVDFab_description",\
+                       "Result","Developer","Flag"]
+        for record in record_list:
+            if ziduan == record:
+                if ziduan == "Index":
+                    ziduan = "id"
+                session = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day)).order_by('%s'% ziduan)
+                break
+        session1 = session.filter(PC_name = PC_name) if PC_name else session 
+        session2 = session1.filter(Flag = check_Flag) if check_Flag else session1
         if session2:
-            
             day_info_list.append([session[0].Init_time,session2])
     
     return render_to_response('test_result.html',locals())
  
     
 def search_test_result(request):  
-    
     day_info_list = []
     days_info_list = []
 
-    test_api = request.GET.get('test_api','')
-    test_name = request.GET.get('test_name','')
-    Flag = request.GET.get('Flag','')
-    test_name = test_name.strip() 
-    Flag = Flag.strip()
-    days = request.GET.get('days','')
-    days = days.strip()
+    test_api = request.GET.get('test_api','').strip()
+    test_name = request.GET.get('test_name','').strip()
+    Flag = request.GET.get('Flag','').strip()
+    days = request.GET.get('days','').strip()
      
-    if days != '':
-        days = int(days)
-        now_day = datetime.datetime.now()
-        display_days = now_day - datetime.timedelta( days = days)
-   
-        for day in range(days):
-            session1 = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day))
-            if session1:
-                day_info_list.append([session1[0].Init_time,session1])
-        
-    else:
-        now_day = datetime.datetime.now()
-        display_days = now_day - datetime.timedelta( days = 7)
-
-        for day in range(7):
-            session1 = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day))
-            if session1:
-                day_info_list.append([session1[0].Init_time,session1])
-                
-    if test_api == 'id' and test_name:  
-        session = Session.objects.extra(where = ["id like '%%" + str(test_name) + "%%'"])  
-        if Flag:
-            session.update(Flag = Flag)
+    days = int(days) if days else 7
+    now_day = datetime.datetime.now()
+    display_days = now_day - datetime.timedelta( days = days)
+    for day in range(days):
+        session1 = Session.objects.filter(Init_time = now_day - datetime.timedelta(days = day))
+        if session1:
+            day_info_list.append([session1[0].Init_time,session1])
     
-        if not session:
-            return render_to_response('error.html')
-              
-    elif test_api == 'PC_name' and test_name:
-        session = Session.objects.extra(where = ["PC_name like '%%" + str(test_name) + "%%'"])
-        
-        if Flag:
-            session.update(Flag = Flag)
-          
-        if not session:
-            return render_to_response('error.html')
-        
-    elif test_api == 'Init_time' and test_name:
-        session = Session.objects.extra(where = ["Init_time like '%%" + str(test_name) + "%%'"])
-        
-        if Flag:
-            session.update(Flag = Flag)
-      
-        if not session:
-            return render_to_response('error.html')
-        
-    else:
-        pass
-       
+    if test_name:
+        record_list = ["id", "PC_name", "Init_time"]
+        for each_record in record_list:
+            if search_type == each_record:
+                search_str = "%s like '%%%%%s%%%%'" % (each_record, str(test_name))
+                session = Session.objects.extra(where = [search_str])
+                if Flag:
+                    session.update(Flag = Flag)
+                if not session:
+                    return render_to_response('error.html')
+                break
     return render_to_response('search_test_result.html',locals())
-
+    
 
 @csrf_exempt
 def search_type(request):
     client = Client.objects.all()
     version = Versions.objects.all()[0:3]
     search_type = request.POST.get('search_type','')
-    type_context = request.POST.get('type_context','')
-    type_context = type_context.strip()
-    if search_type == 'Mode' and type_context:
-        case = Case.objects.extra(where = ["Mode like'%%"+ str(type_context) + "%%'"])
-        if not case:
-            return render_to_response('error.html')   
+    type_context = request.POST.get('type_context','').strip()
     
-    elif search_type == 'Src_iso' and type_context:
-        case = Case.objects.extra(where = ["Src_iso like'%%"+ str(type_context) + "%%'"])
-        if not case:
-            return render_to_response('error.html')
-    
-    elif search_type == 'Out_disc' and type_context:
-        case = Case.objects.extra(where = ["Out_disc like'%%"+ str(type_context) + "%%'"])
-        if not case:
-            return render_to_response('error.html')
-    
-    elif search_type == 'Profile' and type_context:
-        case = Case.objects.extra(where = ["Profile like'%%"+ str(type_context) + "%%'"])
-        if not case:
-            return render_to_response('error.html')
-         
+    if type_context:
+        record_list = ["Mode", "Src_iso", "Out_disc", "Profile"]
+        for each_record in record_list:
+            if search_type == each_record:
+                search_str = "%s like '%%%%%s%%%%'" % (each_record, str(type_context))
+                case = Case.objects.extra(where = [search_str])
+                if not case:
+                    return render_to_response('error.html')
+                else:
+                    break
+        return render_to_response('case.html',locals(),context_instance = RequestContext(request))
     else:
         return HttpResponseRedirect('/case/')
- 
-    return render_to_response('case.html',locals(),context_instance = RequestContext(request))
- 
+    
  
 def search_BD_type(request):
-    BD = request.GET.get('BD','')
-    BD_type = request.GET.get('BD_type','')
-    BD_type = BD_type.strip()
-    
-    if BD == 'Name' and BD_type:
-        bd = Samples.objects.extra(where = ["Name like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-       
-    elif BD == 'Locations' and BD_type:
-        bd = Samples.objects.extra(where = ["Locations like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-    
-    elif BD == 'Video_info' and BD_type:
-        bd = Samples.objects.extra(where = ["Video_info like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-        
-    elif BD == 'Audio_info' and BD_type:
-        bd = Samples.objects.extra(where = ["Audio_info like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-    elif BD == 'Channel' and BD_type:
-        bd = Samples.objects.extra(where = ["Channel like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-        
-    elif BD == 'Framerate' and BD_type:
-        bd = Samples.objects.extra(where = ["Framerate like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-        
-    elif BD == 'Standard' and BD_type:
-        bd = Samples.objects.extra(where = ["Standard like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-        
-    elif BD == 'Scan_type' and BD_type:
-        bd = Samples.objects.extra(where = ["Scan_type like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-        
-    elif BD == 'Numbers_jar' and BD_type:
-        bd = Samples.objects.extra(where = ["Numbers_jar like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-        
-    elif BD == 'Company' and BD_type:
-        bd = Samples.objects.extra(where = ["Company like '%%" + str(BD_type) + "%%'"]) 
-        if not bd:
-            return render_to_response('error.html')
-        
+    BD = request.GET.get('BD','').strip()
+    BD_type = request.GET.get('BD_type','').strip()
+    if BD_type:
+        record_list = ["Name", "Locations", "Video_info", "Audio_info", "Channel", "Framerate", "Standard", "Scan_type", "Numbers_jar", "Company"]
+        for each_record in record_list:
+            if BD == each_record:
+                search_str = "%s like '%%%%%s%%%%'" % (each_record, str(BD_type))
+                #search_str = "Name like '%%" + str(all_type) + "%%'"
+                bd = BD_samples.objects.extra(where = [search_str])
+                if not bd:
+                    return render_to_response('error.html')
+                else:
+                    break
+        return render_to_response('BD.html',locals()) 
     else:
         return HttpResponseRedirect('/bd_samples/')
-    return render_to_response('BD.html',locals()) 
-
+    
 
 def BD_sort(request):
-    sort_name = request.GET.get('sort_name','')
+    sort_name = request.GET.get('sort_name','').strip()
     bd = Samples.objects.all().order_by(sort_name) 
     return render_to_response('BD.html',locals())
 
 
 def search_DVD_type(request):
-    DVD = request.GET.get('DVD','')
-    DVD_type = request.GET.get('DVD_type','')
-    DVD_type = DVD_type.strip()
-    
-    if DVD == 'Name' and DVD_type:
-        dvd = DVD_samples.objects.extra(where = ["Name like '%%" + str(DVD_type) + "%%'"]) 
-        if not dvd:
-            return render_to_response('error.html')
-       
-    elif DVD == 'Locations' and DVD_type:
-        dvd = DVD_samples.objects.extra(where = ["Locations like '%%" + str(DVD_type) + "%%'"]) 
-        if not dvd:
-            return render_to_response('error.html')
-    
-    elif DVD == 'Video_info' and DVD_type:
-        dvd = DVD_samples.objects.extra(where = ["Video_info like '%%" + str(DVD_type) + "%%'"]) 
-        if not dvd:
-            return render_to_response('error.html')
-        
-    elif DVD == 'Audio_info' and DVD_type:
-        dvd = DVD_samples.objects.extra(where = ["Audio_info like '%%" + str(DVD_type) + "%%'"]) 
-        if not dvd:
-            return render_to_response('error.html')
-    elif DVD == 'Channel' and DVD_type:
-        dvd = DVD_samples.objects.extra(where = ["Channel like '%%" + str(DVD_type) + "%%'"]) 
-        if not dvd:
-            return render_to_response('error.html')
-        
-    elif DVD == 'Framerate' and DVD_type:
-        dvd = DVD_samples.objects.extra(where = ["Framerate like '%%" + str(DVD_type) + "%%'"]) 
-        if not dvd:
-            return render_to_response('error.html')
-        
-    elif DVD == 'Standard' and DVD_type:
-        dvd = DVD_samples.objects.extra(where = ["Standard like '%%" + str(DVD_type) + "%%'"]) 
-        if not dvd:
-            return render_to_response('error.html')
-        
-    elif DVD == 'Scan_type' and DVD_type:
-        dvd = DVD_Samples.objects.extra(where = ["Scan_type like '%%" + str(DVD_type) + "%%'"]) 
-        if not dvd:
-            return render_to_response('error.html')
-        
-    elif DVD == 'Company' and DVD_type:
-        dvd = DVD_samples.objects.extra(where = ["Company like '%%" + str(DVD_type) + "%%'"]) 
-        if not dvd:
-            return render_to_response('error.html')
-        
+    DVD = request.GET.get('DVD','').strip()
+    DVD_type = request.GET.get('DVD_type','').strip()
+    if DVD_type:
+        record_list = ["Name", "Locations", "Video_info", "Audio_info", "Channel", "Framerate", "Standard", "Scan_type", "Numbers_jar", "Company"]
+        for each_record in record_list:
+            if DVD == each_record:
+                search_str = "%s like '%%%%%s%%%%'" % (each_record, str(DVD_type))
+                #search_str = "Name like '%%" + str(all_type) + "%%'"
+                dvd = DVD_samples.objects.extra(where = [search_str])
+                if not dvd:
+                    return render_to_response('error.html')
+                else:
+                    break
+        return render_to_response('DVD.html',locals()) 
     else:
         return HttpResponseRedirect('/dvd_samples/')
-    return render_to_response('DVD.html',locals())
+    
 
 
 def DVD_sort(request):
-    sort_name = request.GET.get('sort_name','')
+    sort_name = request.GET.get('sort_name','').strip()
     dvd = DVD_samples.objects.all().order_by(sort_name)
-    
     return render_to_response('DVD.html',locals())
 
 
 def search_BD3D_type(request):
-    BD3D = request.GET.get('BD3D','')
-    BD3D_type = request.GET.get('BD3D_type','')
-    BD3D_type = BD3D_type.strip()
-    
-    if BD3D == 'Name' and BD3D_type:
-        bd3d = BD3D_samples.objects.extra(where = ["Name like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-       
-    elif BD3D == 'Locations' and BD3D_type:
-        bd3d = BD3D_samples.objects.extra(where = ["Locations like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-    
-    elif BD3D == 'Video_info' and BD3D_type:
-        bd3d = BD3D_samples.objects.extra(where = ["Video_info like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-        
-    elif BD3D == 'Audio_info' and BD3D_type:
-        bd3d = BD3D_samples.objects.extra(where = ["Audio_info like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-    elif BD3D == 'Channel' and BD3D_type:
-        bd3d = BD3D_samples.objects.extra(where = ["Channel like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-        
-    elif BD3D == 'Framerate' and BD3D_type:
-        bd3d = BD3D_samples.objects.extra(where = ["Framerate like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-        
-    elif BD3D == 'Standard' and BD3D_type:
-        bd3d = BD3D_samples.objects.extra(where = ["Standard like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-        
-    elif BD3D == 'Scan_type' and BD3D_type:
-        bd3d = BD3D_samples.objects.extra(where = ["Scan_type like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-        
-    elif BD3D == 'Numbers_jar' and BD3D_type:
-        bd3d = BD3D_samples.objects.extra(where = ["Numbers_jar like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-        
-    elif BD3D == 'Company' and BD3D_type:
-        bd = BD3D_samples.objects.extra(where = ["Company like '%%" + str(BD3D_type) + "%%'"]) 
-        if not bd3d:
-            return render_to_response('error.html')
-        
+    BD3D = request.GET.get('BD3D','').strip()
+    BD3D_type = request.GET.get('BD3D_type','').strip()
+    if BD3D_type:
+        record_list = ["Name", "Locations", "Video_info", "Audio_info", "Channel", "Framerate", "Standard", "Scan_type", "Numbers_jar", "Company"]
+        for each_record in record_list:
+            if BD3D == each_record:
+                search_str = "%s like '%%%%%s%%%%'" % (each_record, str(BD3D_type))
+                #search_str = "Name like '%%" + str(all_type) + "%%'"
+                bd3d = BD3D_samples.objects.extra(where = [search_str])
+                if not bd3d:
+                    return render_to_response('error.html')
+                else:
+                    break
+        return render_to_response('BD3D.html',locals()) 
     else:
         return HttpResponseRedirect('/bd3d_samples/')
-    return render_to_response('BD3D.html',locals()) 
 
 
 def BD3D_sort(request):
-    sort_name = request.GET.get('sort_name','')
+    sort_name = request.GET.get('sort_name','').strip()
     bd3d = BD3D_samples.objects.all().order_by(sort_name)
-    
     return render_to_response('BD3D.html',locals())
 
 
 def search_all_type(request):
-    All = request.GET.get('All','')
-    all_type = request.GET.get('all_type','')
-    all_type = all_type.strip()
+    All = request.GET.get('All','').strip()
+    all_type = request.GET.get('all_type','').strip()
     
-    if All == 'Name' and all_type:
-        bd = Samples.objects.extra(where = ["Name like '%%" + str(all_type) + "%%'"]) 
-        dvd = DVD_samples.objects.extra(where = ["Name like '%%" + str(all_type) + "%%'"])
-        bd3d = BD3D_samples.objects.extra(where = ["Name like '%%" + str(all_type) + "%%'"])
-        if not bd and not dvd and not bd3d:
-            return render_to_response('error.html')
-       
-    elif All == 'Locations' and all_type:
-        bd = Samples.objects.extra(where = ["Locations like '%%" + str(all_type) + "%%'"]) 
-        dvd = DVD_samples.objects.extra(where = ["Locations like '%%" + str(all_type) + "%%'"])
-        bd3d = BD3D_samples.objects.extra(where = ["Locations like '%%" + str(all_type) + "%%'"])
-        if not bd and not dvd and not bd3d:
-            return render_to_response('error.html')
-    
-    elif All == 'Video_info' and all_type:
-        bd = Samples.objects.extra(where = ["Video_info like '%%" + str(all_type) + "%%'"]) 
-        dvd = DVD_samples.objects.extra(where = ["Video_info like '%%" + str(all_type) + "%%'"])
-        bd3d = BD3D_samples.objects.extra(where = ["Video_info like '%%" + str(all_type) + "%%'"])
-        if not bd and not dvd and not bd3d:
-            return render_to_response('error.html')
-        
-    elif All == 'Audio_info' and all_type:
-        bd = Samples.objects.extra(where = ["Audio_info like '%%" + str(all_type) + "%%'"])
-        dvd = DVD_samples.objects.extra(where = ["Audio_info like '%%" + str(all_type) + "%%'"])
-        bd3d = BD3D_samples.objects.extra(where = ["Audio_info like '%%" + str(all_type) + "%%'"]) 
-        if not bd and not dvd and not bd3d:
-            return render_to_response('error.html')
-    elif All == 'Channel' and all_type:
-        bd = Samples.objects.extra(where = ["Channel like '%%" + str(all_type) + "%%'"])
-        dvd = DVD_samples.objects.extra(where = ["Channel like '%%" + str(all_type) + "%%'"])
-        bd3d = BD3D_samples.objects.extra(where = ["Channel like '%%" + str(all_type) + "%%'"]) 
-        if not bd and not dvd and not bd3d:
-            return render_to_response('error.html')
-        
-    elif All == 'Framerate' and all_type:
-        bd = Samples.objects.extra(where = ["Framerate like '%%" + str(all_type) + "%%'"]) 
-        dvd = DVD_samples.objects.extra(where = ["Framerate like '%%" + str(all_type) + "%%'"])
-        bd3d = BD3D_samples.objects.extra(where = ["Framerate like '%%" + str(all_type) + "%%'"])
-        if not bd and not dvd and not bd3d:
-            return render_to_response('error.html')
-        
-    elif All == 'Standard' and all_type:
-        bd = Samples.objects.extra(where = ["Standard like '%%" + str(all_type) + "%%'"]) 
-        dvd = DVD_samples.objects.extra(where = ["Standard like '%%" + str(all_type) + "%%'"])
-        bd3d = BD3D_samples.objects.extra(where = ["Standard like '%%" + str(all_type) + "%%'"])
-        if not bd and not dvd and  not bd3d:
-            return render_to_response('error.html')
-        
-    elif All == 'Scan_type' and all_type:
-        bd = Samples.objects.extra(where = ["Scan_type like '%%" + str(all_type) + "%%'"]) 
-        dvd = DVD_samples.objects.extra(where = ["Scan_type like '%%" + str(all_type) + "%%'"])
-        bd3d = BD3D_samples.objects.extra(where = ["Scan_type like '%%" + str(all_type) + "%%'"])
-        if not bd and not dvd and not bd3d:
-            return render_to_response('error.html')
-        
-    elif All == 'Numbers_jar' and all_type:
-        bd = Samples.objects.extra(where = ["Numbers_jar like '%%" + str(all_type) + "%%'"]) 
-        dvd = BD3DSamples.objects.extra(where = ["Numbers_jar like '%%" + str(all_type) + "%%'"])
-        if not bd and not dvd:
-            return render_to_response('error.html')
-        
-    elif All == 'Company' and all_type:
-        bd = Samples.objects.extra(where = ["Company like '%%" + str(all_type) + "%%'"]) 
-        dvd = DVD_samples.objects.extra(where = ["Company like '%%" + str(all_type) + "%%'"])
-        bd3d = BD3D_samples.objects.extra(where = ["Company like '%%" + str(all_type) + "%%'"])
-        if not bd and  not dvd and  not bd3d:
-            return render_to_response('error.html')
-        
+    if all_type:
+        record_list = ["Name", "Locations", "Video_info", "Audio_info", "Channel", "Framerate", "Standard", "Scan_type", "Numbers_jar", "Company"]
+        for each_record in record_list:
+            if All == each_record:
+                search_str = "%s like '%%%%%s%%%%'" % (each_record, str(all_type))
+                #search_str = "Name like '%%" + str(all_type) + "%%'"
+                bd = Samples.objects.extra(where = [search_str]) 
+                dvd = DVD_samples.objects.extra(where = [search_str])
+                bd3d = BD3D_samples.objects.extra(where = [search_str])
+                if not bd and not dvd and not bd3d:
+                    return render_to_response('error.html')
+                else:
+                    break
+        return render_to_response('search_all_type.html',locals()) 
     else:
         return HttpResponseRedirect('/all_samples/')
-    return render_to_response('search_all_type.html',locals()) 
- 
+            
    
 def update_case_page(request,param1):
     case = Case.objects.get(id = param1)
@@ -1354,80 +983,44 @@ def update_case_page(request,param1):
    
 def update_case(request,param1):   
     case = Case.objects.filter(id = param1)
-    Num = request.GET.get('Num','')
-    Num_test_link = request.GET.get('Num_test_link','')
-    Iso_type = request.GET.get('Iso_type','')
-    Mode = request.GET.get('Mode','')
-    Src_iso = request.GET.get('Src_iso','')
-    Dest_type = request.GET.get('Dest_type','')
-    Out_disc = request.GET.get('Out_disc','')
-    Profile = request.GET.get('Profile','')
-    Enable_2Dto3D = request.GET.get('Enable_2Dto3D','')
-    Remove_HD_audio = request.GET.get('Remove_HD_audio','')
+    Num = request.GET.get('Num','').strip()
+    Num_test_link = request.GET.get('Num_test_link','').strip()
+    Iso_type = request.GET.get('Iso_type','').strip()
+    Mode = request.GET.get('Mode','').strip()
+    Src_iso = request.GET.get('Src_iso','').strip()
+    Dest_type = request.GET.get('Dest_type','').strip()
+    Out_disc = request.GET.get('Out_disc','').strip()
+    Profile = request.GET.get('Profile','').strip()
+    Enable_2Dto3D = request.GET.get('Enable_2Dto3D','').strip()
+    Remove_HD_audio = request.GET.get('Remove_HD_audio','').strip()
     
-    Video_decoder_H264 = request.GET.get('Video_decoder_H264','')
-    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','')    
-    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','')
-    Video_encoder_H264 = request.GET.get('Video_encoder_H264','')
-    BD3D_convert_type = request.GET.get('BD3D_convert_type','')
-    Compress_to_AC3 = request.GET.get('Compress_to_AC3','')
-    DVDFab_description = request.GET.get('DVDFab_description','')
-    Src_folder = request.GET.get('Src_folder','')
-    Src_path = request.GET.get('Src_path','')
+    Video_decoder_H264 = request.GET.get('Video_decoder_H264','').strip()
+    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','').strip()
+    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','').strip()
+    Video_encoder_H264 = request.GET.get('Video_encoder_H264','').strip()
+    BD3D_convert_type = request.GET.get('BD3D_convert_type','').strip()
+    Compress_to_AC3 = request.GET.get('Compress_to_AC3','').strip()
+    DVDFab_description = request.GET.get('DVDFab_description','').strip()
+    Src_folder = request.GET.get('Src_folder','').strip()
+    Src_path = request.GET.get('Src_path','').strip()
     
-    Audio = request.GET.get('Audio','')
-    Audio_type = request.GET.get('Audio_type','')
-    Change_play_order = request.GET.get('Change_play_order','')
-    Copy_IFO = request.GET.get('Copy_IFO','')
-    Display_forced_sub = request.GET.get('Display_forced_sub','')
-    Jump_menu = request.GET.get('Jump_menu','')
-    Jump_main = request.GET.get('Jump_main','')
+    Audio = request.GET.get('Audio','').strip()
+    Audio_type = request.GET.get('Audio_type','').strip()
+    Change_play_order = request.GET.get('Change_play_order','').strip()
+    Copy_IFO = request.GET.get('Copy_IFO','').strip()
+    Display_forced_sub = request.GET.get('Display_forced_sub','').strip()
+    Jump_menu = request.GET.get('Jump_menu','').strip()
+    Jump_main = request.GET.get('Jump_main','').strip()
     
-    Remove_DTS = request.GET.get('Remove_DTS','')
-    Path_player = request.GET.get('Path_player','')
-    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','')
-    Remove_menu = request.GET.get('Remove_menu','')
-    Remove_PGC = request.GET.get('Remove_PGC','')
-    Rewind = request.GET.get('Rewind','')
-    Subtitle = request.GET.get('Subtitle','')
-    Title = request.GET.get('Title','')
-    Volume = request.GET.get('Volume','')
-    
-    Num = Num.strip()
-    Num_test_link = Num_test_link.strip()
-    Iso_type = Iso_type.strip()
-    Mode = Mode.strip()
-    Src_iso = Src_iso.strip()
-    Dest_type = Dest_type.strip()
-    Out_disc = Out_disc.strip()
-    Profile = Profile.strip()
-    Enable_2Dto3D = Enable_2Dto3D.strip()
-    Remove_HD_audio = Remove_HD_audio.strip()
-    Video_decoder_H264 = Video_decoder_H264.strip()
-    Video_decoder_VC1 = Video_decoder_VC1.strip()
-    Video_decoder_MPEG2 = Video_decoder_MPEG2.strip()
-    Video_encoder_H264 = Video_encoder_H264.strip()
-    BD3D_convert_type = BD3D_convert_type.strip()
-    Compress_to_AC3 = Compress_to_AC3.strip()
-    DVDFab_description = DVDFab_description.strip()
-    Src_folder = Src_folder.strip()
-    Src_path = Src_path.strip()
-    Audio = Audio.strip()
-    Audio_type = Audio_type.strip()
-    Change_play_order = Change_play_order.strip()
-    Copy_IFO = Copy_IFO.strip()
-    Display_forced_sub = Display_forced_sub.strip()
-    Jump_menu = Jump_menu.strip()
-    Jump_main = Jump_main.strip()
-    Remove_DTS = Remove_DTS.strip()
-    Path_player = Path_player.strip()
-    Preserve_menu_disc2 = Preserve_menu_disc2.strip()
-    Remove_menu = Remove_menu.strip()
-    Remove_PGC = Remove_PGC.strip()
-    Rewind = Rewind.strip()
-    Subtitle = Subtitle.strip()
-    Title = Title.strip()
-    Volume = Volume.strip()
+    Remove_DTS = request.GET.get('Remove_DTS','').strip()
+    Path_player = request.GET.get('Path_player','').strip()
+    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','').strip()
+    Remove_menu = request.GET.get('Remove_menu','').strip()
+    Remove_PGC = request.GET.get('Remove_PGC','').strip()
+    Rewind = request.GET.get('Rewind','').strip()
+    Subtitle = request.GET.get('Subtitle','').strip()
+    Title = request.GET.get('Title','').strip()
+    Volume = request.GET.get('Volume','').strip()
 
     case.update(Num = Num, Num_test_link = Num_test_link, Iso_type = Iso_type, Mode = Mode, Src_iso = Src_iso, Dest_type = Dest_type, Out_disc = Out_disc, Profile = Profile, Enable_2Dto3D = Enable_2Dto3D, \
                Remove_HD_audio = Remove_HD_audio, Video_decoder_H264 = Video_decoder_H264, Video_decoder_VC1 = Video_decoder_VC1, Video_decoder_MPEG2 = Video_decoder_MPEG2, \
@@ -1446,23 +1039,17 @@ def update_client_page(request):
 
 def update_client(request,param1):
     client = Client.objects.get(id = param1)
-    PC_name = request.GET.get('PC_name', '')
-    PC_ip = request.GET.get('PC_ip','')
-    Dvdfab_path = request.GET.get('Dvdfab_path','')
-    Dest_path = request.GET.get('Dest_path','')
+    PC_name = request.GET.get('PC_name', '').strip()
+    PC_ip = request.GET.get('PC_ip','').strip()
+    Dvdfab_path = request.GET.get('Dvdfab_path','').strip()
+    Dest_path = request.GET.get('Dest_path','').strip()
     
-    PC_name = PC_name.strip()
-    PC_ip = PC_ip.strip()
-    Dvdfab_path = Dvdfab_path.strip()
-    Dest_path = Dest_path.strip()
-   
     client.PC_name = PC_name
     client.PC_ip = PC_ip
     client.Dvdfab_path = Dvdfab_path
     client.Dest_path = Dest_path
     client.save()
     #client.update(PC_name = PC_name, PC_ip = PC_ip, Dvdfab_path = Dvdfab_path, Dest_path = Dest_path)
- 
     return HttpResponseRedirect('/client/')
     
     
@@ -1473,16 +1060,10 @@ def update_version_page(request,param1):
 
 def update_version(request,param1):
     version = Versions.objects.filter(id = param1)
-    Version = request.GET.get('Version','')
-    Create_time = request.GET.get('Create_time','')
-    Description = request.GET.get('Description','')
-    Notes = request.GET.get('Notes','')
-    
-    Version = Version.strip()
-    Create_time = Create_time.strip()
-    Description = Description.strip()
-    Notes = Notes.strip()
-    
+    Version = request.GET.get('Version','').strip()
+    Create_time = request.GET.get('Create_time','').strip()
+    Description = request.GET.get('Description','').strip()
+    Notes = request.GET.get('Notes','').strip()
     version.update(Version = Version, Create_time = Create_time, Description = Description, Notes = Notes)
     return HttpResponseRedirect('/version/')
 
@@ -1494,37 +1075,19 @@ def update_BD_page(request,param1):
 
 def update_BD(request,param1):
     bd = Samples.objects.filter(id = param1)
-    Name = request.GET.get('Name','')
-    Video_info = request.GET.get('Video_info','')
-    Audio_info = request.GET.get('Audio_info','')
-    File_size = request.GET.get('File_size','')
-    
-    Channel = request.GET.get('Channel','')
-    Framerate = request.GET.get('Framerate','')
-    Standard = request.GET.get('Standard','')
-    Scan_type = request.GET.get('Scan_type','')
-    
-    Numbers_jar = request.GET.get('Numbers_jar','')
-    Company = request.GET.get('Company','')
-    Locations = request.GET.get('Locations','')
-    Description = request.GET.get('Description','')
-    Volume_label = request.GET.get('Volume_label','')
-    
-    Name = Name.strip()
-    Video_info = Video_info.strip()
-    Audio_info = Audio_info.strip()
-    File_size = File_size.strip()
-    
-    Channel = Channel.strip()
-    Framerate = Framerate.strip()
-    Standard = Standard.strip()
-    Scan_type = Scan_type.strip()
-    
-    Numbers_jar = Numbers_jar.strip()
-    Company = Company.strip()
-    Locations = Locations.strip()
-    Description = Description.strip()
-    Volume_label = Volume_label.strip()
+    Name = request.GET.get('Name','').strip()
+    Video_info = request.GET.get('Video_info','').strip()
+    Audio_info = request.GET.get('Audio_info','').strip()
+    File_size = request.GET.get('File_size','').strip()
+    Channel = request.GET.get('Channel','').strip()
+    Framerate = request.GET.get('Framerate','').strip()
+    Standard = request.GET.get('Standard','').strip()
+    Scan_type = request.GET.get('Scan_type','').strip()
+    Numbers_jar = request.GET.get('Numbers_jar','').strip()
+    Company = request.GET.get('Company','').strip()
+    Locations = request.GET.get('Locations','').strip()
+    Description = request.GET.get('Description','').strip()
+    Volume_label = request.GET.get('Volume_label','').strip()
     
     bd.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, Scan_type = Scan_type, \
             Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
@@ -1539,35 +1102,18 @@ def update_DVD_page(request,param1):
 
 def update_DVD(request,param1):
     dvd = DVD_samples.objects.filter(id = param1)
-    Name = request.GET.get('Name','')
-    Video_info = request.GET.get('Video_info','')
-    Audio_info = request.GET.get('Audio_info','')
-    File_size = request.GET.get('File_size','')
-    
-    Channel = request.GET.get('Channel','')
-    Framerate = request.GET.get('Framerate','')
-    Standard = request.GET.get('Standard','')
-    Scan_type = request.GET.get('Scan_type','')
-    
-    Company = request.GET.get('Company','')
-    Locations = request.GET.get('Locations','')
-    Description = request.GET.get('Description','')
-    Volume_label = request.GET.get('Volume_label','')
-    
-    Name = Name.strip()
-    Video_info = Video_info.strip()
-    Audio_info = Audio_info.strip()
-    File_size = File_size.strip()
-    
-    Channel = Channel.strip()
-    Framerate = Framerate.strip()
-    Standard = Standard.strip()
-    Scan_type = Scan_type.strip()
-    
-    Company = Company.strip()
-    Locations = Locations.strip()
-    Description = Description.strip()
-    Volume_label = Volume_label.strip()
+    Name = request.GET.get('Name','').strip()
+    Video_info = request.GET.get('Video_info','').strip()
+    Audio_info = request.GET.get('Audio_info','').strip()
+    File_size = request.GET.get('File_size','').strip()
+    Channel = request.GET.get('Channel','').strip()
+    Framerate = request.GET.get('Framerate','').strip()
+    Standard = request.GET.get('Standard','').strip()
+    Scan_type = request.GET.get('Scan_type','').strip()
+    Company = request.GET.get('Company','').strip()
+    Locations = request.GET.get('Locations','').strip()
+    Description = request.GET.get('Description','').strip()
+    Volume_label = request.GET.get('Volume_label','').strip()
     
     dvd.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, Scan_type = Scan_type, \
                  Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
@@ -1582,37 +1128,19 @@ def update_BD3D_page(request,param1):
 
 def update_BD3D(request,param1):
     bd3d = BD3D_samples.objects.filter(id = param1)
-    Name = request.GET.get('Name','')
-    Video_info = request.GET.get('Video_info','')
-    Audio_info = request.GET.get('Audio_info','')
-    File_size = request.GET.get('File_size','')
-    
-    Channel = request.GET.get('Channel','')
-    Framerate = request.GET.get('Framerate','')
-    Standard = request.GET.get('Standard','')
-    Scan_type = request.GET.get('Scan_type','')
-    
-    Numbers_jar = request.GET.get('Numbers_jar','')
-    Company = request.GET.get('Company','')
-    Locations = request.GET.get('Locations','')
-    Description = request.GET.get('Description','')
-    Volume_label = request.GET.get('Volume_label','')
-    
-    Name = Name.strip()
-    Video_info = Video_info.strip()
-    Audio_info = Audio_info.strip()
-    File_size = File_size.strip()
-    
-    Channel = Channel.strip()
-    Framerate = Framerate.strip()
-    Standard = Standard.strip()
-    Scan_type = Scan_type.strip()
-    
-    Numbers_jar = Numbers_jar.strip()
-    Company = Company.strip()
-    Locations = Locations.strip()
-    Description = Description.strip()
-    Volume_label = Volume_label.strip()
+    Name = request.GET.get('Name','').strip()
+    Video_info = request.GET.get('Video_info','').strip()
+    Audio_info = request.GET.get('Audio_info','').strip()
+    File_size = request.GET.get('File_size','').strip()
+    Channel = request.GET.get('Channel','').strip()
+    Framerate = request.GET.get('Framerate','').strip()
+    Standard = request.GET.get('Standard','').strip()
+    Scan_type = request.GET.get('Scan_type','').strip()
+    Numbers_jar = request.GET.get('Numbers_jar','').strip()
+    Company = request.GET.get('Company','').strip()
+    Locations = request.GET.get('Locations','').strip()
+    Description = request.GET.get('Description','').strip()
+    Volume_label = request.GET.get('Volume_label','').strip()
     
     bd3d.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, \
                 Scan_type = Scan_type, Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
@@ -1639,40 +1167,20 @@ def update_all_BD3D_page(request,param1):
  
 
 def update_all_BD(request,param1):
- 
     bd = Samples.objects.filter(id = param1)           
-    Name = request.GET.get('Name','')
-    Video_info = request.GET.get('Video_info','')
-    Audio_info = request.GET.get('Audio_info','')
-    File_size = request.GET.get('File_size','')
-    
-    Channel = request.GET.get('Channel','')
-    Framerate = request.GET.get('Framerate','')
-    Standard = request.GET.get('Standard','')
-    Scan_type = request.GET.get('Scan_type','')
-    
-    Numbers_jar = request.GET.get('Numbers_jar','')
-    Company = request.GET.get('Company','')
-    Locations = request.GET.get('Locations','')
-    Description = request.GET.get('Description','')
-    Volume_label = request.GET.get('Volume_label','')
-    
-    Name = Name.strip()
-    Video_info = Video_info.strip()
-    Audio_info = Audio_info.strip()
-    File_size = File_size.strip()
-    
-    Channel = Channel.strip()
-    Framerate = Framerate.strip()
-    Standard = Standard.strip()
-    Scan_type = Scan_type.strip()
-    
-    Numbers_jar = Numbers_jar.strip()
-    Company = Company.strip()
-    Locations = Locations.strip()
-    Description = Description.strip()
-    Volume_label = Volume_label.strip()
-    
+    Name = request.GET.get('Name','').strip()
+    Video_info = request.GET.get('Video_info','').strip()
+    Audio_info = request.GET.get('Audio_info','').strip()
+    File_size = request.GET.get('File_size','').strip()
+    Channel = request.GET.get('Channel','').strip()
+    Framerate = request.GET.get('Framerate','').strip()
+    Standard = request.GET.get('Standard','').strip()
+    Scan_type = request.GET.get('Scan_type','').strip()
+    Numbers_jar = request.GET.get('Numbers_jar','').strip()
+    Company = request.GET.get('Company','').strip()
+    Locations = request.GET.get('Locations','').strip()
+    Description = request.GET.get('Description','').strip()
+    Volume_label = request.GET.get('Volume_label','').strip()
      
     bd.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, \
               Scan_type = Scan_type, Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
@@ -1682,37 +1190,19 @@ def update_all_BD(request,param1):
 
 def update_all_DVD(request,param1):
     dvd = DVD_samples.objects.filter(id = param1)          
-    Name = request.GET.get('Name','')
-    Video_info = request.GET.get('Video_info','')
-    Audio_info = request.GET.get('Audio_info','')
-    File_size = request.GET.get('File_size','')
-    
-    Channel = request.GET.get('Channel','')
-    Framerate = request.GET.get('Framerate','')
-    Standard = request.GET.get('Standard','')
-    Scan_type = request.GET.get('Scan_type','')
-    
-    Numbers_jar = request.GET.get('Numbers_jar','')
-    Company = request.GET.get('Company','')
-    Locations = request.GET.get('Locations','')
-    Description = request.GET.get('Description','')
-    Volume_label = request.GET.get('Volume_label','')
-    
-    Name = Name.strip()
-    Video_info = Video_info.strip()
-    Audio_info = Audio_info.strip()
-    File_size = File_size.strip()
-    
-    Channel = Channel.strip()
-    Framerate = Framerate.strip()
-    Standard = Standard.strip()
-    Scan_type = Scan_type.strip()
-    
-    Company = Company.strip()
-    Locations = Locations.strip()
-    Description = Description.strip()
-    Volume_label = Volume_label.strip()
-    
+    Name = request.GET.get('Name','').strip()
+    Video_info = request.GET.get('Video_info','').strip()
+    Audio_info = request.GET.get('Audio_info','').strip()
+    File_size = request.GET.get('File_size','').strip()
+    Channel = request.GET.get('Channel','').strip()
+    Framerate = request.GET.get('Framerate','').strip()
+    Standard = request.GET.get('Standard','').strip()
+    Scan_type = request.GET.get('Scan_type','').strip()
+    Numbers_jar = request.GET.get('Numbers_jar','').strip()
+    Company = request.GET.get('Company','').strip()
+    Locations = request.GET.get('Locations','').strip()
+    Description = request.GET.get('Description','').strip()
+    Volume_label = request.GET.get('Volume_label','').strip()
      
     dvd.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard,\
                Scan_type = Scan_type, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
@@ -1722,38 +1212,19 @@ def update_all_DVD(request,param1):
 
 def update_all_BD3D(request,param1):
     bd3d = BD3D_samples.objects.filter(id = param1)        
-    Name = request.GET.get('Name','')
-    Video_info = request.GET.get('Video_info','')
-    Audio_info = request.GET.get('Audio_info','')
-    File_size = request.GET.get('File_size','')
-    
-    Channel = request.GET.get('Channel','')
-    Framerate = request.GET.get('Framerate','')
-    Standard = request.GET.get('Standard','')
-    Scan_type = request.GET.get('Scan_type','')
-    
-    Numbers_jar = request.GET.get('Numbers_jar','')
-    Company = request.GET.get('Company','')
-    Locations = request.GET.get('Locations','')
-    Description = request.GET.get('Description','')
-    Volume_label = request.GET.get('Volume_label','')
-    
-    Name = Name.strip()
-    Video_info = Video_info.strip()
-    Audio_info = Audio_info.strip()
-    File_size = File_size.strip()
-    
-    Channel = Channel.strip()
-    Framerate = Framerate.strip()
-    Standard = Standard.strip()
-    Scan_type = Scan_type.strip()
-    
-    Numbers_jar = Numbers_jar.strip()
-    Company = Company.strip()
-    Locations = Locations.strip()
-    Description = Description.strip()
-    Volume_label = Volume_label.strip()
-    
+    Name = request.GET.get('Name','').strip()
+    Video_info = request.GET.get('Video_info','').strip()
+    Audio_info = request.GET.get('Audio_info','').strip()
+    File_size = request.GET.get('File_size','').strip()
+    Channel = request.GET.get('Channel','').strip()
+    Framerate = request.GET.get('Framerate','').strip()
+    Standard = request.GET.get('Standard','').strip()
+    Scan_type = request.GET.get('Scan_type','').strip()
+    Numbers_jar = request.GET.get('Numbers_jar','').strip()
+    Company = request.GET.get('Company','').strip()
+    Locations = request.GET.get('Locations','').strip()
+    Description = request.GET.get('Description','').strip()
+    Volume_label = request.GET.get('Volume_label','').strip()
      
     bd3d.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard,\
                 Scan_type = Scan_type, Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
@@ -1768,73 +1239,70 @@ def update_session_page(request,param1):
 
 def update_session(request,param1):
     session = Session.objects.filter(id = param1)
-    Num = request.GET.get('Num','')
-    Sub_num = request.GET.get('Sub_num','')
-    Iso_type = request.GET.get('Iso_type','')
-    Mode = request.GET.get('Mode','')
-    Src_path = request.GET.get('Src_path','')
-    Dest_path = request.GET.get('Dest_path','')
+    Num = request.GET.get('Num','').strip()
+    Sub_num = request.GET.get('Sub_num','').strip()
+    Iso_type = request.GET.get('Iso_type','').strip()
+    Mode = request.GET.get('Mode','').strip()
+    Src_path = request.GET.get('Src_path','').strip()
+    Dest_path = request.GET.get('Dest_path','').strip()
+    PC_name = request.GET.get('PC_name','').strip()
+    Dvdfab_path = request.GET.get('Dvdfab_path','').strip()
+    Audio = request.GET.get('Audio','').strip()
+    Audio_type = request.GET.get('Audio_type','').strip()
     
-    PC_name = request.GET.get('PC_name','')
-    Dvdfab_path = request.GET.get('Dvdfab_path','')
-    Audio = request.GET.get('Audio','')
-    Audio_type = request.GET.get('Audio_type','')
+    Change_play_order = request.GET.get('Change_play_order','').strip()
+    Copy_IFO = request.GET.get('Copy_IFO','').strip()
+    Display_forced_sub = request.GET.get('Display_forced_sub','').strip()
+    Jump_menu = request.GET.get('Jump_menu','').strip()
+    Jump_main = request.GET.get('Jump_main','').strip()
+    Out_disc = request.GET.get('Out_disc','').strip()
+    Path_player = request.GET.get('Path_player','').strip()
+    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','').strip()
+    Profile = request.GET.get('Profile','').strip()
     
-    Change_play_order = request.GET.get('Change_play_order','')
-    Copy_IFO = request.GET.get('Copy_IFO','')
-    Display_forced_sub = request.GET.get('Display_forced_sub','')
-    Jump_menu = request.GET.get('Jump_menu','')
+    Remove_DTS = request.GET.get('Remove_DTS','').strip()
+    Remove_HD_audio = request.GET.get('Remove_HD_audio','').strip()
+    Remove_menu = request.GET.get('Remove_menu','').strip()
+    Remove_PGC = request.GET.get('Remove_PGC','').strip()
+    Rewind = request.GET.get('Rewind','').strip()
+    Subtitle = request.GET.get('Subtitle','').strip()
+    Title = request.GET.get('Title','').strip()
+    Volume = request.GET.get('Volume','').strip()
     
-    Jump_main = request.GET.get('Jump_main','')  
-    Out_disc = request.GET.get('Out_disc','')
-    Path_player = request.GET.get('Path_player','')
-    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','')
-    Profile = request.GET.get('Profile','')
+    Video_decoder_H264 = request.GET.get('Video_decoder_H264','').strip()
+    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','').strip()
+    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','').strip()
+    Video_encoder_H264 = request.GET.get('Video_encoder_H264','').strip()
+    DVDFab_description = request.GET.get('DVDFab_description','').strip()
     
-    Remove_DTS = request.GET.get('Remove_DTS','')
-    Remove_HD_audio = request.GET.get('Remove_HD_audio','')
-    Remove_menu = request.GET.get('Remove_menu','')
-    Remove_PGC = request.GET.get('Remove_PGC','')
+    Start_time = request.GET.get('Start_time','').strip()
+    End_time = request.GET.get('End_time','').strip()
+    Total_time = request.GET.get('Total_time','').strip()
+    Flag = request.GET.get('Flag','').strip()
+    Folder_size = request.GET.get('Folder_size','').strip()
+    Init_time = request.GET.get('Init_time','').strip()
+    Web_log_path = request.GET.get('Web_log_path','').strip()
+    Log_folder_path = request.GET.get('Log_folder_path','').strip()
+    Result = request.GET.get('Result','').strip()
+    Developer = request.GET.get('Developer','').strip()
     
-    Rewind = request.GET.get('Rewind','')
-    Subtitle = request.GET.get('Subtitle','')
-    Title = request.GET.get('Title','')
-    Volume = request.GET.get('Volume','')
-    
-    Video_decoder_H264 = request.GET.get('Video_decoder_H264','')
-    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','')    
-    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','')
-    Video_encoder_H264 = request.GET.get('Video_encoder_H264','')
-    DVDFab_description = request.GET.get('DVDFab_description','')
-    
-    Start_time = request.GET.get('Start_time','')
-    End_time = request.GET.get('End_time','')
-    Total_time = request.GET.get('Total_time','')
-    Flag = request.GET.get('Flag','')
-    Folder_size = request.GET.get('Folder_size','')
-    Init_time = request.GET.get('Init_time','')
-    
-    Web_log_path = request.GET.get('Web_log_path','')
-    Log_folder_path = request.GET.get('Log_folder_path','')
-    Result = request.GET.get('Result','')
-    Developer = request.GET.get('Developer','')
-    
-    Enable_2Dto3D = request.GET.get('Enable_2Dto3D','')
-    BD3D_convert_type = request.GET.get('BD3D_convert_type','')
-    Compress_to_AC3 = request.GET.get('Compress_to_AC3','')
-    Current_src_path = request.GET.get('Current_src_path','')
-    #dict = {('“ª‘¬').decode('GB2312'):1, ('∂˛‘¬').decode('GB2312'):2, ('»˝‘¬').decode('GB2312'):3, ('Àƒ‘¬').decode('GB2312'):4, ('ŒÂ‘¬').decode('GB2312'):5, ('¡˘‘¬').decode('GB2312'):6,\
-    #        ('∆ﬂ‘¬').decode('GB2312'):7, ('∞À‘¬').decode('GB2312'):8, ('æ≈‘¬').decode('GB2312'):9, (' Æ‘¬').decode('GB2312'):10, (' Æ“ª‘¬').decode('GB2312'):11, (' Æ∂˛‘¬').decode('GB2312'):12}
-    dict = [('“ª‘¬').decode('GB2312'),'1', ('∂˛‘¬').decode('GB2312'),'2', ('»˝‘¬').decode('GB2312'),'3', ('Àƒ‘¬').decode('GB2312'),'4', ('ŒÂ‘¬').decode('GB2312'),'5', ('¡˘‘¬').decode('GB2312'),'6',\
-            ('∆ﬂ‘¬').decode('GB2312'),'7', ('∞À‘¬').decode('GB2312'),'8', ('æ≈‘¬').decode('GB2312'),'9', (' Æ‘¬').decode('GB2312'),'10', (' Æ“ª‘¬').decode('GB2312'),'11', (' Æ∂˛‘¬').decode('GB2312'),'12']
+    Enable_2Dto3D = request.GET.get('Enable_2Dto3D','').strip()
+    BD3D_convert_type = request.GET.get('BD3D_convert_type','').strip()
+    Compress_to_AC3 = request.GET.get('Compress_to_AC3','').strip()
+    Current_src_path = request.GET.get('Current_src_path','').strip()
+    #dict = {('‰∏ÄÊúà').decode('GB2312'):1, ('‰∫åÊúà').decode('GB2312'):2, ('‰∏âÊúà').decode('GB2312'):3, ('ÂõõÊúà').decode('GB2312'):4, ('‰∫îÊúà').decode('GB2312'):5, ('ÂÖ≠Êúà').decode('GB2312'):6,\
+    #        ('‰∏ÉÊúà').decode('GB2312'):7, ('ÂÖ´Êúà').decode('GB2312'):8, ('‰πùÊúà').decode('GB2312'):9, ('ÂçÅÊúà').decode('GB2312'):10, ('ÂçÅ‰∏ÄÊúà').decode('GB2312'):11, ('ÂçÅ‰∫åÊúà').decode('GB2312'):12}
+    #dict = [('‰∏ÄÊúà').decode('GB2312'),'1', ('‰∫åÊúà').decode('GB2312'),'2', ('‰∏âÊúà').decode('GB2312'),'3', ('ÂõõÊúà').decode('GB2312'),'4', ('‰∫îÊúà').decode('GB2312'),'5', ('ÂÖ≠Êúà').decode('GB2312'),'6',\
+    #        ('‰∏ÉÊúà').decode('GB2312'),'7', ('ÂÖ´Êúà').decode('GB2312'),'8', ('‰πùÊúà').decode('GB2312'),'9', ('ÂçÅÊúà').decode('GB2312'),'10', ('ÂçÅ‰∏ÄÊúà').decode('GB2312'),'11', ('ÂçÅ‰∫åÊúà').decode('GB2312'),'12']
+    dict = ['‰∏ÄÊúà','1', '‰∫åÊúà','2', '‰∏âÊúà','3', 'ÂõõÊúà','4', '‰∫îÊúà','5', 'ÂÖ≠Êúà','6',\
+            '‰∏ÉÊúà','7', 'ÂÖ´Êúà','8', '‰πùÊúà','9', 'ÂçÅÊúà','10', 'ÂçÅ‰∏ÄÊúà','11', 'ÂçÅ‰∫åÊúà','12']
     
     a1 = Init_time.split(' ')    
     a2 = a1[1].split(',')  
-    #a1[0] == (' Æ“ª‘¬').decode('GB2312') 
-    index = dict.index(a1[0])                        #a1[0] «∫∫◊÷±‡¬Î
+    #a1[0] == ('ÂçÅ‰∏ÄÊúà').decode('GB2312') 
+    index = dict.index(a1[0])                        #a1[0]ÊòØÊ±âÂ≠óÁºñÁ†Å
     #return HttpResponse(a1[0])
     a2.append(dict[index + 1])
-   # a2.append(dict[(' Æ“ª‘¬').decode('GB2312')])
     date=a2[0]
     a2.remove(date)
     a2.append(date)
@@ -1854,93 +1322,83 @@ def update_session(request,param1):
 
 def update_test_result_page(request,param1): 
     session = Session.objects.get(id = param1) 
-    if '\\' in session.Src_path:
-        src_iso = session.Src_path.split('\\')[-1]
-        src_path = session.Src_path.replace('\\' + src_iso, '')    
-    else:
-        src_iso = session.Src_path.split('/')[-1]
-        src_path = session.Src_path.replace('/' + src_iso, '')
-         
-    #if session.Mode.upper().startswith('DVD') or session.Mode.upper().startswith('FULLDISC'):
+    src_iso = session.Src_path.replace("\\", "/").split('/')[-1]
+    src_path = session.Src_path.replace("\\", "/").replace('/' + src_iso, '')
     if session.Iso_type.upper() == 'DVD':
         try:   
             iso = dvd = DVD_samples.objects.filter(Name = src_iso)
         except Exception, e:
-            print str(e)
-    
-    #elif session.Mode.upper().startswith('BD') or session.Mode.upper().startswith('BLURAY') and '3D' not in src_iso.upper():    
+            iso = dvd = ""
     elif session.Iso_type.upper() == 'BD':    
         try:
             iso = bd = Samples.objects.filter(Name = src_iso)
         except Exception, e:
-            print str(e)
+            iso = bd = ""
             
     elif '3D' in src_iso.upper():
         try:
             iso = bd3d = BD3D_samples.objects.filter(Name = src_iso)
         except Exception, e:
-            print str(e)
+            iso = bd3d = ""
     else:
         iso = video = ''
-        pass
     
     return render_to_response('update_test_result.html',locals())
 
 
 def update_test_result(request,param1):   
     session = Session.objects.filter(id = param1)  
-    Num = request.GET.get('Num','')
-    Sub_num = request.GET.get('Sub_num','')
-    Iso_type = request.GET.get('Iso_type','')
-    Mode = request.GET.get('Mode','')
-    Src_path = request.GET.get('Src_path','')
+    Num = request.GET.get('Num','').strip()
+    Sub_num = request.GET.get('Sub_num','').strip()
+    Iso_type = request.GET.get('Iso_type','').strip()
+    Mode = request.GET.get('Mode','').strip()
+    Src_path = request.GET.get('Src_path','').strip()
     
-    Dest_path = request.GET.get('Dest_path','')
-    PC_name = request.GET.get('PC_name','')
-    Dvdfab_path = request.GET.get('Dvdfab_path','')
-    Audio = request.GET.get('Audio','')
+    Dest_path = request.GET.get('Dest_path','').strip()
+    PC_name = request.GET.get('PC_name','').strip()
+    Dvdfab_path = request.GET.get('Dvdfab_path','').strip()
+    Audio = request.GET.get('Audio','').strip()
+    Audio_type = request.GET.get('Audio_type','').strip()
+    Change_play_order = request.GET.get('Change_play_order','').strip()
+    Copy_IFO = request.GET.get('Copy_IFO','').strip()
+    Display_forced_sub = request.GET.get('Display_forced_sub','').strip()
     
-    Audio_type = request.GET.get('Audio_type','')
-    Change_play_order = request.GET.get('Change_play_order','')
-    Copy_IFO = request.GET.get('Copy_IFO','')
-    Display_forced_sub = request.GET.get('Display_forced_sub','')
+    Jump_menu = request.GET.get('Jump_menu','').strip()
+    Jump_main = request.GET.get('Jump_main','').strip()
+    Out_disc = request.GET.get('Out_disc','').strip()
+    Path_player = request.GET.get('Path_player','').strip()
+    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','').strip()
+    Profile = request.GET.get('Profile','').strip()
+    Remove_DTS = request.GET.get('Remove_DTS','').strip()
+    Remove_HD_audio = request.GET.get('Remove_HD_audio','').strip()
+    Remove_menu = request.GET.get('Remove_menu','').strip()
+    Remove_PGC = request.GET.get('Remove_PGC','').strip()
     
-    Jump_menu = request.GET.get('Jump_menu','')
-    Jump_main = request.GET.get('Jump_main','')
-    Out_disc = request.GET.get('Out_disc','')
-    Path_player = request.GET.get('Path_player','')
-    
-    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','')
-    Profile = request.GET.get('Profile','')
-    Remove_DTS = request.GET.get('Remove_DTS','')
-    Remove_HD_audio = request.GET.get('Remove_HD_audio','')
-    Remove_menu = request.GET.get('Remove_menu','')
-    Remove_PGC = request.GET.get('Remove_PGC','')
-    
-    Rewind = request.GET.get('Rewind','')
-    Subtitle = request.GET.get('Subtitle','')
-    Title = request.GET.get('Title','')
-    Volume = request.GET.get('Volume','')
-    
-    Video_decoder_H264 = request.GET.get('Video_decoder_H264','')
-    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','')    
-    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','')
-    Video_encoder_H264 = request.GET.get('Video_encoder_H264','')
-    DVDFab_description = request.GET.get('DVDFab_description','')
+    Rewind = request.GET.get('Rewind','').strip()
+    Subtitle = request.GET.get('Subtitle','').strip()
+    Title = request.GET.get('Title','').strip()
+    Volume = request.GET.get('Volume','').strip()
+    Video_decoder_H264 = request.GET.get('Video_decoder_H264','').strip()
+    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','').strip()
+    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','').strip()
+    Video_encoder_H264 = request.GET.get('Video_encoder_H264','').strip()
+    DVDFab_description = request.GET.get('DVDFab_description','').strip()
       
-    Start_time = request.GET.get('Start_time','')
-    End_time = request.GET.get('End_time','')
-    Total_time = request.GET.get('Total_time','')
-    Flag = request.GET.get('Flag','')
-    Folder_size = request.GET.get('Folder_size','')
-    Init_time = request.GET.get('Init_time','')
-    #dict = {'“ª‘¬':'1', '∂˛‘¬':'2', '»˝‘¬':'3', 'Àƒ‘¬':'4', 'ŒÂ‘¬':'5', '¡˘‘¬':'6', '∆ﬂ‘¬':'7', '∞À‘¬':'8', 'æ≈‘¬':'9', ' Æ‘¬':'10', ' Æ“ª‘¬':'11', ' Æ∂˛‘¬':'12'}
-    dict = [('“ª‘¬').decode('GB2312'),'1', ('∂˛‘¬').decode('GB2312'),'2', ('»˝‘¬').decode('GB2312'),'3', ('Àƒ‘¬').decode('GB2312'),'4', ('ŒÂ‘¬').decode('GB2312'),'5', ('¡˘‘¬').decode('GB2312'),'6',\
-            ('∆ﬂ‘¬').decode('GB2312'),'7', ('∞À‘¬').decode('GB2312'),'8', ('æ≈‘¬').decode('GB2312'),'9', (' Æ‘¬').decode('GB2312'),'10', (' Æ“ª‘¬').decode('GB2312'),'11', (' Æ∂˛‘¬').decode('GB2312'),'12']
+    Start_time = request.GET.get('Start_time','').strip()
+    End_time = request.GET.get('End_time','').strip()
+    Total_time = request.GET.get('Total_time','').strip()
+    Flag = request.GET.get('Flag','').strip()
+    Folder_size = request.GET.get('Folder_size','').strip()
+    Init_time = request.GET.get('Init_time','').strip()
+    #dict = {'‰∏ÄÊúà':'1', '‰∫åÊúà':'2', '‰∏âÊúà':'3', 'ÂõõÊúà':'4', '‰∫îÊúà':'5', 'ÂÖ≠Êúà':'6', '‰∏ÉÊúà':'7', 'ÂÖ´Êúà':'8', '‰πùÊúà':'9', 'ÂçÅÊúà':'10', 'ÂçÅ‰∏ÄÊúà':'11', 'ÂçÅ‰∫åÊúà':'12'}
+    #dict = [('‰∏ÄÊúà').decode('GB2312'),'1', ('‰∫åÊúà').decode('GB2312'),'2', ('‰∏âÊúà').decode('GB2312'),'3', ('ÂõõÊúà').decode('GB2312'),'4', ('‰∫îÊúà').decode('GB2312'),'5', ('ÂÖ≠Êúà').decode('GB2312'),'6',\
+    #        ('‰∏ÉÊúà').decode('GB2312'),'7', ('ÂÖ´Êúà').decode('GB2312'),'8', ('‰πùÊúà').decode('GB2312'),'9', ('ÂçÅÊúà').decode('GB2312'),'10', ('ÂçÅ‰∏ÄÊúà').decode('GB2312'),'11', ('ÂçÅ‰∫åÊúà').decode('GB2312'),'12']
+    dict = ['‰∏ÄÊúà','1', '‰∫åÊúà','2', '‰∏âÊúà','3', 'ÂõõÊúà','4', '‰∫îÊúà','5', 'ÂÖ≠Êúà','6',\
+            '‰∏ÉÊúà','7', 'ÂÖ´Êúà','8', '‰πùÊúà','9', 'ÂçÅÊúà','10', 'ÂçÅ‰∏ÄÊúà','11', 'ÂçÅ‰∫åÊúà','12']
     a1 = Init_time.split(' ')
     a2 = a1[1].split(',')
-    #a1[0] == (' Æ“ª‘¬').decode('GB2312')
-    index = dict.index(a1[0])                      #a1[0] «∫∫◊÷±‡¬Î
+    #a1[0] == ('ÂçÅ‰∏ÄÊúà').decode('GB2312')
+    index = dict.index(a1[0])                      #a1[0]ÊòØÊ±âÂ≠óÁºñÁ†Å
    # return HttpResponse(a1[0])
     a2.append(dict[index + 1])
     date=a2[0]
@@ -1979,13 +1437,10 @@ def display_log(request, param1):
     session = Session.objects.get(id = param1)
     log_path = 'd:/DVDfab_log'
     try:
-        list_log = os.listdir(log_path)
-        for log in list_log:    
-            if str(session.id) + '_' + 'dvdfab_internal.log' == log:
-        #if 'internal_log' == log.replace('_' + log.split('_')[-1], '') and str(session.id) == str(log.split('_')[-1]):
-                file_content = file(log_path + '/' + log, 'r')
-                contexts = file_content.readlines()
-                break    
+        logname = str(session.id) + '_' + 'dvdfab_internal.log'
+        filename = os.path.join(log_path, logname)
+        file_content = open(filename, 'r')
+        contexts = file_content.readlines()
         return render_to_response('display_log.html',{'contexts':contexts})
     except Exception, e:
         return render_to_response('error.html')
@@ -1993,20 +1448,17 @@ def display_log(request, param1):
 
 @csrf_exempt
 def upload_file(request, param1):
-  if request.method == 'POST':
-      form = UploadFileForm(request.POST, request.FILES)
-      if form.is_valid():
-          #return HttpResponse(request.TITLES["title"])
-          destination = open('d:/DVDfab_log/' + request.FILES["file"].name, 'wb+')
-          for chunk in request.FILES['file'].chunks():
-              destination.write(chunk)
-          destination.close()
-          return HttpResponseRedirect('/update_test_result_page/' + param1)   
-      else:
-          return HttpResponseRedirect('/update_test_result_page/' + param1)     
-  else:
-     form = UploadFileForm()
-     return HttpResponseRedirect('/update_test_result_page/' + param1)
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            #return HttpResponse(request.TITLES["title"])
+            destination = open('d:/DVDfab_log/' + request.FILES["file"].name, 'wb+')
+            for chunk in request.FILES['file'].chunks():
+                destination.write(chunk)
+            destination.close()
+        return HttpResponseRedirect('/update_test_result_page/' + param1)   
+    form = UploadFileForm()
+    return HttpResponseRedirect('/update_test_result_page/' + param1)
 
 '''
 def handle_uploaded_file(f):
@@ -2020,6 +1472,7 @@ def download_test_zipfile(request):
     temp = tempfile.TemporaryFile() 
     archive = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED) 
     src = "d:/develop/dvdfab_auto_test_scripts/dist/"   
+    src = r"/home/goland/develop/mysite/auto_test_tool/dvdfab_auto_test_scripts/dist"
     files = os.listdir(src) 
     for filename in files:   
         archive.write(src+'/'+filename, filename)
@@ -2048,7 +1501,6 @@ def download_test_zipfile_for_mac(request):
     return response
 
 
-
 def download_log_folder(request, param1):
     src = "d:/DVDFab_log" 
     if not os.path.exists(src):
@@ -2071,15 +1523,6 @@ def download_log_folder(request, param1):
     response['Content-Length'] = temp.tell()  
     temp.seek(0) 
     return response
-
-
-
-
-
-
-
-
-
 
 
 

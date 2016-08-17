@@ -7,15 +7,16 @@
 <h1 align = 'center'>Display DVDFab Client Info</h1>
 <table border = 'solid 3px red' align = 'center' style = 'color:black' width = 100%>
 	<tr align = 'center'  style = "font-size:0.9em; background-color :gray; width = '100%' ;height = '30px'">
-		<td>PC_name</td>
-		<td>PC_ip</td>
-		<td>DVDFab_path</td>
-		<td>Dest_path</td>
+	    <td><a href = '?ziduan=id&desc={{desc}}'>id</a></td>
+		<td><a href = '?ziduan=PC_name&desc={{desc}}'>PC_name</a></td>
+		<td><a href = '?ziduan=PC_ip&desc={{desc}}'>PC_ip</a></td>
+		<td><a href = '?ziduan=Dvdfab_path&desc={{desc}}'>DVDFab_path</a></td>
+		<td><a href = '?ziduan=Dest_path&desc={{desc}}'>Dest_path</a></td>
 	</tr>
 
 	{% for i in client %}
-		<tr id = 'tr_id' align = 'center'  style = "background-color: {% cycle '#4ff5f4' '#E0ffff'%}; height = '40px'">
-		
+		<tr id = 'tr_id' align = 'center'  style = "background-color: {% cycle 'E5E5E5' '#D1EEEE' %}; height = '40px'">
+		<td name = 'PC_name' onClick = "window.open('/update_client_page?index={{i.id}}')">{{i.id}}</td>
 		<td name = 'PC_name' onClick = "window.open('/update_client_page?index={{i.id}}')">{{i.PC_name}}</td>
 		<td name = 'PC_ip' onClick = "window.open('/update_client_page?index={{i.id}}')">{{i.PC_ip}}</td>
 		<td name = 'Dvdfab_path' onClick = "window.open('/update_client_page?index={{i.id}}')">{{i.Dvdfab_path}}</td>
