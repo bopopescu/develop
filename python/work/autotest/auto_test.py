@@ -18,36 +18,27 @@ import getpass
 user_name = getpass.getuser()
 xml_temp = 'C:\\Users\\' + user_name + '\\AppData\\Roaming\\DVDFab9\\temp.xml'
 
+current_path = os.getcwd()
+TESTBAT_PATH = current_path +'/test.bat'
+INI_FILE = current_path + '/dvdfab_auto_tool.ini'
 
 if os.name == 'nt':
     import windows_xml
-    #TESTBAT_PATH ='d:/wenjian/test.bat'
-    #INI_FILE ='d:/wenjian/dvdfab_auto_tool.ini'
-    current_path = os.getcwd()
-    TESTBAT_PATH = current_path +'/test.bat'
     KILL_DVDFAB_PATH = current_path +'/kill_DVDFab.bat'
-    #CLICK_TRY = current_path +'/click_try.bat'
-    #CLICK_OK = current_path + '/click_OK.bat'
-    INI_FILE = current_path + '/dvdfab_auto_tool.ini'
 else:
     import myxml
-    #TESTBAT_PATH = '/Users/user/Documents/test.bat'
-    #INI_FILE = '/Users/user/Documents/dvdfab_auto_tool.ini'
     DVDFAB_PATH = '/Applications/"DVDFab 9.app"/Contents/MacOS/DVDFab'  
-    current_path = os.getcwd()
-    TESTBAT_PATH = current_path + '/test.bat'
-    INI_FILE = current_path + '/dvdfab_auto_tool.ini'
 
 
 def get_documents_path():
     if os.name == 'nt':
         SYSTEM_NAME = platform.platform()
         if "XP" in SYSTEM_NAME.upper():
-            documents_path = os.path.expanduser("~") + "\\My Documents"
+            documents_path = os.path.join(os.path.expanduser("~"), "\\My Documents")
         else:
-            documents_path = os.path.expanduser('~') + '\\Documents'
+            documents_path = os.path.join(os.path.expanduser('~'), '\\Documents')
     else:
-        documents_path = os.path.expanduser('~') + '/Documents'
+        documents_path = os.path.join(os.path.expanduser('~'),'/Documents')
     return documents_path
 
 documents_path = get_documents_path()
@@ -58,10 +49,10 @@ def connect_database():
     conn = ''
     cursor = ''
     try:
-        conn = MySQLdb.connect(host = '10.10.2.11', user = 'root', passwd = '19890612')   
+        conn = MySQLdb.connect(host = '10.10.3.25', user = 'root', passwd = '19890612')   
         conn.select_db('mysite')    
     except Exception, e:
-        initlog('failed to connect database; ' + str(e))     
+        initlog('failed to connect database; ' + str(e))  	
     else:
         cursor = conn.cursor()     
     return conn, cursor
@@ -136,121 +127,81 @@ def search_session_table(pc_name):
 
 
 def res_to_iso(res):
-    if '/' in res[5]:
-        module = res[5].split('/')[-2].upper()                                                #BD, DVD, BD3D, FILE
-        iso = res[5].split('/')[-1]                                                           #HUGO.iso 
-    else:
-        module = res[5].split('\\')[-2].upper()                                                #BD, DVD, BD3D, FILE
-        iso = res[5].split('\\')[-1]                                                           #HUGO.iso
+    #module:  BD, DVD, BD3D, FILE;   iso: HUGO.iso 
+    module, iso = res[5].replace("\\", "/").split('/')[-2].upper(), res[5].replace("\\", "/").split('/')[-1]
     ripper_mode = res[4]
     return module, iso, ripper_mode
-
+	
+	
+def get_path_list(path, path_mac):
+    return (path.split(','), path_mac.split(',')) if ',' in path else (path.split(';'), path_mac.split(';'))
+	
+	
+def get_iso_path(src_iso_path, iso, dvd_path_list):
+    for path in dvd_path_list:               
+        for root, _, all_files in os.walk(path.strip()):
+            for onefile in all_files:                
+                if iso.upper()  == onefile.upper():                    
+                    src_iso_path = os.path.join(root, onefile)  
+                    initlog("find iso: %s" % src_iso_path)
+                    break
+    return src_iso_path 
+	
+	
+def connect_server(path, ip):
+    if not os.path.exists(path):
+        os.system('open smb://%s'%ip)
+        time.sleep(20)
+		
+		
+def get_final_iso_path(dvd_path_list, file_path_list, bd_path_list):
+    src_iso_path = ""
+    if 'DVD' == module:   
+		src_iso_path = get_iso_path(src_iso_path, iso, dvd_path_list)		
+		if src_iso_path:
+			return src_iso_path              
+		 
+	elif 'VIDEO' == module:    
+		src_iso_path = get_iso_path(src_iso_path, iso, file_path_list)		
+		if src_iso_path:
+			return src_iso_path 
+ 
+	else:                                                           #bd or 3d
+		src_iso_path = get_iso_path(src_iso_path, iso, bd_path_list)		
+		if src_iso_path:
+			return src_iso_path 
+    return src_iso_path
+		
  
 def search_iso_path(module, iso, bd_path, dvd_path, file_path,bd_path_mac,dvd_path_mac,file_path_mac):    
     src_iso_path = '' 
     try:
-        if ',' in bd_path:
-            bd_path_list = bd_path.split(',')
-            bd_path_mac_list = bd_path_mac.split(',')
-        else:
-            bd_path_list = bd_path.split(';')
-            bd_path_mac_list = bd_path_mac.split(';')
-        
-        if ',' in dvd_path:
-            dvd_path_list = dvd_path.split(',')
-            dvd_path_mac_list = dvd_path_mac.split(',')
-        else:
-            dvd_path_list = dvd_path.split(';')
-            dvd_path_mac_list = dvd_path_mac.split(';')
-        
-        if ',' in file_path:
-            file_path_list = file_path.split(',')
-            file_path_mac_list = file_path_mac.split(',')
-        else:
-            file_path_list = file_path.split(';')
-            file_path_mac_list = file_path_mac.split(';')
+        bd_path_list, bd_path_mac_list = get_path_list(bd_path, bd_path_mac)
+        dvd_path_list, dvd_path_mac_list = get_path_list(dvd_path, dvd_path_mac)
+        file_path_list, file_path_mac_list = get_path_list(file_path, file_path_mac)
     except Exception, e:
         initlog('ini file is error; ' + str(e))
     
     #windows
-    if os.name == 'nt':                              
-        if 'DVD' == module:        
-            for path in dvd_path_list:               
-                for root, _, all_files in os.walk(path.strip()):
-                    for onefile in all_files:                
-                        if iso.upper()  == onefile.upper():                    
-                            src_iso_path = os.path.join(root, onefile)  
-                            return src_iso_path               
-             
-        elif 'VIDEO' == module:    
-            for path in file_path_list:
-                for root, _, all_files in os.walk(path.strip()):              
-                    for onefile in all_files:                
-                        if iso.upper()  == onefile.upper():
-                            src_iso_path = os.path.join(root, onefile)
-                            return src_iso_path 
-     
-        else:                                                           #bd or 3d
-            for path in bd_path_list:      
-                for root, _, all_files in os.walk(path.strip()): 
-                    for onefile in all_files:   
-                        if iso.upper()  == onefile.upper():               
-                            src_iso_path = os.path.join(root, onefile)                                                    
-                            return src_iso_path     
-    
+    if os.name == 'nt':     
+        src_iso_path = get_final_iso_path(dvd_path_list, file_path_list, bd_path_list)  
     #mac os          
     else:
         try:
-
-            if not os.path.exists('/Volumes/nas2_nas2_volume3'):
-                os.system('open smb://10.10.2.56')
-                time.sleep(20)
-
-            if not os.path.exists('/Volumes/nas3_nas3_Volume5'):
-                os.system('open smb://10.10.2.59')
-                time.sleep(20)
-            if not os.path.exists('/Volumes/Nas4_Nas4_Volume4'):
-                os.system('open smb://10.10.2.57')
-                time.sleep(20)  
-                       
+            connect_server('/Volumes/nas2_nas2_volume3', '10.10.2.56')
+            connect_server('/Volumes/nas3_nas3_Volume5', '10.10.2.59')
+            #connect_server('/Volumes/Nas4_Nas4_Volume4', '10.10.2.57')
+            src_iso_path = get_final_iso_path(dvd_path_mac_list, file_path_mac_list, bd_path_mac_list)			
         except Exception, e:
-            initlog('does not execute the command to connect server; ' + str(e))
-        else:                     
-            for path in bd_path_mac_list:
-                if not os.path.exists(path.strip()):
-                    initlog(path.strip() + ' does not exist； ')     
-                              
-            if 'DVD' == module:        
-                for path in dvd_path_mac_list:   
-                    for root, _, all_files in os.walk(path.strip()):           
-                        for onefile in all_files:                
-                            if iso.upper()  == onefile.upper():                    
-                                src_iso_path = os.path.join(root, onefile)  
-                                return src_iso_path               
-                 
-            elif 'VIDEO' == module:    
-                for path in file_path_mac_list:    
-                    for root, _, all_files in os.walk(path.strip()):          
-                        for onefile in all_files:                
-                            if iso.upper()  == onefile.upper():
-                                src_iso_path = os.path.join(root, onefile)
-                                return src_iso_path 
-                                    
-            else:                                                           #bd or 3d
-                for path in bd_path_mac_list:      
-                    for root, _, all_files in os.walk(path.strip()): 
-                        for onefile in all_files:   
-                            if iso.upper()  == onefile.upper():               
-                                src_iso_path = os.path.join(root, onefile)                                                    
-                                return src_iso_path 
+            initlog('does not execute the command to connect server; ' + str(e))         
+             		
+    return src_iso_path
                      
      
 def update_session_table(res, Flag, case_id, case_num, pc_name, src_iso_path = '', Start_time = '', End_time = '', Total_time = '', Folder_size = '', result = ''):    
     update_flag = True
-    if src_iso_path == '':
-        src_iso_path = res[5]
-    if Start_time == '':
-        Start_time = res[33]    
+    src_iso_path = res[5] if src_iso_path == '' else src_iso_path
+    Start_time = res[33] if Start_time == '' else Start_time
     conn, cursor = connect_database()     
     sql = "update blog_session set Current_src_path = '%s', Flag = '%d', Start_time = '%s', End_time = '%s', Total_time = '%s', Folder_size = '%s', Result = '%s' where id = '%d' and  Num = '%s' and PC_name = '%s' and (Flag = 0 or Flag =  1)" \
           % (src_iso_path, Flag, Start_time, End_time, Total_time, Folder_size, result, case_id, case_num, pc_name) 
@@ -278,232 +229,93 @@ def update_session_flag(Flag, case_id, case_num, pc_name):
         cursor.close()    
         conn.close() 
     
-    
-def get_registry_value(regpath, regkey):    
+#this function does not be used    
+def get_registry_value(regpath, regkey):  
+    value_path = ''  
     if os.name == "nt":
         import _winreg
-        value_path = ''
         key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, regpath, 0, _winreg.KEY_READ)
         #key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, regpath, 0, _winreg.REG_SZ)
         try: 
             (value_path, valuetype) = _winreg.QueryValueEx(key, regkey)
         except Exception, e:
-            initlog('failed to get registry value; ' + str(e))  
-    
-        return value_path
-    else:
-        pass
+            initlog('failed to get registry value; ' + str(e))   
+    return value_path
+		
+		
+def get_value(value, param):
+    return '  %s "%s"' % (param, value) if value else ""
     
     
 def get_cmd_string(res, src_iso_path, client_dest_path):    
     dest_path = change_fuhao(res[6])
-    if res[6]:
-        Dest = '  /DEST '  + '"' + res[6] + '"'   
-    else:
-        Dest = '' 
-        
-    if res[4]:
-        Mode =  '  /MODE ' + '"' + res[4] + '"'    
-    else:
-        Mode = ''
-        
-    if src_iso_path:
-        Src = '   /SRC ' + '"' + src_iso_path + '"'  
-    else:
-        Src = ''
-        
-    if res[9]:   
-        Audio =  '  /AUDIO ' + '"' + res[9] + '"'    
-    else:
-        Audio = ''
-
-    if res[10]:
-        Audio_type = '  /AUDIOTYPE ' + '"' + res[10] + '"'   
-    else:
-        Audio_type = ''
-        
-    if res[11]: 
-        Change_play_order = '  /CHANGEPLAYORDER ' + '"' + res[11] + '"'  
-    else:
-        Change_play_order = ''  
-        
-    if res[12]:
-        Copy_IFO = '  /COPYIFO ' + '"' + res[12] + '"'   
-    else:
-        Copy_IFO = '' 
-        
-    if res[13]:
-        Display_forced_sub = '  /DISPLAYFORCEDSUB ' + '"' + res[13] + '"'   
-    else:
-        Display_forced_sub = ''
-        
-    if res[14]: 
-        Jump_menu = '  /JUMPMENU ' + '"' + res[14] + '"'  
-    else:
-        Jump_menu = ''  
-        
-    if res[15]:
-        Jump_main = '  /JUMPMAIN ' + '"' + res[15] + '"'    
-    else:
-        Jump_main = ''
-        
-    if res[16]:
-        Out_disc = '  /OUTDISC ' + '"' + res[16] + '"'    
-    else:
-        Out_disc = ''
-        
-    if res[17]:
-        Path_player = '  /PATHPLAYER ' + '"' + res[17] + '"'    
-    else:
-        Path_player = ''
-        
-    if res[18]:
-        Preserve_menu_disc2 = '  /PRESERVEMENUDISC2 ' + '"' + res[18] + '"'   
-    else:
-        Preserve_menu_disc2 = '' 
-        
-    if res[19]:
-        Profile = '  /PROFILE ' + '"' + res[19] + '"'
-    else:
-        Profile = ''
-        
-    if res[20]:
-        Remove_DTS = '  /REMOVEDTS ' + '"' + res[20] + '"'   
-    else:
-        Remove_DTS = '' 
-       
-    if res[21]:
-        Remove_HD_audio = '  /REMOVEHDAUDIO ' + '"' + res[21] + '"'   
-    else:
-        Remove_HD_audio = '' 
-        
-    if res[22]:
-        Remove_menu = '  /REMOVEMENU ' + '"' + res[22] + '"'   
-    else:
-        Remove_menu = '' 
-        
-    if res[23]:
-        Remove_PGC = '  /REMOVEPGC ' + '"' + res[23] + '"'   
-    else:
-        Remove_PGC = ''
-    if res[24]:
-        Rewind = '  /REWIND ' + '"' + res[24] + '"'
-    else:
-        Rewind = ''
-        
-    if res[25]:
-        Subtitle = '  /SUBTITLE ' + '"' + res[25] + '"'    
-    else:
-        Subtitle = ''
-        
-    if res[26]:
-        Title = '  /TITLE ' + '"' + res[26] + '"'    
-    else: 
-        Title = ''
-        
-    if res[27]:
-        Volume = '  /VOLUME ' + '"' + res[27] + '"'  
-    else:
-        Volume = ''  
-    
-    if res[44]:    
-        BD3DT = ' /BD3DCONVERTTYPE ' + '"' + res[44] + '"'
-    else:
-        BD3DT = ''
-
-    if res[45]:
-        COMPRESSTOAC3 = '/COMPRESSTOAC3 ' + '"' + res[45] + '"'
-    else:
-        COMPRESSTOAC3 = ''
+    Dest = get_value(res[6], "/DEST")
+    Mode = get_value(res[4], "/MODE")
+    Src = get_value(src_iso_path, "/SRC")
+    Audio = get_value(res[9], "/AUDIO")
+    Audio_type = get_value(res[10], "/AUDIOTYPE")
+    Change_play_order = get_value(res[11], "/CHANGEPLAYORDER")
+    Copy_IFO = get_value(res[12], "/COPYIFO")
+    Display_forced_sub = get_value(res[13], "/DISPLAYFORCEDSUB")
+    Jump_menu = get_value(res[14], "/JUMPMENU")
+    Jump_main = get_value(res[15], "/JUMPMAIN")
+    Out_disc = get_value(res[16], "/OUTDISC")
+    Path_player = get_value(res[17], "/PATHPLAYER")
+    Preserve_menu_disc2 = get_value(res[18], "/PRESERVEMENUDISC2")
+    Profile = get_value(res[19], "/PROFILE")
+    Remove_DTS = get_value(res[20], "/REMOVEDTS")
+    Remove_HD_audio = get_value(res[21], "/REMOVEHDAUDIO")
+    Remove_menu = get_value(res[22], "/REMOVEMENU")
+    Remove_PGC = get_value(res[23], "/REMOVEPGC")
+    Rewind = get_value(res[24], "/REWIND")
+    Subtitle = get_value(res[25], "/SUBTITLE")
+    Title = get_value(res[26], "/TITLE")
+    Volume = get_value(res[27], "/VOLUME")
+    BD3DT = get_value(res[44], "/BD3DCONVERTTYPE")
+    COMPRESSTOAC3 = get_value(res[45], "/COMPRESSTOAC3")
     Close = '  /CLOSE'    
-    Createminiso = '  /CREATEMINISO'
-    if os.name == 'nt':
-        cmd_string = Mode + Src + Dest + Audio + Audio_type + Change_play_order + Copy_IFO + Display_forced_sub + Jump_menu + Jump_main + Out_disc + Path_player \
-                     + Preserve_menu_disc2 + Profile + Remove_DTS + Remove_HD_audio + Remove_menu + Remove_PGC + Rewind + Subtitle + Title + Volume + BD3DT + COMPRESSTOAC3 + Close + Createminiso
-    else:
-        cmd_string = Mode + Src + Dest + Audio + Audio_type + Change_play_order + Copy_IFO + Display_forced_sub + Jump_menu + Jump_main + Out_disc + Path_player \
-                     + Preserve_menu_disc2 + Profile + Remove_DTS + Remove_HD_audio + Remove_menu + Remove_PGC + Rewind + Subtitle + Title + Volume + BD3DT + COMPRESSTOAC3 + Close
-    
+    Createminiso = '  /CREATEMINISO' if os.name == 'nt' else ''
+    cmd_string = Mode + Src + Dest + Audio + Audio_type + Change_play_order + Copy_IFO + Display_forced_sub + Jump_menu + Jump_main\
+                 + Out_disc + Path_player + Preserve_menu_disc2 + Profile + Remove_DTS + Remove_HD_audio + Remove_menu + Remove_PGC\
+                 + Rewind + Subtitle + Title + Volume + BD3DT + COMPRESSTOAC3 + Close + Createminiso
     return cmd_string, dest_path
 
 
 def get_Filesize(dest_path):     
     Folder_size = 0  
     for root, _, all_files in os.walk(dest_path):                    
-        for filespath in all_files:                     
-            path_file = os.path.join(root, filespath)                           
-            file_size = os.path.getsize(path_file)                        
+        for filespath in all_files:                                              
+            file_size = os.path.getsize(os.path.join(root, filespath))                        
             Folder_size += file_size     
 
     return Folder_size
+	
+	
+def judge_filesize1(foldersize, big_size, small_size, type_name):
+    if foldersize < small_size:
+        result = 'folder_size too small; '
+    elif foldersize > big_size:
+        result = 'folder_size too big; '
+    else:
+        result = 'the %s folder_size is normal; ' % type_name
+    return result
 
 
 def judge_filesize(res, Folder_size):    
     Folder_size = int(Folder_size.split('.')[0])
     result = ''
     if res[3].upper() == 'BD' and res[4].upper() == 'FULLDISC':
-        if res[16].upper().startswith('BD50'):
-            if Folder_size < 18000:
-                result = 'folder_size too small; '
-                initlog(result)
-            elif Folder_size > 46100:
-                result = 'folder_size too big; '
-                initlog(result)
-            else:
-                initlog('the bd50 folder_size is normal; ')
-        
-        elif res[16].upper().startswith('BD25'):       
-            if Folder_size < 15000:
-                result = 'folder_size too small; '
-                initlog(result)
-            elif Folder_size > 23000:
-                result = 'folder_size too big; '
-                initlog(result)
-            else:
-                initlog('the bd25 folder_size is normal; ')
-        
-        elif res[16].upper().startswith('BD9'):        
-            if Folder_size < 4000:
-                result = 'folder_size too small; '  
-                initlog(result) 
-            elif Folder_size > 8100:
-                result = 'folder_size too big; '
-                initlog(result)
-            else:
-                initlog('the bd9 folder_size is normal; ')
-        
-        elif res[16].upper().startswith('BD5'):     
-            if Folder_size < 2000:
-                result = 'folder_size too small; '  
-                initlog(result)
-            elif Folder_size > 4300:
-                result = 'folder_size too big; '
-                initlog(result)
-            else:
-                initlog('the bd5 folder_size is normal; ')
-        else:
-            pass
+        for record in [("bd50", 46100, 18000), ("bd25", 23000, 15000),("bd9", 8100, 4000),("bd5", 4300, 2000)]:
+            if res[16].upper().startswith(record[0].upper()):
+                if res[16].upper().startswith('BD5') and not res[16].upper().startswith('BD50'):
+                    result = judge_filesize1(Folder_size, record[1], record[2], record[0])
         
     elif res[3].upper() == 'DVD' and res[4].upper() == 'FULLDISC' or res[3].upper() == 'BD' and res[4].upper() == 'BLURAYDVD':
-        if res[16].upper().startswith('DVD5'):
-            if Folder_size < 2000:
-                result = 'folder_size too small; '
-                initlog(result)
-            elif Folder_size > 4300:
-                result = 'folder_size too big; '
-                initlog(result)
-            else:
-                initlog('the dvd5 folder_size is normal; ')
-        elif res[16].upper().startswith('DVD9'):
-            if Folder_size < 4000:
-                result = 'folder_size too small; '
-                initlog(result)
-            elif Folder_size > 8100:
-                result = 'folder_size too big; '
-                initlog(result)
-            else:
-                initlog('the dvd9 folder_size is normal; ')
-                   
+        for record in [("dvd5", 4300, 2000), ("dvd9", 8100, 4000)]:
+            if res[16].upper().startswith(record[0].upper()):
+                result = judge_filesize1(Folder_size, record[1], record[2], record[0])
+			
+	initlog(result)        
     return result
            
 
@@ -526,23 +338,21 @@ def check_process_exist(process_name):
     returncode = ''   
     try:
         p=os.popen('tasklist /FI "IMAGENAME eq %s"' % process_name) 
-        returncode = p.read().count(process_name)   
-    except Exception, e:
-        initlog(str(e))
-    else:
+        returncode = p.read().count(process_name) 
         if returncode:
-            initlog(process_name + ' exists')    
+            initlog(process_name + ' exists')
+    except Exception, e:
+        initlog(str(e))   
     return returncode
 
 
 def kill_process(process_name): 
     try: 
-        os.system('taskkill /f /im ' + process_name)        
+        os.system('taskkill /f /im ' + process_name)      
+        initlog(process_name +' is killed now')		
     except Exception, e:
         initlog('failed to kill process; ' + str(e))      
-    else:    
-        initlog(process_name +' is killed now')  
-        
+
         
 def catch_all_picture(picture_path, index):     
     initlog('picure_path: ' + picture_path)
@@ -580,12 +390,7 @@ def read_ini(ini_file):
     dvd_path_mac = ''
     file_path_mac = ''
     
-    if os.path.exists(ini_file):
-        try:    
-            file(ini_file, 'r')
-        except Exception, e:
-            initlog('failed to open ini file!  ' + str(e)) 
-            
+    if os.path.exists(ini_file):           
         try:
             config = ConfigParser.ConfigParser()
             config.readfp(open(ini_file))
@@ -613,33 +418,19 @@ def read_ini(ini_file):
     else:
         initlog('dvdfab_auto_tool.ini file does not exist')
     return project, bd_analysis_time, bd_interval_time, bd_ripper_analysis_time, bd_ripper_interval_time, dvd_analysis_time, dvd_interval_time, file_analysis_time, file_interval_time, bd_path, dvd_path, file_path,bd_path_mac,dvd_path_mac,file_path_mac
+
+
+def convert_to_int(value):
+    return int(value) if value else 0
     
 
-def update_registry_value(res, project):    
-    if not res[28]:
-        Video_decoder_H264 = 0      
-    else:
-        Video_decoder_H264 = int(res[28])
-        
-    if not res[29]:
-        Video_decoder_VC1 = 0
-    else:   
-        Video_decoder_VC1 = int(res[29])
-    
-    if not res[30]:
-        Video_decoder_MPEG2  = 0      
-    else: 
-        Video_decoder_MPEG2 = int(res[30])
-        
-    if not res[31]:
-        Video_encoder_H264 = 0
-    else:
-        Video_encoder_H264 = int(res[31])
-        
-    if Video_decoder_H264 == 1 or Video_decoder_VC1 == 1 or Video_decoder_MPEG2 == 1:        
-        enableGPUA = 1        
-    else:      
-        enableGPUA = 0
+def update_registry_value(res, project):   
+    Video_decoder_H264 = convert_to_int(res[28]) 
+    Video_decoder_VC1 = convert_to_int(res[29])
+    Video_decoder_MPEG2 = convert_to_int(res[30])
+    Video_encoder_H264 = convert_to_int(res[31])
+    enableGPUA = 1 if Video_decoder_H264 == 1 or Video_decoder_VC1 == 1 or Video_decoder_MPEG2 == 1 else 0
+
     if os.name == 'nt':
         #XML_FILE = windows_xml.XML_FILE_PATH
         XML_FILE = get_new_file_ctime_windows(windows_xml.XML_FILE_PATH)
@@ -652,57 +443,22 @@ def update_registry_value(res, project):
                                     ('EnableCudaEncodingUser_qt', '1'),('EnableDirectTranscoderUser_qt', '1'),('H264DecodeType_qt', str(Video_decoder_H264)),('VC1DecodeType_qt', str(Video_decoder_VC1)),\
                                     ('Mpeg2DecodeType_qt', str(Video_decoder_MPEG2)),('EnableCudaEncoding_qt', str(Video_encoder_H264)),('EnableGPUAccelerate_qt', str(enableGPUA)),('NotShowSetBDRegion', '1'),\
                                     ('AskOveride', '0')] 
-            for path in path_list:
-                try:
-                    tree, nodes = windows_xml.read_xml(XML_FILE, path, xml_temp)  
-                except Exception, e:
-                    initlog(path + ' does not exist; ' + str(e))
-                else:
-                    for record in update_key_value_list:
-                        if nodes[0].attrib.has_key(record[0]):
-                            windows_xml.update_xml(nodes, record[0], record[1]) 
-                    windows_xml.write_xml(tree, XML_FILE)
         else:
             path_list = ["common_setting/FileMover","common_setting/BluRayToBluRay","common_setting/Generic","common_setting/DVD"]
             update_key_value_list = [('ShowWelcome', '0'),('EnableFileMover', '0'),('BDAVCHDCompatibility', '1'),('H264DecodeTypeUser_qt', '1'),('VC1DecodeTypeUser_qt', '1'),('Mpeg2DecodeTypeUser_qt', '1'),\
                                     ('EnableCudaEncodingUser_qt', '1'),('EnableDirectTranscoderUser_qt', '1'),('H264DecodeType_qt', str(Video_decoder_H264)),('VC1DecodeType_qt', str(Video_decoder_VC1)),\
                                     ('Mpeg2DecodeType_qt', str(Video_decoder_MPEG2)),('EnableCudaEncoding_qt', str(Video_encoder_H264)),('EnableDirectTranscoder_qt', str(enableGPUA)),('NotShowSetBDRegion', '1'),\
                                     ('AskOveride', '0')] 
-            for path in path_list:
-                try:
-                    tree, nodes = windows_xml.read_xml(XML_FILE, path, xml_temp)  
-                except Exception, e:
-                    initlog(path + ' does not exist; ' + str(e))
-                else:
-                    for record in update_key_value_list:
-                        if nodes[0].attrib.has_key(record[0]):
-                            windows_xml.update_xml(nodes, record[0], record[1]) 
-                    windows_xml.write_xml(tree, XML_FILE)     
-        
-        """
-        if project.upper() == 'DVDFAB 8' or project.upper() == 'DVDFAB8':   
-            update_registry_list = [('Software\\DVDFab\\V8_QT\\FileMover\\', 'EnableFileMover', 0), ('Software\\DVDFab\\V8_QT\\BluRayToBluRay\\', 'BDAVCHDCompatibility', 1), \
-                            ('Software\\DVDFab\\V8_QT\\Generic\\', 'H264DecodeTypeUser_qt', 1), ('Software\\DVDFab\\V8_QT\\Generic\\', 'VC1DecodeTypeUser_qt', 1),\
-                            ('Software\\DVDFab\\V8_QT\\Generic\\', 'Mpeg2DecodeTypeUser_qt', 1), ('Software\\DVDFab\\V8_QT\\Generic\\', 'EnableCudaEncodingUser_qt', 1),\
-                            ('Software\\DVDFab\\V8_QT\\Generic\\', 'EnableDirectTranscoderUser_qt', 1), ("Software\\DVDFab\\V8_QT\\Generic\\", 'H264DecodeType_qt', Video_decoder_H264),\
-                            ("Software\\DVDFab\\V8_QT\\Generic\\", 'VC1DecodeType_qt', Video_decoder_VC1), ("Software\\DVDFab\\V8_QT\\Generic\\", 'Mpeg2DecodeType_qt', Video_decoder_MPEG2),\
-                            ("Software\\DVDFab\\V8_QT\\Generic\\", 'EnableCudaEncoding_qt', Video_encoder_H264), ("Software\\DVDFab\\V8_QT\\Generic\\", 'EnableGPUAccelerate_qt', enableGPUA),\
-                            ('Software\\DVDFab\\V8_QT\\DVD\\', 'NotShowSetBDRegion', 1), ('Software\\DVDFab\\V8_QT\\Generic\\', 'AskOveride', 0)] 
-        else:
-            update_registry_list = [('Software\\DVDFab\\V9\\FileMover\\', 'EnableFileMover', 0), ('Software\\DVDFab\\V9\\BluRayToBluRay\\', 'BDAVCHDCompatibility', 1), \
-                            ('Software\\DVDFab\\V9\\Generic\\', 'H264DecodeTypeUser_qt', 1), ('Software\\DVDFab\\V9\\Generic\\', 'VC1DecodeTypeUser_qt', 1),\
-                            ('Software\\DVDFab\\V9\\Generic\\', 'Mpeg2DecodeTypeUser_qt', 1), ('Software\\DVDFab\\V9\\Generic\\', 'EnableCudaEncodingUser_qt', 1),\
-                            ('Software\\DVDFab\\V9\\Generic\\', 'EnableDirectTranscoderUser_qt', 1), ("Software\\DVDFab\\V9\\Generic\\", 'H264DecodeType_qt', Video_decoder_H264),\
-                            ("Software\\DVDFab\\V9\\Generic\\", 'VC1DecodeType_qt', Video_decoder_VC1), ("Software\\DVDFab\\V9\\Generic\\", 'Mpeg2DecodeType_qt', Video_decoder_MPEG2),\
-                            ("Software\\DVDFab\\V9\\Generic\\", 'EnableCudaEncoding_qt', Video_encoder_H264), ("Software\\DVDFab\\V9\\Generic\\", "EnableDirectTranscoder_qt", 0),\
-                            ('Software\\DVDFab\\V9\\DVD\\', 'NotShowSetBDRegion', 1), ('Software\\DVDFab\\V9\\Generic\\', 'AskOveride', 0)]
-        try:
-            for record in update_registry_list:           
-                update_registry(record[0], record[1], record[2])            
-        except Exception, e:
-            initlog('fail to update registry value; ' + str(e))
-            
-        """        
+        for path in path_list:
+            try:
+                tree, nodes = windows_xml.read_xml(XML_FILE, path, xml_temp)  
+            except Exception, e:
+                initlog(path + ' does not exist; ' + str(e))
+            else:
+                for record in update_key_value_list:
+                    if nodes[0].attrib.has_key(record[0]):
+                        windows_xml.update_xml(nodes, record[0], record[1]) 
+                windows_xml.write_xml(tree, XML_FILE)            
     else:
         #XML_FILE = get_ctime(myxml.XML_FILE_PATH)
         XML_FILE = get_new_file_ctime_macos(myxml.XML_FILE_PATH)
@@ -715,41 +471,30 @@ def update_registry_value(res, project):
 									('EnableCudaEncodingUser_qt', '1'),('EnableDirectTranscoderUser_qt', '1'),('H264DecodeType_qt', str(Video_decoder_H264)),('VC1DecodeType_qt', str(Video_decoder_VC1)),\
 									('Mpeg2DecodeType_qt', str(Video_decoder_MPEG2)),('EnableCudaEncoding_qt', str(Video_encoder_H264)),('EnableGPUAccelerate_qt', str(enableGPUA)),('NotShowSetBDRegion', '1'),\
 									('AskOveride', '0')] 
-            for path in path_list:
-                try:
-                    tree, nodes = myxml.read_xml(XML_FILE, path, xml_temp)  
-                except Exception, e:
-                    initlog(path + ' does not exist; ' + str(e))
-                else:
-                    for record in update_key_value_list:
-                        if nodes[0].attrib.has_key(record[0]):
-                            myxml.update_xml(nodes, record[0], record[1]) 
-                    myxml.write_xml(tree, XML_FILE)
         else:
             path_list = ["common_setting/FileMover","common_setting/BluRayToBluRay","common_setting/Generic","common_setting/DVD"]
             update_key_value_list = [('ShowWelcome','0'),('EnableFileMover', '0'),('BDAVCHDCompatibility', '1'),('H264DecodeTypeUser_qt', '1'),('VC1DecodeTypeUser_qt', '1'),('Mpeg2DecodeTypeUser_qt', '1'),\
 									('EnableCudaEncodingUser_qt', '1'),('EnableDirectTranscoderUser_qt', '1'),('H264DecodeType_qt', str(Video_decoder_H264)),('VC1DecodeType_qt', str(Video_decoder_VC1)),\
 									('Mpeg2DecodeType_qt', str(Video_decoder_MPEG2)),('EnableCudaEncoding_qt', str(Video_encoder_H264)),('EnableDirectTranscoder_qt', str(enableGPUA)),('NotShowSetBDRegion', '1'),\
 									('AskOveride', '0')] 
-            for path in path_list:
-                try:
-                    tree, nodes = myxml.read_xml(XML_FILE, path, xml_temp)  
-                except Exception, e:
-                    initlog(path + ' does not exist; ' + str(e))
-                else:
-                    for record in update_key_value_list:
-                        if nodes[0].attrib.has_key(record[0]):
-                            myxml.update_xml(nodes, record[0], record[1]) 
-                    myxml.write_xml(tree, XML_FILE)
+        for path in path_list:
+            try:
+                tree, nodes = myxml.read_xml(XML_FILE, path, xml_temp)  
+            except Exception, e:
+                initlog(path + ' does not exist; ' + str(e))
+            else:
+                for record in update_key_value_list:
+                    if nodes[0].attrib.has_key(record[0]):
+                        myxml.update_xml(nodes, record[0], record[1]) 
+                myxml.write_xml(tree, XML_FILE)
  
     
 def remove_fab_logfile(fab_logpath):
     if os.path.exists(fab_logpath):
         files = os.listdir(fab_logpath)    
-        for onefile in files:        
-            path_file = os.path.join(fab_logpath, onefile)        
+        for onefile in files:                
             try:
-                os.remove(path_file)   
+                os.remove(os.path.join(fab_logpath, onefile))   
                 initlog("remove fab log files successfully")				
             except Exception, e:
                 initlog('fail to remove log files; ' + str(e))
@@ -765,9 +510,8 @@ def get_log_files(logpath):
                 for onefile in files: 
                     if os.path.splitext(onefile)[1].lower()  == '.bin' or os.path.join(root, onefile).find("BDMV") != -1:      
                         continue   
-                    else:  
-                        path_file = os.path.join(root, onefile)           
-                        log_filename_list.append(path_file)
+                    else:            
+                        log_filename_list.append(os.path.join(root, onefile))
                         initlog("log_filename_list: " + str(log_filename_list))
     else:
         initlog('cannot get logfiles, log and temp do not exist')    
@@ -849,63 +593,52 @@ def upload_file(log_filename_list, index):
 
 
 def get_picture_path(res):
-    if '.ISO' == os.path.splitext(res[6].upper())[1]: 
-        picture_path = os.path.split(res[6])[0]  
-    else:
-        picture_path = res[6]
-    picture_path = change_fuhao(picture_path)
-    return picture_path
+    return change_fuhao(os.path.split(res[6])[0] if os.path.splitext(res[6].upper())[1] == '.ISO' else res[6])
 
+def create_folder(folder):
+    flag = True
+    if not os.path.exists(folder):
+        try:
+            os.makedirs(folder)
+            initlog('Folder path:%s created by me; ' % folder) 
+        except Exception, e:
+            initlog('failed to create Folder path; %s' % str(e))
+            flag = False
+    return flag
+	
+
+def call_test_bat(test_bat):
+    try:
+	    subprocess.call(test_bat)
+	    initlog('DVDFab may killed by Sikuli')
+    except Exception, e:
+	    initlog('DVDFab does not killed by Sikuli') 
+    	
+	
     
 def start_running(res, DVDFab_path_cmd_string, module, ripper_mode, dest_path, bd_analysis_time, bd_interval_time, bd_ripper_analysis_time, bd_ripper_interval_time,dvd_analysis_time, dvd_interval_time, file_analysis_time, file_interval_time, burn_engine_type, client_dest_path):    
     result = ''
     try:       
         initlog('now, DVDFab starts running')
-        if os.name == 'nt':
-            p = subprocess.Popen(DVDFab_path_cmd_string) 
-            #time.sleep(60)
-            #subprocess.call(CLICK_OK)
-        else:
-            p = subprocess.Popen(DVDFab_path_cmd_string, shell = True)  
-        #time.sleep(35)
-        #try:
-        #    subprocess.Popen(CLICK_TRY)
-        #except Exception, e:
-        #    initlog(str(e) + ' failed to click the try button;')
+        p = subprocess.Popen(DVDFab_path_cmd_string, shell = True) 
     except Exception, e:
         initlog('DVDFab failed to run; ' + str(e))      
         result = 'Fab does not run; '
         initlog(result)
     else: 
+        dest_path1 = change_fuhao(os.path.split(res[6])[0] if '.ISO' == os.path.splitext(res[6].upper())[1] else res[6])
+        folder_flag = create_folder(dest_path1)
         if module == 'BD': 
             if ripper_mode.upper() == "RIPPER":
                 initlog("this case is ripper")
                 bd_analysis_time = bd_ripper_analysis_time	
-                bd_interval_time = bd_ripper_interval_time
-            else:
-                pass			
-            initlog('the bd_analysis_time is beginning')
-            initlog("the bd_analysis_time is: " + str(bd_analysis_time) + " mins")
+                bd_interval_time = bd_ripper_interval_time			
+            initlog("the bd_analysis_time is beginning, please wait for %d mins" % bd_analysis_time)
             for i in range(bd_analysis_time):                
                 if p.poll() is None:                    
                     time.sleep(60)              
                 else:  
-                    if '.ISO' == os.path.splitext(res[6].upper())[1]: 
-                        dest_path1 = os.path.split(res[6])[0]
-                    else:
-                        dest_path1 = res[6]
-                    dest_path1 = change_fuhao(dest_path1)
-                    if not os.path.exists(dest_path1):
-                        try:
-                            os.makedirs(dest_path1)
-                        except Exception, e:
-                            initlog('failed to create Folder path; ' + str(e))
-                        else:
-                            dest_path1 = change_fuhao(dest_path1)
-                            catch_all_picture(dest_path1, res[0])
-                            initlog('Folder path created by me; ')   
-                    else:
-                        catch_all_picture(dest_path1, res[0])                     
+                    catch_all_picture(dest_path1, res[0])                      
                     result = 'Fab killed in the beginning; '                 
                     initlog(result)                
                     return  result   
@@ -913,21 +646,9 @@ def start_running(res, DVDFab_path_cmd_string, module, ripper_mode, dest_path, b
             flag = 1            
             number = 0                        
             while flag:
-                if '.ISO' == os.path.splitext(res[6].upper())[1]: 
-                    dest_path1 = os.path.split(res[6])[0]
-                else:
-                    dest_path1 = res[6]
-                dest_path1 = change_fuhao(dest_path1)
-                if not os.path.exists(dest_path1):
-                    try:
-                        os.makedirs(dest_path1)
-                    except Exception, e:
-                        initlog('failed to create Folder path; ' + str(e))
-                    else:
-                        dest_path1 = change_fuhao(dest_path1)
-                        catch_all_picture(dest_path1, res[0])
-                        initlog('Folder path created by me; ')
-                    break 
+                if not folder_flag:
+                    catch_all_picture(dest_path1, res[0])
+                    break
                 First_size = get_Filesize(dest_path)        
                 initlog('First_size: ' + str(First_size))
                 flag = 0        
@@ -947,21 +668,11 @@ def start_running(res, DVDFab_path_cmd_string, module, ripper_mode, dest_path, b
                                     tempfolder_to_iso(burn_engine_type, res[6])
                                 else:
                                     initlog('*****DVDFab still exists')   
-                                    picture_path = get_picture_path(res) 
-                                    if p.poll() is None:                                                                                             
-                                        catch_all_picture(picture_path, res[0])   
-                                        if result == '':                       
-                                            result = 'Freeze and cancel dvdfab; '     
-                                        initlog(result)
-                                        try:
-                                            subprocess.call(TESTBAT_PATH)
-                                            initlog('DVDFab may killed by Sikuli')
-                                        except Exception, e:
-                                            initlog('DVDFab does not killed by Sikuli')   
-                            else:
-                                pass                     
-                        else:  
-                            pass                      
+                                    picture_path = get_picture_path(res)                                                                                              
+                                    catch_all_picture(picture_path, res[0])                         
+                                    result = 'Freeze and cancel dvdfab; ' if result == '' else result     
+                                    initlog(result)
+                                    call_test_bat(TESTBAT_PATH)                      
                                                   
         elif module == 'DVD':         
             initlog('the dvd_analysis_time is beginning')      
@@ -969,44 +680,17 @@ def start_running(res, DVDFab_path_cmd_string, module, ripper_mode, dest_path, b
                 if p.poll() is None:                    
                     time.sleep(60)                      
                 else:   
-                    if '.ISO' == os.path.splitext(res[6].upper())[1]: 
-                        dest_path1 = os.path.split(res[6])[0]
-                    else:
-                        dest_path1 = res[6]
-                    dest_path1 = change_fuhao(dest_path1)
-                    if not os.path.exists(dest_path1):
-                        try:
-                            os.makedirs(dest_path1)
-                        except Exception, e:
-                            initlog('failed to create Folder path; ' + str(e))
-                        else:
-                            dest_path1 = change_fuhao(dest_path1)
-                            catch_all_picture(dest_path1, res[0])
-                            initlog('Folder path created by me; ') 
-                    else:
-                        catch_all_picture(dest_path1, res[0])                  
+                    catch_all_picture(dest_path1, res[0])                 
                     result = 'Fab killed in the beginning; '             
                     initlog(result)                                    
                     return  result   
             initlog('the dvd_analysis_time is over')                                                                  
             flag = 1            
             number = 0                        
-            while flag:                               
-                if '.ISO' == os.path.splitext(res[6].upper())[1]: 
-                    dest_path1 = os.path.split(res[6])[0] 
-                else:
-                    dest_path1 = res[6]       
-                dest_path1 = change_fuhao(dest_path1)
-                if not os.path.exists(dest_path1):
-                    try:
-                        os.makedirs(dest_path1)
-                    except Exception, e:
-                        initlog('failed to create Folder path; ' + str(e))
-                    else:
-                        dest_path1 = change_fuhao(dest_path1)
-                        catch_all_picture(dest_path1, res[0])
-                        initlog('Folder path created by me; ')
-                    break  
+            while flag:          
+                if not folder_flag:
+                    catch_all_picture(dest_path1, res[0])
+                    break
                 First_size = get_Filesize(dest_path)       
                 initlog('First_size: ' + str(First_size))            
                 flag = 0                
@@ -1026,21 +710,11 @@ def start_running(res, DVDFab_path_cmd_string, module, ripper_mode, dest_path, b
                                     tempfolder_to_iso(burn_engine_type, res[6]) 
                                 else:         
                                     initlog('******DVDFab still exists')     
-                                    picture_path = get_picture_path(res) 
-                                    if p.poll() is None:                                                                                   
-                                        catch_all_picture(picture_path, res[0])           
-                                        if result == '':                 
-                                            result = 'Freeze and cancel dvdfab; '
-                                        initlog(result)
-                                        try:
-                                            subprocess.call(TESTBAT_PATH)
-                                            initlog('DVDFab may canceled by Sikuli')
-                                        except Exception, e:
-                                            initlog('DVDFab does not canceled by Sikuli') 
-                            else:
-                                pass
-                        else:    
-                            pass 
+                                    picture_path = get_picture_path(res)                                                                                   
+                                    catch_all_picture(picture_path, res[0])                           
+                                    result = 'Freeze and cancel dvdfab; ' if result == '' else result
+                                    initlog(result)
+                                    call_test_bat(TESTBAT_PATH) 
                         
         else:         
             initlog('the file_analysis_time is beginning')    
@@ -1048,44 +722,17 @@ def start_running(res, DVDFab_path_cmd_string, module, ripper_mode, dest_path, b
                 if p.poll() is None:                    
                     time.sleep(60)                      
                 else:   
-                    if '.ISO' == os.path.splitext(res[6].upper())[1]: 
-                        dest_path1 = os.path.split(res[6])[0]
-                    else:
-                        dest_path1 = res[6]
-                    dest_path1 = change_fuhao(dest_path1)
-                    if not os.path.exists(dest_path1):
-                        try:
-                            os.makedirs(dest_path1)
-                        except Exception, e:
-                            initlog('failed to create Folder path; ' + str(e))
-                        else:
-                            dest_path1 = change_fuhao(dest_path1)
-                            catch_all_picture(dest_path1, res[0])
-                            initlog('Folder path created by me; ') 
-                    else:
-                        catch_all_picture(dest_path1, res[0])                  
+                    catch_all_picture(dest_path1, res[0])                 
                     result = 'Fab killed in the beginning; '             
                     initlog(result)                                    
                     return  result   
             initlog('the file_analysis_time is over')                                                                  
             flag = 1            
             number = 0                        
-            while flag:                               
-                if '.ISO' == os.path.splitext(res[6].upper())[1]: 
-                    dest_path1 = os.path.split(res[6])[0] 
-                else:
-                    dest_path1 = res[6]    
-                dest_path1 = change_fuhao(dest_path1)   
-                if not os.path.exists(dest_path1):
-                    try:
-                        os.makedirs(dest_path1)
-                    except Exception, e:
-                        initlog('failed to create Folder path; ' + str(e))
-                    else:
-                        dest_path1 = change_fuhao(dest_path1)
-                        catch_all_picture(dest_path1, res[0])
-                        initlog('Folder path created by me; ')
-                    break  
+            while flag:  			
+                if not folder_flag:
+                    catch_all_picture(dest_path1, res[0])	
+                    break					
                 First_size = get_Filesize(dest_path)       
                 initlog('First_size: ' + str(First_size))            
                 flag = 0                
@@ -1105,21 +752,12 @@ def start_running(res, DVDFab_path_cmd_string, module, ripper_mode, dest_path, b
                                     tempfolder_to_iso(burn_engine_type, res[6]) 
                                 else:         
                                     initlog('******DVDFab still exists')     
-                                    picture_path = get_picture_path(res) 
-                                    if p.poll() is None:                                                                                   
-                                        catch_all_picture(picture_path, res[0])         
-                                        if result == '':                 
-                                            result = 'Freeze and cancel dvdfab; '
-                                        initlog(result)
-                                        try:
-                                            subprocess.call(TESTBAT_PATH)
-                                            initlog('DVDFab may canceled by Sikuli')
-                                        except Exception, e:
-                                            initlog('DVDFab does not canceled by Sikuli') 
-                            else:
-                                pass
-                        else:    
-                            pass                                                                                                                                
+                                    picture_path = get_picture_path(res)                                                                                   
+                                    catch_all_picture(picture_path, res[0])                         
+                                    result = 'Freeze and cancel dvdfab; ' if result == '' else result
+                                    initlog(result)
+                                    call_test_bat(TESTBAT_PATH) 
+                                                                                                                              
         return result
     
 
@@ -1131,11 +769,10 @@ def tempfolder_to_iso(burn_engine_type, dest_path):
         if not os.path.exists(dest_path):
             try:
                 os.makedirs(dest_path)
-            except Exception,e :
-                initlog('failed to create Folder path; ' + str(e))
-            else:
                 result = 'Folder path created by me; '
                 initlog(result + dest_path)
+            except Exception,e :
+                initlog('failed to create Folder path; ' + str(e))                
             break
         First_size = get_Filesize(dest_path)
         initlog('First_size: ' + str(First_size)) 
@@ -1145,11 +782,15 @@ def tempfolder_to_iso(burn_engine_type, dest_path):
         if Last_size - First_size <= 0:
             break
     initlog('tempfolder to iso is over')
- 
+
+
+def get_xml_value(node, key):
+    return node.attrib[key] if node.attrib.has_key(key) else ""
+
 
 def before_running(res, src_iso_path, client_dest_path, DVDFab_path, project):
     cmd_string, dest_path = get_cmd_string(res, src_iso_path, client_dest_path) 
-    DVDFab_path_cmd_string = DVDFab_path + cmd_string  
+    DVDFab_path_cmd_string = '"' + DVDFab_path + '"' + cmd_string  
     initlog('THE RUNNING CASE ID: ' + str(res[0]))
     initlog('the cmd_string: ' + DVDFab_path_cmd_string)
     if os.name == 'nt':
@@ -1157,79 +798,49 @@ def before_running(res, src_iso_path, client_dest_path, DVDFab_path, project):
         XML_FILE = get_new_file_ctime_windows(windows_xml.XML_FILE_PATH)
         if XML_FILE == '':
             return 
+        path_list = ["common_setting/Generic","common_setting/DVD"]
         if project.upper() == 'DVDFAB 8' or project.upper() == 'DVDFAB8':
-            path_list = ["common_setting/Generic","common_setting/DVD"]
             for path in path_list:
                 tree, nodes = windows_xml.read_xml(XML_FILE, path, xml_temp)  
-                if nodes[0].attrib.has_key('LogFolder'):
-                    fab_logpath = nodes[0].attrib['LogFolder']
-                if nodes[0].attrib.has_key('BurnEngineType'):
-                    burn_engine_type = nodes[0].attrib['BurnEngineType']
-                if nodes[0].attrib.has_key('TempFolder'):
-                    tempfolder_path = nodes[0].attrib['TempFolder']
+                fab_logpath = get_xml_value(nodes[0], 'LogFolder')
+                burn_engine_type = get_xml_value(nodes[0], 'BurnEngineType')
+                tempfolder_path = get_xml_value(nodes[0], 'TempFolder')
         else:
-            path_list = ["common_setting/Generic","common_setting/DVD"]
             for path in path_list:
                 tree, nodes = windows_xml.read_xml(XML_FILE, path, xml_temp)  
-                if nodes[0].attrib.has_key('LogFolder'):
-                    fab_logpath = nodes[0].attrib['LogFolder']
-                if nodes[0].attrib.has_key('BDBurnEngineType'):
-                    burn_engine_type = nodes[0].attrib['BDBurnEngineType']
-                if nodes[0].attrib.has_key('TempFolder'):
-                    tempfolder_path = nodes[0].attrib['TempFolder']   
-        
-        """
-        if project.upper() == 'DVDFAB 8' or project.upper() == 'DVDFAB8':
-            fab_logpath = get_registry_value("Software\\DVDFab\\V8_QT\\Generic\\", "LogFolder")           
-            burn_engine_type = get_registry_value("Software\\DVDFab\\V8_QT\\DVD\\", 'BurnEngineType')
-            tempfolder_path = get_registry_value("Software\\DVDFab\\V8_QT\\Generic\\", 'TempFolder') 
-        else:
-            fab_logpath = get_registry_value("Software\\DVDFab\\V9\\Generic\\", "LogFolder")           
-            burn_engine_type = get_registry_value("Software\\DVDFab\\V9\\DVD\\", 'BDBurnEngineType')
-            tempfolder_path = get_registry_value("Software\\DVDFab\\V9\\Generic\\", 'TempFolder')  
-        """
+                fab_logpath = get_xml_value(nodes[0], 'LogFolder')
+                burn_engine_type = get_xml_value(nodes[0], 'BDBurnEngineType')
+                tempfolder_path = get_xml_value(nodes[0], 'TempFolder')  
     else:
         #XML_FILE = get_ctime(myxml.XML_FILE_PATH)
         XML_FILE = get_new_file_ctime_macos(myxml.XML_FILE_PATH)
         if XML_FILE == '':
             return
+        path_list = ["common_setting/Generic","common_setting/DVD"]
         if project.upper() == 'DVDFAB 8' or project.upper() == 'DVDFAB8':
-            path_list = ["common_setting/Generic","common_setting/DVD"]
             for path in path_list:
-                tree, nodes = myxml.read_xml(XML_FILE, path, xml_temp)  
-                if nodes[0].attrib.has_key('LogFolder'):
-                    fab_logpath = nodes[0].attrib['LogFolder']
-                if nodes[0].attrib.has_key('BurnEngineType'):
-                    burn_engine_type = nodes[0].attrib['BurnEngineType']
-                if nodes[0].attrib.has_key('TempFolder'):
-                    tempfolder_path = nodes[0].attrib['TempFolder']
+                tree, nodes = myxml.read_xml(XML_FILE, path, xml_temp)
+                fab_logpath = get_xml_value(nodes[0], 'LogFolder')
+                burn_engine_type = get_xml_value(nodes[0], 'BurnEngineType')
+                tempfolder_path = get_xml_value(nodes[0], 'TempFolder')	
         else:
-            path_list = ["common_setting/Generic","common_setting/DVD"]
             for path in path_list:
-                tree, nodes = myxml.read_xml(XML_FILE, path, xml_temp)  
-                if nodes[0].attrib.has_key('LogFolder'):
-                    fab_logpath = nodes[0].attrib['LogFolder']
-                if nodes[0].attrib.has_key('BDBurnEngineType'):
-                    burn_engine_type = nodes[0].attrib['BDBurnEngineType']
-                if nodes[0].attrib.has_key('TempFolder'):
-                    tempfolder_path = nodes[0].attrib['TempFolder']                       
-     
-    if '.ISO' == os.path.splitext(res[6].upper())[1]:          
-        dest_path = tempfolder_path
+                tree, nodes = myxml.read_xml(XML_FILE, path, xml_temp) 
+                fab_logpath = get_xml_value(nodes[0], 'LogFolder')
+                burn_engine_type = get_xml_value(nodes[0], 'BDBurnEngineType')
+                tempfolder_path = get_xml_value(nodes[0], 'TempFolder')				
+                           
+    dest_path = tempfolder_path if '.ISO' == os.path.splitext(res[6].upper())[1] else dest_path
     initlog('before running, dest_path is: ' + dest_path)    
-    tempfolder_path = ''.join((tempfolder_path, 'ReportCrash'))  
+    tempfolder_path = ''.join((tempfolder_path, 'ReportCrash')).replace("_nbsp;"," ")
     fab_logpath = fab_logpath.replace("_nbsp;"," ")
-    tempfolder_path = tempfolder_path.replace("_nbsp;"," ")
-    initlog("fab_logpath is: " + fab_logpath)
-    initlog("tempfolder_path is: " + tempfolder_path)
+    initlog("fab_logpath is: " + fab_logpath + "; tempfolder_path is: " + tempfolder_path)
     logpath = (fab_logpath, tempfolder_path)         
     remove_fab_logfile(fab_logpath)
     return DVDFab_path_cmd_string, dest_path, logpath, burn_engine_type
 
 
-def update_session_before_running(pc_name, src_iso_path, res):    
-    #start = datetime.datetime.now()      
-    #Start_time = str(start).split('.')[0]         
+def update_session_before_running(pc_name, src_iso_path, res):             
     start = time.mktime(time.localtime())
     Start_time = time.strftime('%Y-%m-%d %H:%M:%S')
     src_iso_path = src_iso_path.replace('\\','\\\\')  
@@ -1238,20 +849,14 @@ def update_session_before_running(pc_name, src_iso_path, res):
 
   
 def change_fuhao(file_path):
-    if os.name == 'nt':
-        file_path = file_path.replace('/','\\')
-    else:
-        file_path = file_path.replace('\\','/')
-    return file_path
+    return file_path.replace('/','\\') if os.name == "nt" else file_path.replace('\\','/')
    
 
 def after_running(dest_path, index):    
     result = ''
     process_list = ["DVDFab.exe", "WerFault.exe", "dwwin.exe", "FabReport.exe"]
     dest_path = change_fuhao(dest_path)
-    if '.ISO' == os.path.splitext(dest_path.upper())[1]: 
-        dest_path = os.path.split(dest_path)[0]
-        
+    dest_path = os.path.split(dest_path)[0] if '.ISO' == os.path.splitext(dest_path.upper())[1] else dest_path
     for process_name in process_list:
         returncode = check_process_exist(process_name)                               
         if returncode:   
@@ -1307,21 +912,14 @@ def kill_process_name(process_name):
 
 
 def update_session_after_running(pc_name, res, start, Start_time, src_iso_path, result):    
-    dest_path = change_fuhao(res[6])
-    if '.ISO' == os.path.splitext(dest_path.upper())[1]: 
-        dest_path = os.path.split(dest_path)[0]
+    dest_path = change_fuhao(res[6]) 
+    dest_path = os.path.split(dest_path)[0] if '.ISO' == os.path.splitext(dest_path.upper())[1] else dest_path
     end = time.mktime(time.localtime())
     End_time = time.strftime('%Y-%m-%d %H:%M:%S')
-    Total_time = str(end-start).split('.')[0]
-    Total_time = int(Total_time)
-    Total_time = str(Total_time/3600)+':'+str(Total_time%3600/60)+':'+str(Total_time%3600%60%60)
-    #end = datetime.datetime.now()    
-    #End_time = str(end).split('.')[0]    
-    #Total_time = (end - start).seconds    
-    #Total_time = str(Total_time/3600)+':'+str(Total_time%3600/60)+':'+str(Total_time%3600%60%60)           
-    Folder_size = get_Filesize(dest_path)  
-    Folder_size = Folder_size/1024.0/1024.0
-    Folder_size = '%.2lf' % Folder_size
+    Total_time = int(str(end-start).split('.')[0])
+    Total_time = str(Total_time/3600)+':'+str(Total_time%3600/60)+':'+str(Total_time%3600%60%60)          
+    Folder_size = '%.2lf' % (get_Filesize(dest_path)/1024.0/1024.0)
+    #Folder_size = '%.2lf' % Folder_size
     initlog('the terminal Folder_size: ' + str(Folder_size))
     if result != '':
         initlog(result)
@@ -1380,17 +978,11 @@ def ip_address(version):
 
 
 def ipv6_address():
-    if os.name == "nt":
-        return socket.gethostbyname(socket.gethostname())
-    else:
-        return ip_address('ipv6').split(";")[0]
+    return socket.gethostbyname(socket.gethostname()) if os.name == "nt" else ip_address('ipv6').split(";")[0]
 
 
 def ipv4_address():
-    if os.name == "nt":
-        return socket.gethostbyname(socket.gethostname())
-    else:
-        return ip_address('ipv4').split(";")[0]
+    return socket.gethostbyname(socket.gethostname()) if os.name == "nt" else ip_address('ipv4').split(";")[0]
    
 
 def get_new_file_ctime_macos(path):
@@ -1428,16 +1020,23 @@ def get_new_file_ctime_windows(path):
                 file_list.append(path_file)
                 st = os.stat(path_file)
                 ctime_list.append(st.st_ctime)
-    if ctime_list == []:
-        XML_FILE = ''
-    else:
-        XML_FILE = file_list[ctime_list.index(max(ctime_list))]
+  
+    XML_FILE = file_list[ctime_list.index(max(ctime_list))] if ctime_list else ""
     return XML_FILE
+	
+	
+def get_dvdfab_path(node, key):
+    try:
+        DVDFab_path = node.attrib[key]
+        initlog("find DVDFab path: %s" % DVDFab_path)
+    except Exception, e:
+        DVDFab_path = ""
+        initlog('does not find DVDFab path; xml file analyze error;' + str(e))
+    return DVDFab_path
    
    
 def main(): 
     initlog('current_path: ' + current_path)  
-    
     pc_name = get_pcname()   
     if os.name == 'nt':
         client_ip, client_dest_path = get_ip_address(pc_name)  
@@ -1445,29 +1044,7 @@ def main():
         pc_ip = ipv4_address()
         pc_name, client_dest_path = get_client_path(pc_ip)
     dest_path = change_fuhao(client_dest_path)
-    """
-    if os.name == 'nt':
-        
-        XML_FILE = get_new_file_ctime_windows(windows_xml.XML_FILE_PATH)
-        if XML_FILE == '':
-            return
-        tree, nodes = windows_xml.read_xml(XML_FILE, 'common_setting/Generic', xml_temp)
-        try:
-            DVDFab_path = nodes[0].attrib['Path']
-            #DVDFab_path = DVDFab_path.replace('_nbsp;',' ')
-        except Exception, e:
-            initlog('does not find DVDFab path; ' + str(e))
-        p = subprocess.Popen(DVDFab_path) 
-        time.sleep(20)
-        subprocess.call(KILL_DVDFAB_PATH)
-        time.sleep(30)
-        #kill_process('DVDFab.exe')
-    else:
-        DVDFab_path = DVDFAB_PATH
-        #p = subprocess.Popen(DVDFAB_PATH, shell = True)  
-        #time.sleep(25)
-        #kill_process_name('DVDFab')
-    """    
+   
     while 1:     
         res = search_session_table(pc_name)
 
@@ -1475,18 +1052,7 @@ def main():
             initlog('sorry , does not have any case for you;\n')        
             return 
         
-        project, bd_analysis_time, bd_interval_time, bd_ripper_analysis_time, bd_ripper_interval_time,dvd_analysis_time, dvd_interval_time, file_analysis_time, file_interval_time, bd_path, dvd_path, file_path,bd_path_mac,dvd_path_mac,file_path_mac = read_ini(INI_FILE) 
-        """
-        if os.name == 'nt':
-            #DVDFab_path = DVDFab_path
-            if project.upper() == 'DVDFAB 8' or project.upper() == 'DVDFAB8':
-                DVDFab_path = get_registry_value("Software\\DVDFab\\V8_QT", 'Path')   
-            else:
-                DVDFab_path = get_registry_value("Software\\DVDFab\\V9", 'Path') 
-            
-        else:
-            DVDFab_path = DVDFAB_PATH
-        """        
+        project, bd_analysis_time, bd_interval_time, bd_ripper_analysis_time, bd_ripper_interval_time,dvd_analysis_time, dvd_interval_time, file_analysis_time, file_interval_time, bd_path, dvd_path, file_path,bd_path_mac,dvd_path_mac,file_path_mac = read_ini(INI_FILE)       
         if os.name == 'nt': 
             XML_FILE = get_new_file_ctime_windows(windows_xml.XML_FILE_PATH)
             if XML_FILE == '':
@@ -1495,31 +1061,21 @@ def main():
             #change it at 2013-09-16
             #windows_xml.delete(XML_FILE, windows_xml.xml_temp)
             tree, nodes = windows_xml.read_xml(XML_FILE, 'common_setting', xml_temp)
-            
-            try:
-                DVDFab_path = nodes[0].attrib['Path']
-                initlog("find DVDFab path: %s" % DVDFab_path)
-                #DVDFab_path = DVDFab_path.replace('_nbsp;',' ')
-            except Exception, e:
-                DVDFab_path = ""
-                initlog('does not find DVDFab path; xml file analyze error;' + str(e))
+            DVDFab_path = get_dvdfab_path(nodes[0], 'Path')
         else:
             DVDFab_path = DVDFAB_PATH
 
         if DVDFab_path:   
-            start,Start_time,dest_path,src_iso_path,result,logpath,burn_engine_type, update_flag = running(pc_name,res,client_dest_path,DVDFab_path,project,bd_analysis_time,bd_interval_time,bd_ripper_analysis_time, bd_ripper_interval_time,dvd_analysis_time,dvd_interval_time, file_analysis_time, file_interval_time, bd_path, dvd_path, file_path,bd_path_mac,dvd_path_mac,file_path_mac) 
-            
+            start,Start_time,dest_path,src_iso_path,result,logpath,burn_engine_type, update_flag = running(pc_name,res,client_dest_path,DVDFab_path,\
+			project,bd_analysis_time,bd_interval_time,bd_ripper_analysis_time, bd_ripper_interval_time,dvd_analysis_time,dvd_interval_time, \
+			file_analysis_time, file_interval_time, bd_path, dvd_path, file_path,bd_path_mac,dvd_path_mac,file_path_mac) 
+			
             if start == '' or update_flag == False: 
                 update_session_table(res, 2, res[0], res[1], pc_name, result = result)       #does not find iso;
                 initlog('the session table does not update before running\n')             
-            else:
-                if os.name == 'nt':           
-                    result1 = after_running(res[6], res[0])  
-                else:
-                    result1 = after_running_on_macos(res[6], res[0])
-                    
-                if result == '':
-                    result = result1
+            else:          
+                result1 = after_running(res[6], res[0]) if os.name == 'nt' else after_running_on_macos(res[6], res[0])
+                result = result1 if result == '' else result
                 update_flag = update_session_after_running(pc_name, res, start, Start_time, src_iso_path, result)   
                 if not update_flag:
                     update_session_table(res, 2, res[0], res[1], pc_name, result = result)
@@ -1527,35 +1083,22 @@ def main():
                                                         
                 log_filename_list = get_log_files(logpath)      
                 upload_file(log_filename_list, res[0])    
-                if '.ISO' == os.path.splitext(res[6].upper())[1]: 
-                    dest_path = os.path.split(res[6])[0]
-                else:
-                    dest_path = res[6]    
-                    
-                start_time = Start_time.replace('-','_') 
-                start_time = start_time.replace(':','_')
-                start_time = start_time.replace(' ','_') 
+                dest_path = os.path.split(res[6])[0] if '.ISO' == os.path.splitext(res[6].upper())[1] else res[6]     
+                start_time = Start_time.replace('-','_').replace(':','_').replace(' ','_')
                 copy_file(log_filename_list, dest_path)       
-                try:
-                    if os.name == 'nt':
-                        zip_files(log_filename_list, dest_path + '\\' + start_time +'.zip')  
-                    else:
-                        zip_files(log_filename_list, dest_path + '/' + start_time +'.zip') 
-                except Exception, e:
-                    initlog('failed to zip file; ' + str(e))       
+                zip_files(log_filename_list, dest_path + '/' + start_time +'.zip')    
             if result != '':
                 update_session_flag(3, res[0], res[1], pc_name)     
         else:
             result = 'not find Fab, maybe Fab path is error\n\n'
             update_session_table(res, 3, res[0], res[1], pc_name, result = result)
             initlog(result)  
-        #if result != '':
-        #        update_session_flag(3, res[0], res[1], pc_name)  
 
 
 if __name__ == '__main__':
     main()
-    print 'ok, this is end! This window will be closed after 10 seconds!!'    
+    print 'ok, this is end! This window will be closed after 5 seconds!!'  
+    time.sleep(5)	
     
     
  
