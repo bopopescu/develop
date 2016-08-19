@@ -2,8 +2,8 @@
 """
     created by
     @作者: dedong.xu
-	@日期: 2015-05-20
-	@目的: 提供一个工具，让相关负责人自己去创建build，不参与他们的业务逻辑
+    @日期: 2015-05-20
+    @目的: 提供一个工具，让相关负责人自己去创建build，不参与他们的业务逻辑
 """
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -42,11 +42,8 @@ def checkslavename(request):
         build_info_obj = Build_Info.objects.get(slavename__exact = slavename)
     except Exception, e:
         build_info_obj = ""
-    if build_info_obj:
-        prompt_slavename = "already exists!"
-        return HttpResponse(prompt_slavename, content_type = "application/json")
-    else:
-        return HttpResponse("", content_type = "application/json")
+    prompt_slavename = "already exists!" if build_info_obj else ""
+    return HttpResponse(prompt_slavename, content_type = "application/json")
 
 
 def checkbuildername(request):
@@ -55,11 +52,8 @@ def checkbuildername(request):
         build_info_obj = Build_Info.objects.get(buildername__exact = buildername)
     except Exception, e:
         build_info_obj = ""
-    if build_info_obj:
-        prompt_buildername = "already exists!"
-        return HttpResponse(prompt_buildername, content_type = "application/json")
-    else:
-        return HttpResponse("", content_type = "application/json")
+    prompt_buildername = "already exists!" if build_info_obj else ""
+    return HttpResponse(prompt_buildername, content_type = "application/json")
 
 
 @csrf_exempt
@@ -193,9 +187,7 @@ def navmenu(request):
 
 def params_required_old(request, func = None, redirect_field_name = REDIRECT_FIELD_NAME, login_url = None):
     product = request.GET.get("product", "").strip()
-    if product.lower() in ["vidon", "dvdfab"]:
-        pass
-    else:
+    if product.lower() not in ["vidon", "dvdfab"]:
         return HttpResponseRedirect("/navmenu/")
     actual_decorator = user_passes_test(redirect_field_name = redirect_field_name)#, login_url = None)
     if func:
@@ -212,9 +204,7 @@ def params_required(func = None):
     def wrapper(request, *args, **kwargs):
         product = request.GET.get("product", "").strip()
         #assert product.lower() in ("vidon", "dvdfab")
-        if product.lower() in ["vidon", "dvdfab"]:
-            pass
-        else:
+        if product.lower() not in ["vidon", "dvdfab"]:
             return HttpResponseRedirect("/navmenu/")
         func_result = func(request, *args, **kwargs)
         if func_result:
@@ -278,8 +268,14 @@ def read_file_lines(filename):
         log.info("read file lines error: " + str(e))
     return all_lines
 
+def get_salt_cmd(slave_platform, slaveip, cmd):
+    """get salt cmd"""        
+    salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + cmd + '"'
+    return salt_cmd
+
 
 def is_salt_ok(slaveip, slave_platform):
+    """test salt is ok"""
     is_salt_working = False
     salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" test.ping'
     process = subprocess.Popen(salt_cmd, stdout = subprocess.PIPE, shell = True)
@@ -290,16 +286,16 @@ def is_salt_ok(slaveip, slave_platform):
     else:
         log.info("salt does not response!")
     return is_salt_working
-    
 
 
 def create_slave(masterip,master_port, slave_path,slaveip,slave_platform,slavename):
+    """"create slave"""
     try:
         if slaveip == "10.10.2.97":
             create_slave_cmd = "C:/Python27/Scripts/buildslave create-slave " + slave_path + " " + masterip + ":9989 " + slavename + " 123456"
         else:
             create_slave_cmd = "buildslave create-slave " + slave_path + " " + masterip + ":" + master_port + " " + slavename + " 123456"
-        salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + create_slave_cmd + '"'
+        salt_cmd = get_salt_cmd(slave_platform, slaveip, create_slave_cmd)
         os.system(salt_cmd)
         log.info("create slave: %s successfully!" % slavename)
     except Exception, e:
@@ -320,10 +316,10 @@ def create_start_slave_script(slaveip, slave_platform,slave_source_path,slavenam
     else:
         start_slave_cmd = "buildslave start ./" + slavename
     create_script_cmd = "echo " + start_slave_cmd + " > " + script_file
-    salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + create_script_cmd + '"'
+    salt_cmd = get_salt_cmd(slave_platform, slaveip, create_script_cmd)
     subprocess.Popen(salt_cmd, shell = True)
     create_all_script_cmd = "echo " + start_all_slave_cmd + " >> " + all_script_file
-    salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + create_all_script_cmd + '"'
+    salt_cmd = get_salt_cmd(slave_platform, slaveip, create_all_script_cmd)
     subprocess.Popen(salt_cmd, shell = True)
     return script_file
 
@@ -335,7 +331,7 @@ def start_slave_script(slaveip,slave_platform,slave_source_path,slavename):
             start_slave_cmd = "C:/Python27/Scripts/buildslave start " + os.path.join(slave_source_path,slavename)
         else:
             start_slave_cmd = "buildslave start " + os.path.join(slave_source_path,slavename)
-        salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + start_slave_cmd + '"'
+        salt_cmd = get_salt_cmd(slave_platform, slaveip, start_slave_cmd)
         subprocess.Popen(salt_cmd, shell = True)
         log.info("start slave cmd is: " + salt_cmd)
         log.info("start slave: %s successfully!" % slavename)
@@ -440,11 +436,8 @@ def import_new_master(old_master,slaveip,buildername):
         new_list.append(each_line)
         
     new_list.append("c = master_" + buildername + ".update_params_dict(c)\n")
-    try:    
-        fp = open(old_master, "w")
-        for each_line in new_list:
-            fp.write(each_line)
-        fp.close()
+    try:   
+        write_file_lines(old_master, new_list) 
         log.info("import new master config file: master_%s to main conf file successfully!" % buildername)
     except Exception,e:
         log.info("import new master error: " + str(e))
@@ -508,46 +501,20 @@ def get_params(slave_platform,slavename,buildername,product = None):
     return old_master,locks_file,gitpoller_file,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address
 
 
-def make_dirs(slave_source_path,slave_scripts_path,slave_platform,slaveip):
-    create_dir1 = "mkdir " + slave_source_path
-    create_dir2 = "mkdir " + slave_scripts_path
-    salt_cmd_create_dir1 = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + create_dir1
-    salt_cmd_create_dir2 = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + create_dir2
-    subprocess.Popen(salt_cmd_create_dir2, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
-
-
-def git_first_commit(src_scripts_path,scripts_path,slavename,slaveip,slave_platform):
+def git_commit(src_scripts_path, scripts_path, slavename, slaveip, slave_platform, message):
     git_pull_cmd = "git pull"    
-    subprocess.call(git_pull_cmd, cwd = src_scripts_path, shell = True)
-    
     git_add_cmd = "git add " + scripts_path    
-    subprocess.call(git_add_cmd, cwd = src_scripts_path, shell = True)
-    
-    git_commit_cmd = "git commit %s -m 'new add for %s'" % (scripts_path, slavename)
-    subprocess.call(git_commit_cmd, cwd = src_scripts_path, shell = True)
-    
-    git_push_origin = "git push origin master"
-    subprocess.call(git_push_origin, cwd = src_scripts_path, shell = True)
-    log.info("first git push success!")
-
-
-def git_commit(src_scripts_path, scripts_path, slavename,slaveip,slave_platform):
-    git_pull_cmd = "git pull"    
-    subprocess.call(git_pull_cmd, cwd = src_scripts_path, shell = True)
-    
-    git_add_cmd = "git add " + scripts_path    
-    subprocess.call(git_add_cmd, cwd = src_scripts_path, shell = True)
-    git_commit_cmd = "git commit %s -m 'update for %s'" % (scripts_path, slavename)
-    subprocess.call(git_commit_cmd, cwd = src_scripts_path, shell = True)
-    git_push_origin = "git push origin master"
-    subprocess.call(git_push_origin, cwd = src_scripts_path, shell = True)
-    log.info("git push success!")
+    git_commit_cmd = "git commit %s -m '%s %s'" % (scripts_path, message, slavename)
+    git_push_cmd = "git push origin master"
+    cmd_list = [git_pull_cmd, git_add_cmd, git_commit_cmd, git_push_cmd]
+    for cmd in cmd_list:
+        subprocess.call(cmd, cwd = src_scripts_path, shell = True)
 
 
 def git_clone(slave_scripts_path,slavename,slaveip,slave_platform):
     git_url = "git@10.10.2.31:autobuild/auto_build.git"
     git_clone_cmd = "git clone " + git_url + " " + slave_scripts_path
-    salt_cmd_git_clone = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + git_clone_cmd + '"'
+    salt_cmd_git_clone = get_salt_cmd(slave_platform, slaveip, git_clone_cmd)
     log.info("git clone cmd is: " + git_clone_cmd)    
 
     p2 = subprocess.Popen(salt_cmd_git_clone, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
@@ -560,8 +527,8 @@ def git_clone(slave_scripts_path,slavename,slaveip,slave_platform):
 
 def git_pull(slave_scripts_path, slaveip, slave_platform):
     git_pull_cmd = "git pull "# + slave_scripts_path
-    salt_cmd_git_pull = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + git_pull_cmd + '"'
-    subprocess.Popen(salt_cmd_git_pull, cwd = slave_scripts_path, shell = True)
+    salt_cmd = get_salt_cmd(slave_platform, slaveip, git_pull_cmd)
+    subprocess.Popen(salt_cmd, cwd = slave_scripts_path, shell = True)
     
 
 def get_submit_script_content_values(post_dict):
@@ -618,14 +585,13 @@ def test_salt(request):
 
 
 def get_master_port(product):
-    if product.lower() == "vidon":
-        master_port = "9989"
-    elif product.lower() == "dvdfab":
-        master_port = "9999"
+    product_dict = {"vidon":"9989", "dvdfab":"9999"}
+    if product.lower() in product_dict:
+        master_port = product_dict[product.lower()]
     else:
         master_port = ""
     return master_port
-        
+
 
 @csrf_exempt
 def create_new_slave(request):
@@ -662,12 +628,16 @@ def get_other_length(start_method, length1, length2, length3):
 
 
 def get_last_id():
-    obj = Build_Info.objects.all()[0]
-    if obj:
-        build_info_id = obj.id
-    else:
-        build_info_id = ""
+    obj = Build_Info.objects.latest("id")
+    #obj = Build_Info.objects.all()[0]
+    build_info_id = obj.id if obj else ""
     return build_info_id
+
+
+def create_folder(folder):
+    if not os.path.exists(folder):
+        os.makedirs(folder, mode = 0777)
+
 
 @csrf_exempt
 def create_new_build(request):
@@ -693,25 +663,19 @@ def create_new_build(request):
     description1 = request.POST.get("description1", "").strip()
     
     master_port = get_master_port(product)
-    if len(request.POST.values()) == 0:
-        return render_to_response("error.html")
-    if not start_method:
+    if len(request.POST.values()) == 0 or not start_method:
         return render_to_response("error.html")
     for each_key in request.POST.keys():
         if not request.POST[each_key].strip() and each_key != "old_path" and each_key != "new_path":
             return render_to_response("error.html")
     slave_count = Build_Info.objects.filter(product__iexact = product).filter(slavename = slavename).count()
     if slave_count >= 1:
-        var_name = "slave"
-        context = {"request":request,
-                   "var_name":var_name}
+        context = {"request" : request, "var_name" : "slave"}
         return render_to_response("duplicate.html",context)
 
     builder_count = Build_Info.objects.filter(product__iexact = product).filter(buildername = buildername).count()
     if builder_count >= 1:
-        var_name = "builder"
-        context = {"request":request,
-                   "var_name":var_name}
+        context = {"request" : request, "var_name" : "builder"}
         return render_to_response("duplicate.html",context)
     
     old_master,locks_file,gitpoller_file,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,slave_scripts_path,builder_waterfall_address = get_params(slave_platform,slavename,buildername, product)
@@ -730,12 +694,8 @@ def create_new_build(request):
         num = 1
         for each_key in script_content_list:
             each_num = each_key.replace("script_content","")
-            if not os.path.exists(scripts_path):
-                os.makedirs(scripts_path, mode = 0777)
-            if slave_platform == "Win":
-                filename = "script" + str(num) + ".bat"
-            else:
-                filename = "script" + str(num) + ".sh"
+            create_folder(scripts_path)
+            filename = "script" + str(num) + ".bat" if slave_platform == "Win" else "script" + str(num) + ".sh"
             script_file = os.path.join(scripts_path, filename).replace("\\","/") 
             slave_script_file = os.path.join(os.path.join(slave_scripts_path,slavename), filename).replace("\\","/")
             write_file(temp_file, request.POST[each_key].strip())
@@ -754,8 +714,7 @@ def create_new_build(request):
     log.info("build platform is: %s" % slave_platform)
     log.info("slavename is: %s" % slavename)
     log.info("buildername is: %s" % buildername)
-    #make_dirs(slave_source_path,slave_scripts_path,slave_platform,slaveip)
-    git_first_commit(src_scripts_path,scripts_path,slavename,slaveip, slave_platform)
+    git_commit(src_scripts_path,scripts_path,slavename,slaveip, slave_platform, "new add for")
     branches_list = deal_with_data(branches)
     send_mail_list = deal_with_data(send_mail)
     log.info(send_mail_list)
@@ -835,9 +794,7 @@ def copy_build(request, params):
     scripts_path = request.POST.get("scripts_path","").strip()
     
     master_port = get_master_port(product)
-    if len(request.POST.values()) == 0:
-        return render_to_response("error.html")
-    if not start_method:
+    if len(request.POST.values()) == 0 or not start_method:
         return render_to_response("error.html")
     for each_value in request.POST.values():
         if not each_value.strip():
@@ -870,12 +827,8 @@ def copy_build(request, params):
         num = 1
         for each_key in script_content_list:
             each_num = each_key.replace("script_content","")
-            if not os.path.exists(scripts_path):
-                os.makedirs(scripts_path, mode = 0777)
-            if slave_platform == "Win":
-                filename = "script" + str(num) + ".bat"
-            else:
-                filename = "script" + str(num) + ".sh"
+            create_folder(scripts_path)
+            filename = "script" + str(num) + ".bat" if slave_platform == "Win" else "script" + str(num) + ".sh"
             script_file = os.path.join(scripts_path, filename).replace("\\","/") 
             slave_script_file = os.path.join(os.path.join(slave_scripts_path,slavename), filename).replace("\\","/")
             write_file(temp_file, request.POST[each_key].strip())
@@ -890,7 +843,7 @@ def copy_build(request, params):
     log.info("build platform is: %s" % slave_platform)
     log.info("slavename is: %s" % slavename)
     log.info("buildername is: %s" % buildername)
-    git_first_commit(src_scripts_path,scripts_path,slavename,slaveip, slave_platform)
+    git_commit(src_scripts_path,scripts_path,slavename,slaveip, slave_platform, "new add for")
     branches_list = deal_with_data(branches)
     send_mail_list = deal_with_data(send_mail)
     log.info(send_mail_list)
@@ -921,46 +874,27 @@ def copy_build(request, params):
 
 def search_result(product, search_name, record_name, flag):
     build_info = Build_Info.objects.filter(product = product)
-    if search_name == "slavename" and record_name:
-        temp_build_info = build_info.extra(where = ["slavename like'%%" + str(record_name) + "%%'"])
-    
-    elif search_name == "buildername" and record_name:
-        temp_build_info = build_info.extra(where = ["buildername like'%%" + str(record_name) + "%%'"])
-    
-    elif search_name == "slave_platform" and record_name:
-        temp_build_info = build_info.extra(where = ["slave_platform like'%%" + str(record_name) + "%%'"])
-    
-    elif search_name == "buildip" and record_name:
-        temp_build_info = build_info.extra(where = ["slaveip like'%%" + str(record_name) + "%%'"])
-    
-    elif search_name == "username" and record_name:
-        temp_build_info = build_info.extra(where = ["username like'%%" + str(record_name) + "%%'"])
-    
-    else:
-        temp_build_info = build_info
-
-    if flag == 1:
-        build_info = temp_build_info.filter(flag = 1)
-    else:
-        build_info = temp_build_info
+    record_list = ["slavename", "buildername", "slave_platform", "buildip", "username"]
+    for record in record_list:
+        if search_name == record:
+            search_str = "%s like '%%%%%s%%%%'" % (search_name, str(record_name))
+            temp_build_info = build_info.extra(where = [search_str])
+            break
+        else:
+            temp_build_info = build_info
+    build_info = temp_build_info.filter(flag = 1) if flag == 1 else temp_build_info
 
     return build_info     
 
 def fenye(nowpage, build_info):
     per_page_count = 20
-    if nowpage == "":
-        nowpage = 1
-    else:
-        nowpage = int(nowpage)
+    nowpage = 1 if nowpage == "" else int(nowpage)
     count = build_info.count()
     if count % per_page_count == 0:
         pageall = count / per_page_count
     else:
         pageall = count / per_page_count + 1
-    if nowpage <= 1:
-        pageup = 1
-    else:
-        pageup = nowpage - 1
+    pageup = 1 if nowpage <= 1 else nowpage - 1
     if nowpage + 1 >= pageall:
         pagedn = pageall
     else:
@@ -985,7 +919,6 @@ def display_all_records(request):
 def display_all_used_records(request):
     search_list = SEARCH_LIST
     product = request.GET.get("product", "").strip()
-    #return HttpResponse(product)
     search_name = request.GET.get("search_name", "").strip()
     record_name = request.GET.get("record_name", "").strip()
     build_info = search_result(product, search_name, record_name, 1) 
@@ -1010,7 +943,6 @@ def display_details(request,params):
         context["description"] = each_record.description
         all_list.append(context)
     return render_to_response("display_details.html", locals())
-
 
 
 def empty(request):
@@ -1066,13 +998,11 @@ def update_info(request,params):
     new_factory = request.POST.get("new_factory","").strip()
     scripts_path = request.POST.get("scripts_path","").strip()
          
-
     for each_value in request.POST.values():
         if not each_value.strip():
             return render_to_response("update_error.html", locals())
 
     log.info("-----------------------------begin----------------------------------\n")
-
     build_info.update(masterip = masterip, slaveip = slaveip, slave_platform = slave_platform, slavename = slavename,buildername = buildername,\
                       start_method = start_method,username = username, hour = hour,minute = minute,git_project_path = git_project_path,branches = branches,\
                       monitor_file_path = monitor_file_path,send_mail = send_mail, flag = 1)
@@ -1090,12 +1020,8 @@ def update_info(request,params):
     num = 1
     for each_key in script_content_list:
         each_num = each_key.replace("script_content","")
-        if not os.path.exists(scripts_path):
-            os.makedirs(scripts_path, mode = 0777)
-        if slave_platform == "Win":
-            filename = "script" + str(num) + ".bat"
-        else:
-            filename = "script" + str(num) + ".sh"
+        create_folder(scripts_path)
+        filename = "script" + str(num) + ".bat" if slave_platform == "Win" else "script" + str(num) + ".sh"
         script_file = os.path.join(scripts_path, filename).replace("\\","/")
         slave_script_file = os.path.join(os.path.join(slave_scripts_path,slavename), filename).replace("\\","/")
         write_file(temp_file, request.POST[each_key].strip())
@@ -1104,14 +1030,13 @@ def update_info(request,params):
                                   work_dir = request.POST["work_dir" + each_num].strip(), description = request.POST["description" + each_num].strip())
         build_steps.save()
         num += 1
-            
 
     log.info("update success!!")
     branches_list = deal_with_data(branches)
     send_mail_list = deal_with_data(send_mail)
     create_new_master(master_template,slaveip,gitpoller_file,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list)
     create_new_factory(params,slave_platform,factory_template,new_factory)
-    git_commit(os.path.dirname(scripts_path), scripts_path, slavename,slaveip,slave_platform)
+    git_commit(os.path.dirname(scripts_path), scripts_path, slavename,slaveip,slave_platform, "update for")
     restart_master(product)
     log.info("-----------------------------end----------------------------------\n")
     #reload(sys)
@@ -1134,7 +1059,7 @@ def stop_slave(slaveip,slave_platform,slave_source_path,slavename):
             stop_slave_cmd = "C:/Python27/Scripts/buildslave stop " + os.path.join(slave_source_path,slavename)
         else:
             stop_slave_cmd = "buildslave stop " + os.path.join(slave_source_path,slavename)
-        salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + stop_slave_cmd + '"'
+        salt_cmd = get_salt_cmd(slave_platform, slaveip, stop_slave_cmd)
         subprocess.Popen(salt_cmd, shell = True)
         log.info("stop slave cmd is: " + salt_cmd)
         log.info("stop slave: %s successfully!" % slavename)
@@ -1163,22 +1088,24 @@ def update_master(product,buildername):
             new_line_list.append(each_line)
     if flag:
         log.info("update master conf file")
-        fp = open(old_master, "w")
-        for each_line in new_line_list:
-            fp.write(each_line)
-        fp.close()
+        write_file_lines(old_master, new_line_list)
         log.info("remove builder %s conf from master conf file" % buildername)
         
+
+def get_subprocess_content(cmd):
+    p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+    out = p.stdout.readlines()
+    error = p.stdout.read()
+    return out, error
+
 
 def delete_slave_from_build_pc(slave_platform, slaveip, slavename, slave_source_path):
     if slave_platform.upper() == "WIN":
         log.info("your slave: %s is in Windows platform, ip is %s , do not have any good methods to delete it!" % (slavename, slaveip))
     else:
         cmd = "ps -ef | grep " + slavename
-        salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + cmd + '"'
-        p = subprocess.Popen(salt_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
-        out = p.stdout.readlines()
-        error = p.stdout.read()
+        salt_cmd = get_salt_cmd(slave_platform, slaveip, cmd)
+        out, error = get_subprocess_content(salt_cmd)
         if error:
             log.info("delete slave error: " + error)
         if out:
@@ -1192,20 +1119,16 @@ def delete_slave_from_build_pc(slave_platform, slaveip, slavename, slave_source_
                     break
             if isinstance(slavename_pid, int):
                 kill_pid_cmd = "kill -9 " + str(slavename_pid)
-                salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + kill_pid_cmd + '"'
-                p = subprocess.Popen(salt_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
-                out = p.stdout.read()
-                error = p.stdout.read()
+                salt_cmd = get_salt_cmd(slave_platform, slaveip, kill_pid_cmd)
+                out, error = get_subprocess_content(salt_cmd)
                 if error:
                     log.info("kill pid error: " + error)
                 if out:
                     log.info("kill pid out: " + out)
                     #delete slave folder
                     delete_slave_folder_cmd = "rm -fr " + os.path.join(slave_source_path, slavename)
-                    salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + delete_slave_folder_cmd + '"'
-                    p = subprocess.Popen(salt_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
-                    out = p.stdout.read()
-                    error = p.stdout.read()
+                    salt_cmd = get_salt_cmd(slave_platform, slaveip, delete_slave_folder_cmd)
+                    out, error = get_subprocess_content(salt_cmd)
                     if error:
                         log.info("delete slave error: " + error)
                     if out:
@@ -1218,7 +1141,6 @@ def delete(request, params):
         build_info = Build_Info.objects.get(id=params)
         slavename = build_info.slavename
         if not slavename.endswith("_del"):
-            masterip = build_info.masterip
             build_steps = Build_Steps.objects.filter(build_info_id=params)
             masterip = build_info.masterip
             slaveip = build_info.slaveip
