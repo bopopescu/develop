@@ -617,13 +617,11 @@ def create_new_slave(request):
         return render_to_response("success.html",{"builder_waterfall_address":builder_waterfall_address})
     return render_to_response("create_slave.html")
 
-def get_other_length(start_method, length1, length2, length3):
-    if start_method == "radio_timing":
-        other_length = length1
-    elif start_method == "radio_trigger":
-        other_length = length2
+def get_other_length(start_method, start_method_dict):
+    if start_method in start_method_dict:
+        other_length = start_method_dict[start_method]
     else:
-        other_length = length3
+        other_length = start_method_dict["radio_manual"]
     return other_length
 
 
@@ -686,7 +684,8 @@ def create_new_build(request):
     
     build_info_id = get_last_id()
     all_length = len(request.POST)
-    other_length = get_other_length(start_method, 11, 12, 9)
+    start_method_dict = {"radio_timing":11, "radio_trigger":12, "radio_manual":9}
+    other_length = get_other_length(start_method, start_method_dict)
     table_length = all_length - other_length
 
     script_content_list = get_submit_script_content_values(request.POST)
@@ -819,7 +818,8 @@ def copy_build(request, params):
     
     build_info_id = get_last_id()
     all_length = len(request.POST)
-    other_length = get_other_length(start_method, 9, 10, 7)
+    start_method_dict = {"radio_timing":9, "radio_trigger":10, "radio_manual":7}
+    other_length = get_other_length(start_method, start_method_dict)
     table_length = all_length - other_length
 
     script_content_list = get_submit_script_content_values(request.POST)
