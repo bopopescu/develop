@@ -1969,7 +1969,34 @@ application = WSGIHandler()
          def test():
              print sys._getframe().f_code.co_name
 
+130：buildbot修改判断步骤正确与否的方法的改进。
+     经调查，buildbot是根据执行命令的返回值来判断的，0表示正确，非0表示错误。
+	 但是发现如果多条命令在1个步骤里执行，而且书写不规范。开头没有加set -e。则有些错误会检测不到。
+	 有些是加了set -e也不会检测到错误。这时就需要添加自己的方法来判断了。
+	 方法判断的条件比较简单：仅仅是检索输出文本里有没有 error: 这样的字符来判断的。
+	 相关代码添加的位置：
+	 /usr/local/lib/python2.7/dist-packages/buildbot-0.8.9-py2.7.egg/buildbot/steps/shell.py文件里ShellCommand类添加evaluateCommand方法，
+	 覆盖其父类的对应方法
+	 """ add by xudedong at 2016-07-21, find the error str """
+    def find_err(self, cmd):
+        if 'stderr' in cmd.logs:
+            results = cmd.logs['stderr'].getText()
+            if " Error: " in results or " error: " in results:
+                return True
+        if 'stdio' in cmd.logs:
+            results = cmd.logs['stdio'].getText()
+            if " Error: " in results or " error: " in results:
+                return True
+        return False
 
+    """add by xudedong at 2016-07-21, override parent class's method, achieve my custom method to judge result is error or not"""
+    def evaluateCommand(self, cmd):
+        if self.log_eval_func:
+            return self.log_eval_func(cmd, self._step_status)
+        result_code =  cmd.results()
+        if result_code == 0 and self.find_err(cmd):
+            return FAILURE
+        return result_code
 
 
 
