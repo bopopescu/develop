@@ -1,4 +1,4 @@
-#-*- enocding:utf-8 -*-
+﻿#-*- enocding:utf-8 -*-
 #!/usr/bin/env python
 import os
 import string
@@ -25,8 +25,6 @@ def find_pdbfile(pdb_path, version):
     full_pdb_path = ''
     pdb_list = []
     ctime_list = []
-    #if os.path.exists(pdb_path + '\\'+version + '\\' + pdb_dirname):
-    #    full_pdb_path = pdb_path + '\\'+version + '\\' + pdb_dirname 
     if os.path.exists(pdb_path + '\\' + version):
         full_pdb_path = pdb_path + '\\' + version
         for all_roots, _, all_files in os.walk(full_pdb_path):
@@ -45,12 +43,18 @@ def find_pdbfile(pdb_path, version):
         GetDVDFabDump.log('pdb_path does not exist!!')
     return full_pdb_path
 
-def copy_exe_pdb_to_localpath(pdb_file_path):
+def copy_exe_pdb_to_localpath(version, pdb_file_path):
     for onefile in os.listdir(pdb_file_path):
         filename = os.path.join(pdb_file_path, onefile)
         try:
             exe_pdb_destpath = read_ini("FilePath", "EXE_PDB_DESTPATH")
             copy_file(filename, exe_pdb_destpath)
+            if filename.endswith(".exe"):
+                shutil.copy2(filename, exe_pdb_destpath + "\\Fab.exe")
+                shutil.copy2(filename, exe_pdb_destpath + "\\DVDFab.exe")
+            if filename.endswith(".pdb"):
+                shutil.copy2(filename, exe_pdb_destpath + "\\Fab.pdb")
+                shutil.copy2(filename, exe_pdb_destpath + "\\DVDFab.pdb")
             GetDVDFabDump.log("success to copy %s" % filename)
         except Exception, e:
             GetDVDFabDump.log("failed to copy " + filename + "; " + str(e))
@@ -96,12 +100,11 @@ def copy_file(src_file, dest_path):
 
 def check_call_stack_content(name_path):
     content = ''
-    if os.path.exists(name_path + '\\' + 'call_stack.txt'):
-        fp = open(name_path + '\\' + 'call_stack.txt', 'r')
+    call_stack = os.path.join(name_path, 'call_stack.txt')
+    if os.path.exists(call_stack):
+        fp = open(call_stack, 'r')
         content = fp.read()
         fp.close()
-    else:
-        pass
     return content
 
 
@@ -133,14 +136,14 @@ def check_process_exists(process_name):
         
 def kill_process(process_name):
     try: 
-        os.system('taskkill /f /im ' + process_name)        
+        os.system('taskkill /f /im ' + process_name) 
+        GetDVDFabDump.log('%s is killed now' % process_name) 		
     except Exception, e:
-        GetDVDFabDump.log('failed to kill process; ' + str(e))      
-    else:    
-        GetDVDFabDump.log('%s is killed now' % process_name) 
+        GetDVDFabDump.log('failed to kill process; ' + str(e))         
+        
 			
-def write_file(filename, content):
-    fp = open(filename, "w")
+def write_file(filename, content, mode = "w"):
+    fp = open(filename, mode)
     fp.write(content)
     fp.close()
  
@@ -156,8 +159,7 @@ def get_analyzed_zip_file(zip_file_path):
     for all_roots, _, all_files in os.walk(zip_path):
         for onefile in all_files:
             if onefile == filename:
-                zip_filename = os.path.join(all_roots, onefile)
-                zip_filename = zip_filename.replace("/", "\\")
+                zip_filename = os.path.join(all_roots, onefile).replace("/", "\\")
                 bugname_username =  zip_filename.split("\\")[-2]
                 bug_name = string.join(bugname_username.split("_")[2:-1], "_")
                 username = bugname_username.split("_")[-1]
@@ -190,12 +192,10 @@ def check_version(version):
         GetDVDFabDump.ZIP_VERSION = version
         flag = True
     else:
-        if GetDVDFabDump.ZIP_VERSION == version:
-            pass
-        else:
+        if GetDVDFabDump.ZIP_VERSION != version:
             GetDVDFabDump.ZIP_VERSION = version
             flag = True
-	GetDVDFabDump.log("check_version , %s" % flag)
+        GetDVDFabDump.log("check_version , %s" % flag)
     return flag
 
 def get_bug_id():
@@ -227,39 +227,45 @@ def get_bug_id():
     bug_id = str(int(bug_id))
     GetDVDFabDump.log("successfully use spider to get bug_id,  it is %s" % bug_id)
     return bug_id
-
+	
+def read_file_lines(filename):
+    fp = open(filename, "r")
+    all_lines = fp.readlines()
+    fp.close()
+    return all_lines
+	
+	
 def record_bug(bug_file_path, bug_name, bug_id):
     bug_file = bug_file_path + "bug_name_id.txt"
     if os.path.exists(bug_file):
-        fp = open(bug_file, "r")
-        all_lines = fp.readlines()
-        fp.close()
+        all_lines = read_file_lines(bug_file)
         bug_list = [i.strip() for i in all_lines]
         if (bug_name + "=" + bug_id) in bug_list:
             GetDVDFabDump.log("the bug has been reported!")
         else:
-            fp = open(bug_file, "a")
-            fp.write(bug_name + "=" + bug_id + "\n\r")
-            fp.close()
+            write_file(bug_file, bug_name + "=" + bug_id + "\n\r", mode = "a")
             GetDVDFabDump.log("this is a new bug!")
     else:
-        fp = open(bug_file, "a")
-        fp.write(bug_name + "=" + bug_id + "\n\r")
-        fp.close()
+        write_file(bug_file, bug_name + "=" + bug_id + "\n\r", mode = "a")
         GetDVDFabDump.log("this is a new bug!")
+		
+def changepath(path):
+    if not (path.endswith("/") or path.endswith("\\")):
+        path += "/" 
+    return path
+	
+def create_folder(folder):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
         
 def main(version, zip_file_path, DumpAnalyze_path, PdbPath):  
     SimplePath = read_ini("FilePath", "SimplePath")  
-    if not os.path.exists(SimplePath):
-        os.makedirs(SimplePath)
-    if SimplePath.endswith("/") or SimplePath.endswith("\\"):
-        pass
-    else:
-        SimplePath += "\\"
+    create_folder(SimplePath)
+    SimplePath = changepath(SimplePath)
     pdb_file_path = find_pdbfile(PdbPath, version)
     flag = check_version(version)
     if flag:
-        copy_exe_pdb_to_localpath(pdb_file_path)
+        copy_exe_pdb_to_localpath(version, pdb_file_path)
         GetDVDFabDump.log("success to copy exe and pdb!!, version is %s!" % version)
     else:
         GetDVDFabDump.log("zip file version does not change, still %s!!" % version)
@@ -272,36 +278,8 @@ def main(version, zip_file_path, DumpAnalyze_path, PdbPath):
     if int(zipfile_number) >= int(standrad_zipfile_number):
         GetDVDFabDump.log("%s zipfile number is %s, equal to %s or bigger than %s!" % (bug_name,zipfile_number,standrad_zipfile_number,standrad_zipfile_number ))
         write_file(SimplePath + "name.txt", username)
-        """
-        print "name_path: ", name_path
-        for onefile in os.listdir(name_path):
-            onefile = os.path.join(name_path, onefile)
-            copy_file(onefile, DestPath)
-        content = check_call_stack_content(DestPath)
-        """
         content = check_call_stack_content(name_path)
         if content:
-            """
-            call_auto_declare_bug_bat(Auto_declare_path)
-            time.sleep(10) 
-            for i in xrange(20):      
-                returncode = check_process_exists('javaw.exe')
-                if returncode:
-                    time.sleep(30)
-                    GetDVDFabDump.log('javaw.exe exists now!!!')
-                else:
-                    GetDVDFabDump.log('javaw.exe does not exist now!!!')
-                    break
-            returncode = check_process_exists('ZipTypeAnalyze.exe')
-            if returncode:
-                kill_process('ZipTypeAnalyze.exe')
-            returncode = check_process_exists('javaw.exe')
-            if returncode:
-                kill_process('javaw.exe')
-            bug_id = get_bug_id()   
-            write_file(SimplePath + "bug_id.txt", bug_id)			
-            record_bug(SimplePath, bug_name, bug_id)
-            """
             print "call_stack.txt is not empty, could report bug"
             #auto_report_bug.main(name_path)
         else:
@@ -310,9 +288,7 @@ def main(version, zip_file_path, DumpAnalyze_path, PdbPath):
         GetDVDFabDump.log("%s zipfile number is %s, less than %s!" % (bug_name, zipfile_number, standrad_zipfile_number )) 
 
 
-    
-
-
-
+if  __name__ == "__main__":
+    main("9138", r"\\10.10.2.72\nas\DVDFab_Dump\DVDFab\20140408\9138\209588c680864bfa1d68f4fdb245d577.zip", "D:\auto_report_bug\ZipTypeAnalyze.exe", r"\\10.10.2.72\nas\DVDFab_Dump\BluFab\___DVDFab9")
 
     

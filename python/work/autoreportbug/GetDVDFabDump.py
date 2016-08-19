@@ -24,15 +24,6 @@ sys.setdefaultencoding("utf-8")
 VERSION_LIST =[]
 ZIP_VERSION = ""
 
-"""
-if os.name in ["nt", "dos", "os2"]:
-    LOGPATH = os.path.expanduser("~")+ "\\My Documents\\DVDFabDump\\"
-else:
-    import getpass
-    LOGPATH = "/Users/" + getpass.getuser() + "/Documents/DVDFabDump/"
-if os.path.exists(LOGPATH) == False:
-    os.makedirs(LOGPATH)
-"""
 
 LOGPATH = os.getcwd() + "/log"
 LOGNAME = "log.txt"
@@ -74,8 +65,7 @@ def get_time():
 
 
 def get_version(version_path):
-    versions = os.listdir(version_path)
-    return versions 
+    return os.listdir(version_path)
 
 
 def update_conf_file(new_version_list):
@@ -231,10 +221,15 @@ def download_dump(zip_url, version):
         os.makedirs(local_path, mode=0777)
     dest_dir = os.path.join(local_path, filename)
     url_address = HTTPADDRESS + zip_url
-
+    print "url_address: ", url_address
     try:
         if not os.path.exists(dest_dir):
-            urllib.urlretrieve(url_address,dest_dir)
+            try:
+                urllib.urlretrieve(url_address,dest_dir)
+                print "post success"
+            except Exception as e:
+                print "here: ", str(e)
+                log("here: " + str(e))
     except Exception as e:
         log(str(e))      
     return local_path
@@ -276,72 +271,87 @@ def remove_node_get():
     res.close()
     print data
     return
-    
+	
+def get_right_analyze(version):
+    if version >= 9307:
+        DumpAnalyze_path = read_ini('FilePath', 'DumpAnalyze_9307_path')
+    else:
+        DumpAnalyze_path = read_ini('FilePath', 'DumpAnalyze_path')
+    return DumpAnalyze_path
+ 
+def changepath(local_path):
+    if not (local_path.endswith("/") or local_path.endswith("\\")):
+        local_path += "/" 
+    return local_path
+
+def write_file(filename, content):
+    fp = open(filename, "w")
+    fp.write(content)
+    fp.close()
+	
+def write_format_file(filename, s_version, s_time):
+    fp = open(filename, 'w')
+    fp.write(s_version)
+    fp.write(' ')
+    fp.write(s_time)
+    fp.close()
+
+def get_pdb_path(version):
+    PdbPath_8 = read_ini('FilePath', 'PdbPath_8')
+    PdbPath_9 = read_ini('FilePath', 'PdbPath_9')
+    if version.strip().startswith("8"):
+        PdbPath = PdbPath_8
+    elif version.strip().startswith("9"):
+        PdbPath = PdbPath_9
+    else:
+        PdbPath = ""
+    return PdbPath
+    	
+def get_content(each_line):
+    content = "[Info]\r\nid=" + each_line[0] + "\r\nversion=" + each_line[1] + "\r\nsoftware_title=" + each_line[2] + "\r\nrecord_type=" + each_line[3] + "\r\nname=" + each_line[4] + \
+	"\r\nemail=" + each_line[5] + "\r\nsubject=" + each_line[6] + "\r\ncontent=" + each_line[7] + "\r\nwindows_version=" + each_line[8] + "\r\ndvd_title=" + each_line[9] + "\r\nregion_code=" + \
+	each_line[10] + "\r\ncountry=" + each_line[11] + "\r\nbuy_link=" + each_line[12] + "\r\nfile=" + each_line[13] + "\r\nstatus=" + each_line[14] + "\r\ntime=" + each_line[15]
+    return content	
+	
+def create_folder(folder):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
     
 def main(num_dump):
+    if num_dump == 0:
+        return 
     version_8 = get_version(VERSION_PATH_8)
     version_9 = get_version(VERSION_PATH_9)
     all_version_list = version_8 + version_9
     params_list = get_params(all_version_list)  
     for params in params_list:
         print  params
-        #return
         results_string = poster_post_search(params)
-
         l_results = analyze_xml(results_string)
         i = 0
         if l_results:
             for each_line in l_results:            
-                s_id = each_line[0]
-                #s_name = each_line[1]
-                s_email = each_line[5]
-                s_software = each_line[2]
-                s_version = each_line[1]
-                s_time = each_line[15]
-                s_download = each_line[13]   
-                log(each_line)       
+                s_id, s_version, s_software, s_email, s_download, s_time = each_line[0], each_line[1], each_line[2], each_line[5], each_line[13], each_line[15]   
+                log(each_line)
                 print each_line
-                local_path = download_dump(s_download, s_version)
-                if local_path.endswith("/") or local_path.endswith("\\"):
-                    pass
-                else:
-                    local_path += "\\"
+                local_path = changepath(download_dump(s_download, s_version))
                 filename = os.path.basename(s_download).replace("zip", "txt")
-
-                content = "[Info]\r\nid=" + each_line[0] + "\r\nversion=" + each_line[1] + "\r\nsoftware_title=" + each_line[2] + "\r\nrecord_type=" + each_line[3] + "\r\nname=" + each_line[4] + \
-                "\r\nemail=" + each_line[5] + "\r\nsubject=" + each_line[6] + "\r\ncontent=" + each_line[7] + "\r\nwindows_version=" + each_line[8] + "\r\ndvd_title=" + each_line[9] + "\r\nregion_code=" + \
-                each_line[10] + "\r\ncountry=" + each_line[11] + "\r\nbuy_link=" + each_line[12] + "\r\nfile=" + each_line[13] + "\r\nstatus=" + each_line[14] + "\r\ntime=" + each_line[15]
-                fp = open(local_path + filename, "w")
-                fp.write(content)
-                fp.close()
-                SimplePath = read_ini('FilePath', 'SimplePath')
-                if SimplePath.endswith("/") or SimplePath.endswith("\\"):
-                    pass
-                else:
-                    SimplePath += "\\"
-                if not os.path.exists(SimplePath):
-                    os.makedirs(SimplePath)
-                fp = open(SimplePath + "version.txt", 'w')
-                fp.write(s_version)
-                fp.write(' ')
-                fp.write(s_time)
-                fp.close()
-                LocalPath = read_ini('Path', 'LocalPath')
-                if LocalPath.endswith("/") or LocalPath.endswith("\\"):
-                    pass
-                else:
-                    LocalPath += "\\"
+                content = get_content(each_line)
+                write_file(local_path + filename, content)
+                SimplePath = changepath(read_ini('FilePath', 'SimplePath'))
+                create_folder(SimplePath)
+                write_format_file(SimplePath + "version.txt", s_version, s_time)
+                LocalPath = changepath(read_ini('Path', 'LocalPath'))
                 zip_file_path = LocalPath + os.path.split(s_download)[0] + '\\' + s_version + '\\' + os.path.split(s_download)[1]
-                DumpAnalyze_path = read_ini('FilePath', 'DumpAnalyze_path')
-                PdbPath_8 = read_ini('FilePath', 'PdbPath_8')
-                PdbPath_9 = read_ini('FilePath', 'PdbPath_9')
-                if s_version.strip().startswith("8"):
-                    PdbPath = PdbPath_8
-                else:
-                    PdbPath = PdbPath_9
-                #DestPath = read_ini('FilePath', 'DestPath')
-                #Auto_declare_path = read_ini('FilePath', 'Auto_declare_path')
-                #pdb_dirname = read_ini('DirName', 'pdb_dirname')
+                try:
+                    DumpAnalyze_path = get_right_analyze(int(s_version))
+                except Exception as e:
+                    log("get analyzed program failed, %s" % str(e))
+                    continue
+                log("DumpAnalyze_path is %s !" % DumpAnalyze_path)
+                PdbPath = get_pdb_path(s_version)
+                if not PdbPath:
+                    continue
                 auto_declare_bug.main(s_version, zip_file_path, DumpAnalyze_path, PdbPath)
                 time.sleep(1)
                 remove_node_post(s_id)       
@@ -366,7 +376,17 @@ def log(info):
         os.mkdir(LOGPATH)
     logging.basicConfig(filename = LOGPATH + '/' + LOGNAME, level = logging.NOTSET, filemode = 'a', format = '%(asctime)s : %(message)s')      
     logging.info(info) 
+	
 
+def get_count_dump(count_dump):
+    if not count_dump or int(count_dump) <= 50:
+	    times_request = 0
+        amount_dump = int(count_dump)
+    elif int(count_dump)>50:        
+	    times_request = int(count_dump)/50
+	    amount_dump = int(count_dump)%50
+    return times_request, amount_dump
+		
 
 if __name__ == '__main__':
     while 1:	
@@ -377,45 +397,14 @@ if __name__ == '__main__':
         request_path = read_ini("Http", "Request")
         local_path = read_ini("Path", "LocalPath")#.decode("utf-8")
         count_dump= read_ini("SumDump", "count")
-      
-        if not http_path:
-            HTTPADDRESS = "http://report.dvdfab.com/upload/"
-        else:
-            if http_path.endswith("/") or http_path.endswith("\\"):
-                HTTPADDRESS = http_path
-            else:
-                HTTPADDRESS = http_path + "/"
-    
-        if not remove_path:
-            HTTPREMOVE = HTTPADDRESS + "api.php?a=remove"
-        else:
-            HTTPREMOVE = remove_path
-    
-        if not request_path:
-            HTTPPOST = HTTPADDRESS + "api.php?a=list"
-        else:
-            HTTPPOST = request_path
-        if not local_path:    
-            LOCALPATH = r"\\10.10.2.72\nas\DVDFab_Dump\DVDFab"
-        else:
-            LOCALPATH = local_path
-        
-
-        if not count_dump or int(count_dump) == 50:
-            times_request = 0
-            amount_dump = 50
-        elif int(count_dump)<50:
-            times_request = 0
-            amount_dump = int(count_dump)
-        elif int(count_dump)>50:        
-            times_request = int(count_dump)/50
-            amount_dump = int(count_dump)%50
-    
+        HTTPADDRESS = "http://report.dvdfab.com/upload/" if not http_path else http_path
+        HTTPADDRESS = changepath(HTTPADDRESS)
+        HTTPREMOVE = HTTPADDRESS + "api.php?a=remove" if not remove_path else remove_path
+        HTTPPOST = HTTPADDRESS + "api.php?a=list" if not request_path else request_path   
+        LOCALPATH = r"\\10.10.2.72\nas\DVDFab_Dump\DVDFab" if not local_path else local_path
+        times_request, amount_dump = get_count_dump(count_dump)
         for i in range(times_request):
-            main(50)
-        if amount_dump != 0:
-            main(amount_dump)
-        
+            main(50)       
         print "Game over!"
         log("Game Over!\n")
         time.sleep(sleep_time*3600)
