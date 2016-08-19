@@ -143,6 +143,7 @@ def main(allnode_file, shadowsocks_file, CHECK_URL, SLEEP_TIME):
                 time.sleep(SLEEP_TIME)
                 flag = isSuccess(CHECK_URL)  
             write_file(shadowsocks_file, c_shadowsocks)
+            restart_service(local_file, shadowsocks_file)
         num += 1
     
 
