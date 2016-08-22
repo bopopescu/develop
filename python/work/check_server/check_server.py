@@ -26,9 +26,7 @@ def get_server_list(data_dict):
     
     server_list = []
     if "configs" in data_dict:
-        for record in  data_dict["configs"]:
-            if "server" in record:
-                server_list.append(record["server"])
+		[server_list.append(record["server"]) for record in data_dict["configs"] if "server" in record]
     return server_list
 
 
