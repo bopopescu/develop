@@ -6,18 +6,14 @@ import platform
 user_name = getpass.getuser()
 
 
-#XML_FILE_PATH = 'C:\\Users\\' + user_name + '\\AppData\\Roaming\\DVDFab9\\fab_config.xml'
 SYSTEM_NAME = platform.platform()
 if "XP" in SYSTEM_NAME.upper():
-    XML_FILE_PATH = 'C:\\Documents and Settings\\' + user_name + '\\Application Data\\DVDFab9\\'
-    xml_temp = XML_FILE_PATH + "temp.xml"
+    XML_FILE_PATH = 'C:/Documents and Settings/%s/Application Data/DVDFab9' % user_name
 else:
-    XML_FILE_PATH = 'C:\\Users\\' + user_name + '\\AppData\\Roaming\\DVDFab9\\'
-    xml_temp = XML_FILE_PATH + "temp.xml"
+    XML_FILE_PATH = 'C:/Users/%s/AppData/Roaming/DVDFab9' % user_name
+xml_temp = os.path.join(XML_FILE_PATH, "temp.xml")
     
 def read_xml(xml_path, path,xml_temp):
-    #print xml_path
-    #delete(xml_path, xml_temp)
     nodes = []
     tree = ElementTree()
     try:
@@ -37,7 +33,6 @@ def write_xml(tree, out_xml_path):
     
 
 def delete(xml_path, xml_temp):
-
     fp = open(xml_path, "r")
     all_lines = fp.readlines()
     fp.close()
@@ -49,13 +44,9 @@ def delete(xml_path, xml_temp):
             all_lines[index+1] = ""
             all_lines[index+2] = ""
         fp.write(each_line)
-
     fp.close()
     os.remove(xml_path)
     os.rename(xml_temp, xml_path)
-
-
-
 
 #if __name__ == '__main__':
 #    read_xml(XML_FILE_PATH, 'common_setting/Generic',xml_temp)
