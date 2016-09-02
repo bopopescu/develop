@@ -9,12 +9,40 @@ import shutil
 import logging
 import subprocess
 import ConfigParser
-filename = r'/home/goland/name.txt'
-LOGPATH = r"/home/goland/log"
-LOGNAME = "dvdfab.log"
-GIT_LOCAL_PATH = r"/home/goland/dvdfab_build"
-CONFFILE_PATH = r"/home/goland/dvdfab_build/products"
+filename = r'd:\xudedong\name.txt'
+LOGPATH = r"d:\xudedong\log"
+LOGNAME = "log.txt"
+CONFFILE_PATH = r"d:\xudedong\build\products"
+BASE_PATH = r"d:\Develop\trunk\official\DVDFab_9_mobile2\auto_package"
 
+PRODUCT_WIN_TEMP_FILE = BASE_PATH + "/product_win_temp.txt"
+PRODUCT_WIN_FILE = BASE_PATH + "/product_win.txt"
+PRODUCT_MAC_FILE = BASE_PATH + "/product_mac.txt"
+
+BRANCH_TXT = BASE_PATH + "/branch.txt"
+include_txt = BASE_PATH + "/include.txt"
+bluray_txt = BASE_PATH + "/bluray.txt"
+common_txt = BASE_PATH + "/common.txt"
+DVDFabQxLibs_txt = BASE_PATH + "/DVDFabQxLibs.txt"
+mobile2_txt = BASE_PATH + "/mobile2.txt"
+
+BRANCH_MAC_TXT = BASE_PATH + "/branch_mac.txt"
+include_mac_txt = BASE_PATH + "/include_mac.txt"
+bluray_mac_txt = BASE_PATH + "/bluray_mac.txt"
+common_mac_txt = BASE_PATH + "/common_mac.txt"
+DVDFabQxLibs_mac_txt = BASE_PATH + "/DVDFabQxLibs_mac.txt"
+mobile2_mac_txt = BASE_PATH + "/mobile2_mac.txt"
+ts_build_txt = BASE_PATH + "/ts_build.txt"
+
+BRANCHES_FILE = r"d:\xudedong\all_branches.txt"
+
+#delete by xudedong at 2016-06-13
+#include_path = "/Volumes/X/DVDFab9_mini/branch/working_branch/goland/include"
+#bluray_path = "/Volumes/X/DVDFab9_mini/branch/working_branch/goland/projects/bluray"
+#common_path = "/Volumes/X/DVDFab9_mini/branch/working_branch/goland/projects/common"
+#DVDFabQxLibs_path = "/Volumes/X/DVDFab9_mini/branch/working_branch/goland/projects/DVDFabQxLibs"
+#mobile2_path = "/Volumes/X/DVDFab9_mini/branch/working_branch/goland/projects/mobile2"
+#projects_path = [include_path, bluray_path, common_path, DVDFabQxLibs_path, mobile2_path]
 
 projects_path = []
 default_encoding = 'utf-8'
@@ -23,6 +51,7 @@ if sys.getdefaultencoding()!=default_encoding:
     sys.setdefaultencoding(default_encoding)
     
 def log(info):
+    #os.chmod(LOGPATH + "/" + LOGNAME, 777)
     logging.basicConfig(filename = LOGPATH + '/' + LOGNAME, level = logging.NOTSET, filemode = 'a', format = '%(asctime)s : %(message)s')      
     logging.info(info) 
 
@@ -73,56 +102,62 @@ def read_file_lines(filename):
 	
 def get_all_branches(projects_path):
     all_branches_list = []
+    all_branches_txt = BRANCHES_FILE
+    git_pull_origin_cmd = "git pull"
+    for each_path in projects_path:
+        p1 = subprocess.Popen(git_pull_origin_cmd, cwd = each_path,stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+        git_pull_cmd = "git pull"
+        subprocess.call(git_pull_cmd, cwd = each_path, shell = True)
+        cmd = "git branch -a > " + all_branches_txt
+        subprocess.call(cmd, cwd = each_path, shell = True)
+        all_lines = read_file_lines(all_branches_txt)
+        for each_line in all_lines:
+            if each_line.strip().startswith("remotes/origin") and each_line.count("origin") == 1:
+                branch_name = each_line.split("origin/")[1]
+                all_branches_list.append(branch_name)
     return all_branches_list
-
 
 def get_version(filename):
     current_date=time.strftime('%d/%m/%Y')
-    content = read_file(filename)
-    if content:
-        version = content.split("|")[0]
-        product_date = content.split("|")[2]
-    else:
+    try:
+        content = read_file(filename)
+    except Exception, e:
         version = ""
         product_date = current_date
+    else:
+        version = content.split("|")[0]
+        product_date = content.split("|")[2]
     return version, product_date
-
-
-def run_cmd(cmd, filepath):
-    p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = filepath, shell = True)	
-    stdout = p.stdout.read()
-    stderr = p.stderr.read()
-    log("cmd is: " + cmd)
-    log("stdout: " + stdout)
-    log("stderr: " + stderr)
-	
 	
 def git_push(filename_list, filepath):
-    git_pull_cmd = 'git pull'
-    git_add_cmd = 'git add %s' % " ".join(filename_list)
-    git_commit_cmd = 'git commit %s -m "update version and date from 64 web page"' % " ".join(filename_list)
-    git_push_cmd = 'git push origin master'
-    for cmd in [git_pull_cmd, git_add_cmd, git_commit_cmd, git_push_cmd]:
-        run_cmd(cmd, filepath)
+    log("git push 111111")
+    git_add_cmd = "git add %s" % " ".join(filename_list)
+    p1 = subprocess.Popen(git_add_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = filepath, shell = True)	
+    stdout = p1.stdout.read()
+    stderr = p1.stderr.read()
+    log("git add cmd is: " + git_add_cmd)
+    log("stdout: " + stdout)
+    log("stderr: " + stderr)
+    log("git push 222222")
+    git_commit_cmd = 'git commit %s -m "update version and date"' % " ".join(filename_list)
+    p2 = subprocess.Popen(git_commit_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = filepath, shell = True)
+    stdout = p2.stdout.read()
+    stderr = p2.stderr.read()
+    log("git commit cmd is: " + git_commit_cmd)
+    log("stdout: " + stdout)
+    log("stderr: " + stderr)
+    log("git push 333333")
+    git_push_cmd = "git push origin master"
+    p3 = subprocess.Popen(git_push_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = filepath, shell = True)
+    log("file path is " + filepath)
+    log("git push 444444")
+    log("git push cmd is: " + git_push_cmd)
+    stdout = p3.stdout.read()
+    stderr = p3.stderr.read()
+    log("stdout: " + stdout)
+    log("stderr: " + stderr)
 
-
-def update_readme_version_date(readme_file, app_vername, type_name = None):
-    all_lines = read_file_lines(readme_file)
-    fp = open(readme_file, "w")
-    for each_line in all_lines:
-        if each_line.find(" DVDFab ") != -1 and each_line.find(".") != -1 and each_line.find("/") != -1:
-            if type_name == "Non-Decryption":
-                each_line = "    %s%s \n" % (app_vername, type_name)
-            else:
-                each_line = "    %s \n" % app_vername
-        fp.write(each_line)
-    fp.close()
-
-def update_mac_readme_version_date(readme_file, version, date, type_name):
-    if type_name.lower() == "official":
-        app_vername = "DVDFab %s (%s) %s" % (version, date, type_name)
-    else:
-        app_vername = "DVDFab %s (%s) " % (version, date)
+def update_readme_version_date(readme_file, app_vername):
     all_lines = read_file_lines(readme_file)
     fp = open(readme_file, "w")
     for each_line in all_lines:
@@ -158,7 +193,9 @@ def update_iss_version_date(iss_file, version, date, type_name):
     return app_vername
         
 
-def update_version_date(name, version, date, type_name, changelog, product_file,changelog_name = None):
+def update_version_date(name, version, date, type_name, changelog, product_file,product_temp_file,changelog_name = None):
+    git_pull(product_file, os.path.dirname(product_file))
+    write_files(product_temp_file,name)
     #type_name = "official"	
     if version.count(".") == 3:
         final_version = version
@@ -172,10 +209,8 @@ def update_version_date(name, version, date, type_name, changelog, product_file,
         final_version = temp_version[:-1]
     #update product file version and date
     content = final_version + "|" + type_name + "|" + date
-    if os.path.isfile(product_file):
-        write_file(product_file, content)
-    else:
-        log("product file: %s is not a file.The ini file that product_file is empty!!!" % product_file)
+    write_file(product_file, content)
+    #git_push(product_file, os.path.dirname(product_file))
     if changelog and changelog_name:
         linesep = os.linesep
         month_dict = {"01":"January", "02":"February", "03":"March", "04":"April", "05":"May", "06":"June", "07":"July", "08":"August", "09":"September", "10":"October", "11":"November", "12":"December"}
@@ -184,10 +219,7 @@ def update_version_date(name, version, date, type_name, changelog, product_file,
         fp = open(changelog_name, "w")
         for i in content_list:
             if i == content_list[0]:
-                #i = content_list[0] + linesep + "_" * 23 + linesep + month_dict[mon] + " " + day + "," + " " + year + linesep + "DVDFab " + final_version + " Updated!" + linesep * 2 + changelog + linesep
-                #i = content_list[0] + "\n" + "_" * 23 + "\n" + month_dict[mon] + " " + day + "," + " " + year + "\n" + "DVDFab " + final_version + " Updated!" + "\n" * 2 + changelog + "\n"
-                #i = content_list[0] + "\n" + "_" * 23 + month_dict[mon] + " " + day + "," + " " + year + "DVDFab " + final_version + " Updated!" + linesep + changelog
-                i = content_list[0] + "\r\n" + "_" * 23 + "\r\n" + month_dict[mon] + " " + day + "," + " " + year + "\r\nDVDFab " + final_version + " Updated!\r\n\r\n" + changelog + "\r\n"
+                i = content_list[0] + linesep + "_" * 23 + linesep + month_dict[mon] + " " + day + "," + " " + year + linesep + "DVDFab " + final_version + " Updated!" + linesep * 2 + changelog + linesep
             fp.write(i)
         fp.close()
         #git_push(changelog_name)
@@ -213,8 +245,10 @@ def get_all_ini_content(filename, field):
 	
 @csrf_exempt    
 def index(request):
-    git_pull(GIT_LOCAL_PATH, GIT_LOCAL_PATH)
-    #svn_uppath(BASE_PATH)
+    #os.system("sudo chmod -R 777 /Volumes/MacintoshHD/auto_package")
+    #os.system("sudo chown -R _www:_www /Volumes/MacintoshHD/auto_package")
+    git_pull(BRANCH_TXT, os.path.dirname(BRANCH_TXT))
+    svn_uppath(BASE_PATH)
 
     flag = ""
     all_name_list = []
@@ -272,7 +306,6 @@ def index(request):
     win_safedvdcopy_premium_trial_iss_file = os.path.join(os.path.join(CONFFILE_PATH, "SafeDVDCopy"), dict_ini["iss_file"])
     win_safedvdcopy_premium_trial_readme_file = os.path.join(os.path.join(CONFFILE_PATH, "SafeDVDCopy"), dict_ini["readme_file"])
     Win_SafeDVDCopy_Premium_Trial_version, product_date = get_version(win_safedvdcopy_premium_trial_product_file)
-	"""
     #Mac DVDFab
     dict_ini = get_all_ini_content(os.path.join(CONFFILE_PATH, "DVDFab/mac_dvdfab.ini"),"mac_dvdfab")
     mac_dvdfab_product_file = os.path.join(os.path.join(CONFFILE_PATH, "DVDFab"), dict_ini["product_file"])
@@ -280,7 +313,6 @@ def index(request):
     mac_dvdfab_changelog = os.path.join(os.path.join(CONFFILE_PATH, "DVDFab"), dict_ini["changelog_file"])
     DVDFab_9_Mac_Official_version, product_date = get_version(mac_dvdfab_product_file)
     DVDFab_9_Mac_Beta_version = DVDFab_9_Mac_Official_version
-    """
     #Mac SafeDVDCopy
     dict_ini = get_all_ini_content(os.path.join(CONFFILE_PATH, "SafeDVDCopy/mac_safedvdcopy.ini"),"mac_safedvdcopy")
     mac_safedvdcopy_product_file = os.path.join(os.path.join(CONFFILE_PATH, "SafeDVDCopy"), dict_ini["product_file"])
@@ -318,7 +350,7 @@ def index(request):
     win_sothink_iss_file = os.path.join(os.path.join(CONFFILE_PATH, "Sothink"), dict_ini["iss_file"])
     win_sothink_readme_file = os.path.join(os.path.join(CONFFILE_PATH, "Sothink"), dict_ini["readme_file"])
     Win_Sothink_version, product_date = get_version(win_sothink_product_file)
-    """
+    """	
     if request.method == "POST":
         name = request.POST.get('name', '').strip()
         date = request.POST.get('date', '').strip()
@@ -327,129 +359,104 @@ def index(request):
         changelog = request.POST.get('changelog', '').strip()
         #DVDFab 9 Official
 	if (name.upper() == "DVDFAB 9 OFFICIAL" or name.upper() == "DVDFAB9 OFFICIAL") and date and version:
-	    update_version_date(name, version, date, "official", changelog, win_dvdfab_product_file,win_dvdfab_changelog)
+	    update_version_date(name, version, date, "official", changelog, win_dvdfab_product_file,PRODUCT_WIN_TEMP_FILE,win_dvdfab_changelog)
 	    app_vername = update_iss_version_date(win_dvdfab_iss_file, version, date, "official")
             update_readme_version_date(win_dvdfab_readme_file, app_vername)
-            #git_push([win_dvdfab_product_file, win_dvdfab_iss_file, win_dvdfab_readme_file, win_dvdfab_changelog], os.path.dirname(win_dvdfab_product_file))
-
-            update_version_date(name, version, date, "official", changelog, win_dvdfab_nondec_product_file)
-	    app_vername = update_iss_version_date(win_dvdfab_nondec_iss_file, version, date, "official")
-            update_readme_version_date(win_dvdfab_nondec_readme_file, app_vername, "Non-Decryption")
-            git_push([win_dvdfab_product_file, win_dvdfab_iss_file, win_dvdfab_readme_file, win_dvdfab_changelog, win_dvdfab_nondec_product_file, win_dvdfab_nondec_iss_file, win_dvdfab_nondec_readme_file], os.path.dirname(win_dvdfab_product_file))
+            git_push([win_dvdfab_product_file], os.path.dirname(win_dvdfab_product_file))
 	    return render_to_response("success.html",locals())
 	#DVDFab 9 Beta
 	elif (name.upper() == "DVDFAB 9 BETA" or name.upper() == "DVDFAB9 BETA") and date and version:
-	    update_version_date(name, version, date, "beta", changelog, win_dvdfab_product_file)
+	    update_version_date(name, version, date, "beta", changelog, win_dvdfab_product_file,PRODUCT_WIN_TEMP_FILE)
 	    app_vername = update_iss_version_date(win_dvdfab_iss_file, version, date, "beta")
             update_readme_version_date(win_dvdfab_readme_file, app_vername)
-            git_push([win_dvdfab_product_file, win_dvdfab_iss_file, win_dvdfab_readme_file], os.path.dirname(win_dvdfab_product_file))
 	    return render_to_response("success.html",locals())
 	#DVDFab Retail
 	elif (name.upper() == "DVDFAB RETAIL" or name.upper() == "DVDFABRETAIL") and date and version:
-	    update_version_date(name, version, date, "official", changelog, win_dvdfab_retail_product_file)
+	    update_version_date(name, version, date, "official", changelog, win_dvdfab_retail_product_file,PRODUCT_WIN_TEMP_FILE)
 	    app_vername = update_iss_version_date(win_dvdfab_retail_iss_file, version, date, "official")
             update_readme_version_date(win_dvdfab_retail_readme_file, app_vername)
-            git_push([win_dvdfab_retail_product_file, win_dvdfab_retail_iss_file, win_dvdfab_retail_readme_file], os.path.dirname(win_dvdfab_retail_product_file))
 	    return render_to_response("success.html",locals())
 	#DVDFabNonDecAll
 	elif (name.upper() == "DVDFABNONDECALL" or name.upper() == "DVDFAB NONDECALL") and date and version:
-	    update_version_date(name, version, date, "official", changelog, win_dvdfab_nondec_product_file)
+	    update_version_date(name, version, date, "official", changelog, win_dvdfab_nondec_product_file,PRODUCT_WIN_TEMP_FILE)
 	    app_vername = update_iss_version_date(win_dvdfab_nondec_iss_file, version, date, "official")
             update_readme_version_date(win_dvdfab_nondec_readme_file, app_vername)
-            git_push([win_dvdfab_nondec_product_file, win_dvdfab_nondec_iss_file, win_dvdfab_nondec_readme_file], os.path.dirname(win_dvdfab_nondec_product_file))
 	    return render_to_response("success.html",locals())
 	#for Win SafeDVDCopy
 	elif (name.upper() == "WINSAFEDVDCOPY" or name.upper() == "WIN SAFEDVDCOPY") and date and version:
-	    update_version_date(name, version, date, "official", changelog, win_safedvdcopy_product_file)
+	    update_version_date(name, version, date, "official", changelog, win_safedvdcopy_product_file,PRODUCT_WIN_TEMP_FILE)
 	    app_vername = update_iss_version_date(win_safedvdcopy_iss_file, version, date, "official")
             update_readme_version_date(win_safedvdcopy_readme_file, app_vername)
-            git_push([win_safedvdcopy_product_file, win_safedvdcopy_iss_file, win_safedvdcopy_readme_file], os.path.dirname(win_safedvdcopy_product_file))
 	    return render_to_response("success.html",locals())
 	#SafeDVDCopy Trial version
 	elif (name.upper() == "WINSAFEDVDCOPYTRIAL" or name.upper() == "WIN SAFEDVDCOPY TRIAL") and date and version:
-	    update_version_date(name, version, date, "official", changelog, win_safedvdcopy_trial_product_file)
+	    update_version_date(name, version, date, "official", changelog, win_safedvdcopy_trial_product_file,PRODUCT_WIN_TEMP_FILE)
 	    app_vername = update_iss_version_date(win_safedvdcopy_trial_iss_file, version, date, "official")
             update_readme_version_date(win_safedvdcopy_trial_readme_file, app_vername)
-            git_push([win_safedvdcopy_trial_product_file, win_safedvdcopy_trial_iss_file, win_safedvdcopy_trial_readme_file], os.path.dirname(win_safedvdcopy_trial_product_file))
 	    return render_to_response("success.html",locals())
 	#SafeDVDCopy Premium version
 	elif (name.upper() == "WINSAFEDVDCOPYPREMIUM" or name.upper() == "WIN SAFEDVDCOPY PREMIUM") and date and version:
-	    update_version_date(name, version, date, "official", changelog, win_safedvdcopy_premium_product_file)
+	    update_version_date(name, version, date, "official", changelog, win_safedvdcopy_premium_product_file,PRODUCT_WIN_TEMP_FILE)
 	    app_vername = update_iss_version_date(win_safedvdcopy_premium_iss_file, version, date, "official")
             update_readme_version_date(win_safedvdcopy_premium_readme_file, app_vername)
-            git_push([win_safedvdcopy_premium_product_file, win_safedvdcopy_premium_iss_file, win_safedvdcopy_premium_readme_file], os.path.dirname(win_safedvdcopy_premium_product_file))
 	    return render_to_response("success.html",locals())
 	#SafeDVDCopy Premium Trial version
 	elif (name.upper() == "WINSAFEDVDCOPYPREMIUMTRIAL" or name.upper() == "WIN SAFEDVDCOPY PREMIUM TRIAL") and date and version:
-	    update_version_date(name, version, date, "official", changelog, win_safedvdcopy_premium_trial_product_file)
+	    update_version_date(name, version, date, "official", changelog, win_safedvdcopy_premium_trial_product_file,PRODUCT_WIN_TEMP_FILE)
 	    app_vername = update_iss_version_date(win_safedvdcopy_premium_trial_iss_file, version, date, "official")
             update_readme_version_date(win_safedvdcopy_premium_trial_readme_file, app_vername)
-            git_push([win_safedvdcopy_premium_trial_product_file, win_safedvdcopy_premium_trial_iss_file, win_safedvdcopy_premium_trial_readme_file], os.path.dirname(win_safedvdcopy_premium_trial_product_file))
 	    return render_to_response("success.html",locals())
 	#DVDFab 9 Mac Official version
 	elif (name.upper() == "DVDFAB 9 MAC OFFICIAL" or name.upper() == "DVDFAB9 MAC OFFICIAL") and date and version:
-	    update_version_date(name, version, date, "official", changelog, mac_dvdfab_product_file, mac_dvdfab_changelog)
-            update_mac_readme_version_date(mac_dvdfab_readme_file, version, date, "official")
-            git_push([mac_dvdfab_product_file, mac_dvdfab_readme_file, mac_dvdfab_changelog], os.path.dirname(mac_dvdfab_product_file))
+	    update_version_date(name, version, date, "official", changelog, mac_dvdfab_product_file,PRODUCT_MAC_FILE, mac_dvdfab_changelog)
 	    return render_to_response("success.html",locals())
 	#DVDFab 9 Mac Beta version
 	elif (name.upper() == "DVDFAB 9 MAC BETA" or name.upper() == "DVDFAB9 MAC BETA") and date and version:
-	    update_version_date(name, version, date, "beta", changelog, mac_dvdfab_product_file)
-            update_mac_readme_version_date(mac_dvdfab_readme_file, version, date, "beta")
-            git_push([mac_dvdfab_product_file, mac_dvdfab_readme_file], os.path.dirname(mac_dvdfab_product_file))
+	    update_version_date(name, version, date, "beta", changelog, mac_dvdfab_product_file,PRODUCT_MAC_FILE)
 	    return render_to_response("success.html",locals())
 	#Mac SafeDVDCopy version
 	elif (name.upper() == "MACSAFEDVDCOPY" or name.upper() == "MAC SAFEDVDCOPY") and date and version:
-	    update_version_date(name, version, date, "official", changelog, mac_safedvdcopy_product_file)
-	    update_mac_readme_version_date(mac_safedvdcopy_readme_file, version, date, "official")
-            git_push([mac_safedvdcopy_product_file, mac_safedvdcopy_readme_file], os.path.dirname(mac_safedvdcopy_product_file))
+	    update_version_date(name, version, date, "official", changelog, mac_safedvdcopy_product_file,PRODUCT_MAC_FILE)   
 	    return render_to_response("success.html",locals())
 	#Mac SafeDVDCopy Trial version
 	elif (name.upper() == "MACSAFEDVDCOPYTRIAL" or name.upper() == "MAC SAFEDVDCOPY TRIAL") and date and version:
-	    update_version_date(name, version, date, "official", changelog, mac_safedvdcopy_trial_product_file)
-	    update_mac_readme_version_date(mac_safedvdcopy_trial_readme_file, version, date, "official")
-            git_push([mac_safedvdcopy_trial_product_file, mac_safedvdcopy_trial_readme_file], os.path.dirname(mac_safedvdcopy_trial_product_file))
+	    update_version_date(name, version, date, "official", changelog, mac_safedvdcopy_trial_product_file, PRODUCT_MAC_FILE)
 	    return render_to_response("success.html",locals())
 	#Mac SafeDVDCopy Premium version
 	elif (name.upper() == "MACSAFEDVDCOPYPREMIUM" or name.upper() == "MAC SAFEDVDCOPY PREMIUM") and date and version:
-	    update_version_date(name, version, date, "official", changelog, mac_safedvdcopy_premium_product_file)
-	    update_mac_readme_version_date(mac_safedvdcopy_premium_readme_file, version, date, "official")
-            git_push([mac_safedvdcopy_premium_product_file, mac_safedvdcopy_premium_readme_file], os.path.dirname(mac_safedvdcopy_premium_product_file))
+	    update_version_date(name, version, date, "official", changelog, mac_safedvdcopy_premium_product_file,PRODUCT_MAC_FILE)
 	    return render_to_response("success.html",locals())
 	#Mac SafeDVDCopy Premium Trial version
 	elif (name.upper() == "MACSAFEDVDCOPYPREMIUMTRIAL" or name.upper() == "MAC SAFEDVDCOPY PREMIUM TRIAL") and date and version:
-	    update_version_date(name, version, date, "official", changelog, mac_safedvdcopy_premium_trial_product_file)
-	    update_mac_readme_version_date(mac_safedvdcopy_premium_trial_readme_file, version, date, "official")
-            git_push([mac_safedvdcopy_premium_trial_product_file, mac_safedvdcopy_premium_trial_readme_file], os.path.dirname(mac_safedvdcopy_premium_trial_product_file))
+	    update_version_date(name, version, date, "official", changelog, mac_safedvdcopy_premium_trial_product_file,PRODUCT_MAC_FILE)
 	    return render_to_response("success.html",locals())
 	#Win VidOnme version
 	elif (name.upper() == "WIN VIDONME" or name.upper() == "WINVIDONME") and date and version:
-	    update_version_date(name, version, date, "official", changelog, win_vidonme_product_file)
+	    update_version_date(name, version, date, "official", changelog, win_vidonme_product_file,PRODUCT_WIN_TEMP_FILE)
 	    app_vername = update_iss_version_date(win_vidonme_iss_file, version, date, "official")
             update_readme_version_date(win_vidonme_readme_file, app_vername)
-            git_push([win_vidonme_iss_file, win_vidonme_iss_file, win_vidonme_readme_file], os.path.dirname(win_vidonme_iss_file))
 	    return render_to_response("success.html",locals())
 	#Mac VidOnme version
 	elif (name.upper() == "MAC VIDONME" or name.upper() == "MACVIDONME") and date and version:
-	    update_version_date(name, version, date, "official", changelog, mac_vidonme_product_file)
-	    update_mac_readme_version_date(mac_vidonme_readme_file, version, date, "official")
-            git_push([mac_vidonme_product_file, mac_vidonme_readme_file], os.path.dirname(mac_vidonme_product_file))
+	    update_version_date(name, version, date, "official", changelog, mac_vidonme_product_file,PRODUCT_MAC_FILE)
 	    return render_to_response("success.html",locals())
 	#Win Sothink version
 	elif (name.upper() == "WIN SOTHINK OFFICIAL" or name.upper() == "WIN SOTHINK OFFICIAL") and date and version:
-	    update_version_date(name, version, date, "official", changelog, win_sothink_product_file)
-	    app_vername = update_iss_version_date(win_sothink_iss_file, version, date, "official")
-            update_readme_version_date(win_sothink_readme_file, app_vername)
-            git_push([win_sothink_product_file, win_sothink_iss_file, win_sothink_readme_file], os.path.dirname(win_sothink_product_file))
+	    update_version_date(name, version, date, "official", changelog, win_sothink_product_file,PRODUCT_WIN_TEMP_FILE)
+	    app_vername = update_iss_version_date(win_sothink_readme_file, version, date, "official")
+            update_readme_version_date(win_sothink_iss_file, app_vername)
 	    return render_to_response("success.html",locals())
 	elif (name.upper() == "WIN SOTHINK BETA" or name.upper() == "WINSOTHINK BETA") and date and version:
-	    update_version_date(name, version, date, "beta", changelog, win_sothink_product_file)   
-	    app_vername = update_iss_version_date(win_sothink_iss_file, version, date, "beta")
-            update_readme_version_date(win_sothink_readme_file, app_vername)
-            git_push([win_sothink_product_file, win_sothink_iss_file, win_sothink_readme_file], os.path.dirname(win_sothink_product_file))
+	    update_version_date(name, version, date, "beta", changelog, win_sothink_product_file,PRODUCT_WIN_TEMP_FILE)   
+	    app_vername = update_iss_version_date(win_sothink_readme_file, version, date, "beta")
+            update_readme_version_date(win_sothink_iss_file, app_vername)
 	    return render_to_response("success.html",locals())
-    all_lines = str([])	
-    all_branches = []
+    win_all_lines = read_file_lines(PRODUCT_WIN_TEMP_FILE)   
+    mac_all_lines = read_file_lines(PRODUCT_MAC_FILE)
+    all_lines = str([i for i in set(win_all_lines) if i.strip()] + [i for i in set(mac_all_lines) if i.strip()])	
+    #all_branches_win = [i for i in set(read_file_lines(BRANCH_TXT)) if i.strip()]
+    #all_branches_mac = [i for i in set(read_file_lines(BRANCH_MAC_TXT)) if i.strip()]
+    all_branches = [i for i in set(read_file_lines(BRANCH_TXT)) if i.strip()] + [i for i in set(read_file_lines(BRANCH_MAC_TXT)) if i.strip()]
     all_branches_length = len(all_branches)
     return render_to_response('index.html', locals(),context_instance = RequestContext(request))
 	
@@ -485,7 +492,7 @@ def get_change_log(change_log_file, version):
 
 
 def search_info(request):
-    name = request.GET.get("name", "").strip()
+    name = request.POST.get("name", "").strip()
     current_date=time.strftime('%d/%m/%Y')
    
     #DVDFab 9 Beta
@@ -631,7 +638,7 @@ def search_info(request):
         date = ""
         version = ""
         change_log = ""
-    #return HttpResponse(version)
+
     return render_to_response("search_info.html", locals())
 
 
@@ -667,7 +674,7 @@ def update_change_log(request):
 
 def modify_change_log(request):
     name = request.GET.get("name", "").strip()
-    write_file(r"d:\xudedong\name_temp.txt", name)
+    write_file("/Users/DVDFab/name_temp.txt", name)
     #DVDFab 9 Official
     if name.upper() == "DVDFAB 9 OFFICIAL":
         dict_ini = get_all_ini_content(os.path.join(CONFFILE_PATH, "DVDFab/win_dvdfab.ini"),"win_dvdfab")
