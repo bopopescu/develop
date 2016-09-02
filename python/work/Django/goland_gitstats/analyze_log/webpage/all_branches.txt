@@ -1,0 +1,11 @@
+  bestbuy
+  dev
+  feature-0.1
+  feature-0.2
+* master
+  remotes/origin/HEAD -> origin/master
+  remotes/origin/bestbuy
+  remotes/origin/dev
+  remotes/origin/feature-0.1
+  remotes/origin/feature-0.2
+  remotes/origin/master

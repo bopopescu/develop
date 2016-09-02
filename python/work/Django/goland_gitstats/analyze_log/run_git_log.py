@@ -7,13 +7,12 @@ import logging
 import platform
 import chardet
 
-DB_NAME = "goland_gitstats"
-GIT_BASE_URL = "git@10.10.2.31:"
 TEMPFILE = os.getcwd() + "/temp_log.txt"
 BRANCHES_FILE = os.getcwd() + "/all_branches.txt"
-GIT_PROJECT_LOCAL_PATH = "/Volumes/Backup/goland"
+GIT_PROJECT_LOCAL_PATH = "/home/goland/develop/goland"
 DB_HOST = "10.10.2.170"
-DB_HOST = "localhost"
+#DB_HOST = "localhost"
+DB_NAME = "goland_gitstats"
 DB_USER = "root"
 DB_PASSWORD = "123456"
 
@@ -76,14 +75,7 @@ def get_last_commit_time_and_branch_name(each_project):
     #log("commit record: %s" % str(res))
     cursor.close()   
     conn.close()
-    if res:
-        last_commit_time = res[0]
-        #last_commit_time = "2016-01-15 00:00:00"
-    else:
-        last_commit_time = "2015-12-01 00:00:00"
-        #last_commit_time = time.strftime("%Y-%m-%d") + " 00:00:00"
-        #last_commit_time = time.strftime("%Y-%m-%d %H:%M:%S")
-    #log("last_commit_time is: %s" % last_commit_time)
+    last_commit_time = res[0] if res else time.strftime("%Y-%m-%d") + " 00:00:00"
     return last_commit_time
 
 
@@ -109,7 +101,7 @@ def get_all_branches(dest_path):
 #该函数功能是将服务器上的工程clone到本地
 def git_clone_project(project_name):
     folder_name = project_name.split(":")[1].strip().split(".")[0].strip().replace("/", "_")
-    git_clone_cmd = "git clone " + project_name + " " + folder_name
+    git_clone_cmd = "git clone %s %s" % (project_name, folder_name)
     subprocess.call(git_clone_cmd, cwd = GIT_PROJECT_LOCAL_PATH, shell = True)
 
 
@@ -117,11 +109,12 @@ def git_clone_project(project_name):
 #接受的参数依次是each_project, project_local_path, branch_name,last_commit_time, end_time,tempfile
 def run_git_log(each_project, project_local_path, branch_name,last_commit_time, end_time,tempfile):
     git_reset_cmd = "git reset --hard"
-    subprocess.call(git_reset_cmd, cwd = project_local_path, shell = True)
     git_checkout_cmd = "git checkout " + branch_name
-    subprocess.call(git_checkout_cmd, cwd = project_local_path, shell = True)
     git_pull_cmd = "git pull"
-    subprocess.call(git_pull_cmd, cwd = project_local_path, shell = True)
+    cmd_list = [git_reset_cmd, git_checkout_cmd, git_pull_cmd]
+    for cmd in cmd_list:
+        subprocess.call(cmd, cwd = project_local_path, shell = True)
+        
     #git_log_cmd = 'git log --branches="%s" --after="%s" --before="%s" > %s' % (branch_name,last_commit_time, end_time,TEMPFILE)
     git_log_cmd = 'git log --after="%s" --before="%s" > %s' % (last_commit_time, end_time,TEMPFILE)
     print "git_log_cmd: ", git_log_cmd
@@ -372,6 +365,7 @@ def main():
         except Exception as e:
             print str(e)      
             log("1111 " + str(e))
+            continue
         project_local_path = os.path.join(GIT_PROJECT_LOCAL_PATH, folder_name)
         if not os.path.exists(project_local_path):
             git_clone_project(each_project)

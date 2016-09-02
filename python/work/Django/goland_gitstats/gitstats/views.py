@@ -144,10 +144,7 @@ def index(request):
                 #fp.close()
         if start_time:
             start_time = format_date_time(start_time)
-        if end_time:
-            end_time = format_date_time(end_time)
-        else:
-            end_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        end_time = format_date_time(end_time) if end_time else time.strftime("%Y-%m-%d %H:%M:%S")
             
         try:
             author_obj = Author.objects.get(name = author)
@@ -212,12 +209,13 @@ def index(request):
     if commit_record:
         page, paginator, page_range, commit_record = fenye(request,commit_record)
         sort, new_list_record_order = order_sort(request, commit_record)
+        #new_list_record_order = "111"
         context["page"] = page
         context["paginator"] = paginator
         context["page_range"] = page_range
         context["sort"] = sort
         context["commit_record_order"] = new_list_record_order
-        
+        #return HttpResponse(new_list_record_order) 
     #无论commit_record是否为空，都需要将值传到模板里面去    
     context["commit_record"] = commit_record
     return render_to_response("index.html", context)
@@ -230,38 +228,13 @@ def order_sort(request, commit_record):
     new_list_record = []
     new_list_record_order = []
     if ziduan:
-        if ziduan == "id":
-            for each_record in commit_record:
-                new_list_record.append((each_record.id, each_record))
-                new_list_param.append(each_record.id)
-        elif ziduan == "author":
-            for each_record in commit_record:
-                author_obj = Author.objects.get(id=each_record.author_id)
-                #new_list_record.append((each_record.author_id, each_record))
-                new_list_record.append((author_obj.name, each_record))
-                new_list_param.append(author_obj.name)
-        elif ziduan == "project":
-            for each_record in commit_record:
-                project_obj = Project.objects.get(id=each_record.project_id)
-                #new_list_record.append((each_record.project_id, each_record))
-                new_list_record.append((project_obj.name, each_record))
-                new_list_param.append(project_obj.name)
-        elif ziduan == "branch_name":
-            for each_record in commit_record:
-                new_list_record.append((each_record.branch_name, each_record))
-                new_list_param.append(each_record.branch_name)
-        elif ziduan == "commit_time":
-            for each_record in commit_record:
-                new_list_record.append((each_record.commit_time, each_record))
-                new_list_param.append(each_record.commit_time)
-        elif ziduan == "commit_version":
-            for each_record in commit_record:
-                new_list_record.append((each_record.commit_version, each_record))
-                new_list_param.append(each_record.commit_version)
-        elif ziduan == "commit_message":
-            for each_record in commit_record:
-                new_list_record.append((each_record.commit_message, each_record))
-                new_list_param.append(each_record.commit_message)
+        for record in ["id", "author", "project","branch_name","commit_time","commit_version","commit_message"]:
+            if ziduan == record:
+                for each_record in commit_record:
+                    record_value = getattr(each_record, ziduan, "")
+                    new_list_record.append((record_value, each_record))
+                    new_list_param.append(record_value)
+                break
         new_list_param1 = sorted([i for i in set(new_list_param)])
         for i in new_list_param1:
             for j in new_list_record:
@@ -481,43 +454,19 @@ def test_result_order_sort(request, commit_record):
     new_list_record = []
     new_list_record_order = []
     if ziduan:
-        if ziduan == "id":
-            for each_record in commit_record:
-                new_list_record.append((each_record[0].id, each_record))
-                new_list_param.append(each_record[0].id)
-        elif ziduan == "commit_user":
-            for each_record in commit_record:
-                new_list_record.append((each_record[0].commit_user, each_record))
-                new_list_param.append(each_record[0].commit_user)
-        elif ziduan == "product":
-            for each_record in commit_record:
-                new_list_record.append((each_record[0].product, each_record))
-                new_list_param.append(each_record[0].product)
-        elif ziduan == "package_name":
-            for each_record in commit_record:
-                new_list_record.append((each_record[0].package_name, each_record))
-                new_list_param.append(each_record[0].package_name)
-        elif ziduan == "branch_name":
-            for each_record in commit_record:
-                new_list_record.append((each_record[0].branch_name, each_record))
-                new_list_param.append(each_record[0].branch_name)
-        elif ziduan == "plcore_branch":
-            for each_record in commit_record:
-                new_list_record.append((each_record[0].plcore_branch, each_record))
-                new_list_param.append(each_record[0].plcore_branch)
-        elif ziduan == "join_time":
-            for each_record in commit_record:
-                new_list_record.append((each_record[0].join_time, each_record))
-                new_list_param.append(each_record[0].join_time)
-        elif ziduan == "verification_result":
-            for each_record in commit_record:
-                changelog_obj = each_record[0].test_result_set.all()
-                if changelog_obj:
-                    verify_result = changelog_obj[0].verification_result
-                else:
-                    verify_result = ""
-                new_list_record.append((verify_result, each_record))
-                new_list_param.append(verify_result)
+        for record in ["id", "commit_user", "product","package_name","branch_name","plcore_branch","join_time","verification_result"]:
+            if ziduan == record:
+                for each_record in commit_record:
+                    if ziduan == "verification_result":
+                        changelog_obj = each_record[0].test_result_set.all()
+                        verify_result = changelog_obj[0].verification_result if changelog_obj else ""
+                        new_list_record.append((verify_result, each_record))
+                        new_list_param.append(verify_result)
+                    else:
+                        record_value = getattr(each_record[0], ziduan, "")
+                        new_list_record.append((record_value, each_record))
+                        new_list_param.append(record_value)
+                break
         new_list_param1 = sorted([i for i in set(new_list_param)])
         for i in new_list_param1:
             for j in new_list_record:
@@ -578,34 +527,16 @@ def display_test_result(request):
         for each_record in test_results:
             new_test_results.append((each_record,each_record.test_result_set.all()))
     else:
-        if product:
-            qs0 = test_results.filter(product = product)
-        else:
-            qs0 = test_results
-        if commit_user:
-            qs1 = qs0.filter(commit_user = commit_user)
-        else:
-            qs1 = qs0
-        if branch_name:
-            qs2 = qs1.filter(branch_name = branch_name)
-        else:
-            qs2 = qs1
-        if plcore_branch:
-            qs3 = qs2.filter(plcore_branch = plcore_branch)
-        else:
-            qs3 = qs2
-        if start_time:
-            if len(start_time) == 10:
-                start_time += " 00:00:00"
-            qs4 = qs3.filter(join_time__gte = start_time)
-        else:
-            qs4 = qs3
-        if end_time:
-            if len(end_time) == 10:
-                end_time += " 23:59:59"
-            qs5 = qs4.filter(join_time__lte = end_time)
-        else:
-            qs5 = qs4
+        qs0 = test_results.filter(product = product) if product else test_results
+        qs1 = qs0.filter(commit_user = commit_user) if commit_user else qs0
+        qs2 = qs1.filter(branch_name = branch_name) if branch_name else qs1
+        qs3 = qs2.filter(plcore_branch = plcore_branch) if plcore_branch else qs2
+        if len(start_time) == 10:
+            start_time += " 00:00:00"
+        qs4 = qs3.filter(join_time__gte = start_time) if start_time else qs3
+        if len(end_time) == 10:
+            end_time += " 23:59:59"
+        qs5 = qs4.filter(join_time__lte = end_time) if end_time else qs4
         if verification_result:
             flag = False
             qs6 = []
@@ -619,9 +550,8 @@ def display_test_result(request):
             temp_list = []
             for each_record in qs6:
                 temp_list.append((each_record, each_record.test_result_set.all()))
-            new_test_results = temp_list
-        else:
-            new_test_results = qs6
+        new_test_results = temp_list if flag else qs6
+
     test_results = new_test_results
     page, paginator, page_range, test_results = fenye(request,test_results)
     context["page"] = page

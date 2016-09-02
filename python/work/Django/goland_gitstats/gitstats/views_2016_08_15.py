@@ -112,7 +112,10 @@ def index(request):
         start_time = get_time(days)
         qs = Commit_Record.objects.filter(commit_time__gte = start_time).order_by("-commit_time")
         commit_record = qs.filter(commit_time__lte = end_time)
+        #commit_record = ""
+        #return HttpResponse(len(commit_record))
         if not commit_record:
+            #return HttpResponse("1111115551")
             commit_record = ""
             empty_message = "Sorry, but there is no result in default %d days!" % days
             context["empty_message"] = empty_message
@@ -212,12 +215,13 @@ def index(request):
     if commit_record:
         page, paginator, page_range, commit_record = fenye(request,commit_record)
         sort, new_list_record_order = order_sort(request, commit_record)
+        #new_list_record_order = "111"
         context["page"] = page
         context["paginator"] = paginator
         context["page_range"] = page_range
         context["sort"] = sort
         context["commit_record_order"] = new_list_record_order
-        
+        #return HttpResponse(new_list_record_order) 
     #无论commit_record是否为空，都需要将值传到模板里面去    
     context["commit_record"] = commit_record
     return render_to_response("index.html", context)
@@ -483,31 +487,35 @@ def test_result_order_sort(request, commit_record):
     if ziduan:
         if ziduan == "id":
             for each_record in commit_record:
-                new_list_record.append((each_record.id, each_record))
-                new_list_param.append(each_record.id)
+                new_list_record.append((each_record[0].id, each_record))
+                new_list_param.append(each_record[0].id)
         elif ziduan == "commit_user":
             for each_record in commit_record:
-                new_list_record.append((each_record.commit_user, each_record))
-                new_list_param.append(each_record.commit_user)
+                new_list_record.append((each_record[0].commit_user, each_record))
+                new_list_param.append(each_record[0].commit_user)
         elif ziduan == "product":
             for each_record in commit_record:
-                new_list_record.append((each_record.product, each_record))
-                new_list_param.append(each_record.product)
+                new_list_record.append((each_record[0].product, each_record))
+                new_list_param.append(each_record[0].product)
         elif ziduan == "package_name":
             for each_record in commit_record:
-                new_list_record.append((each_record.package_name, each_record))
-                new_list_param.append(each_record.package_name)
+                new_list_record.append((each_record[0].package_name, each_record))
+                new_list_param.append(each_record[0].package_name)
         elif ziduan == "branch_name":
             for each_record in commit_record:
-                new_list_record.append((each_record.branch_name, each_record))
-                new_list_param.append(each_record.branch_name)
+                new_list_record.append((each_record[0].branch_name, each_record))
+                new_list_param.append(each_record[0].branch_name)
         elif ziduan == "plcore_branch":
             for each_record in commit_record:
-                new_list_record.append((each_record.plcore_branch, each_record))
-                new_list_param.append(each_record.plcore_branch)
+                new_list_record.append((each_record[0].plcore_branch, each_record))
+                new_list_param.append(each_record[0].plcore_branch)
+        elif ziduan == "join_time":
+            for each_record in commit_record:
+                new_list_record.append((each_record[0].join_time, each_record))
+                new_list_param.append(each_record[0].join_time)
         elif ziduan == "verification_result":
             for each_record in commit_record:
-                changelog_obj = each_record.test_result_set.all()
+                changelog_obj = each_record[0].test_result_set.all()
                 if changelog_obj:
                     verify_result = changelog_obj[0].verification_result
                 else:
@@ -536,6 +544,7 @@ def display_test_result(request):
     branch_name_list = []
     plcore_branch_list = []
     verification_result_list = ["YES", "NO"]
+    context["commit_user_list"] = COMMIT_USER_LIST
     context["CUR_YEAR"] = CUR_YEAR
     page_title = "显示所有测试结果"
     context["page_title"] = page_title
@@ -546,17 +555,92 @@ def display_test_result(request):
             branch_name_list.append(each_test_result.branch_name)
         if each_test_result.plcore_branch not in plcore_branch_list:
             plcore_branch_list.append(each_test_result.plcore_branch)
-    page, paginator, page_range, test_results = fenye(request,test_results)
     context["products"] = products
-    context["branch_name_list"] = branch_name_list
-    context["plcore_branch_list"] = plcore_branch_list
+    context["branch_name_list"] = [i for i in set(branch_name_list)]
+    context["plcore_branch_list"] = [i for i in set(plcore_branch_list)]
     context["verification_result_list"] = verification_result_list
+    
+    product = request.GET.get("product", "").strip()
+    commit_user = request.GET.get("commit_user", "").strip()
+    branch_name = request.GET.get("branch_name", "").strip()
+    plcore_branch = request.GET.get("plcore_branch", "").strip()
+    verification_result = request.GET.get("verification_result", "").strip()
+    start_time = request.GET.get("start_time", "").strip()
+    end_time = request.GET.get("end_time", "").strip()
+    context["product"] = product
+    context["commit_user"] = commit_user
+    context["branch_name"] = branch_name
+    context["plcore_branch"] = plcore_branch
+    context["verification_result"] = verification_result
+    if start_time:
+        start_time = format_date_time(start_time)
+    if end_time:
+        end_time = format_date_time(end_time)
+    new_test_results = []
+    flag = True
+    if not(product or branch_name or plcore_branch or verification_result or start_time or end_time):
+        for each_record in test_results:
+            new_test_results.append((each_record,each_record.test_result_set.all()))
+    else:
+        if product:
+            qs0 = test_results.filter(product = product)
+        else:
+            qs0 = test_results
+        if commit_user:
+            qs1 = qs0.filter(commit_user = commit_user)
+        else:
+            qs1 = qs0
+        if branch_name:
+            qs2 = qs1.filter(branch_name = branch_name)
+        else:
+            qs2 = qs1
+        if plcore_branch:
+            qs3 = qs2.filter(plcore_branch = plcore_branch)
+        else:
+            qs3 = qs2
+        if start_time:
+            if len(start_time) == 10:
+                start_time += " 00:00:00"
+            qs4 = qs3.filter(join_time__gte = start_time)
+        else:
+            qs4 = qs3
+        if end_time:
+            if len(end_time) == 10:
+                end_time += " 23:59:59"
+            qs5 = qs4.filter(join_time__lte = end_time)
+        else:
+            qs5 = qs4
+        if verification_result:
+            flag = False
+            qs6 = []
+            #将每一条记录信息和对应的changelog记录以元组为元素添加到列表中，形成一一对应的关系
+            for each_record in qs5:
+                if each_record.test_result_set.all().filter(verification_result = verification_result):
+                    qs6.append((each_record, each_record.test_result_set.all().filter(verification_result = verification_result)))
+        else:
+            qs6 = qs5
+        if flag:
+            temp_list = []
+            for each_record in qs6:
+                temp_list.append((each_record, each_record.test_result_set.all()))
+            new_test_results = temp_list
+        else:
+            new_test_results = qs6
+    test_results = new_test_results
+    page, paginator, page_range, test_results = fenye(request,test_results)
     context["page"] = page
     context["paginator"] = paginator
     context["page_range"] = page_range
     context["test_results"] = test_results
+    context["start_time"] = start_time
+    context["end_time"] = end_time
+    #return HttpResponse(start_time)
     sort, new_list_record_order = test_result_order_sort(request, test_results)
     context["sort"] = sort
+    if not new_list_record_order:
+        new_list_record_order = ""
+        empty_message = "your search do not have any results!"
+        context["empty_message"] = empty_message
     context["test_results_order"] = new_list_record_order
     return render_to_response("display_test_result.html", context)
 
@@ -611,9 +695,10 @@ def add_test_result(request):
         verification_result1 = request.POST.get("verification_result1", "").strip()
         remark_explantion1 = request.POST.get("remark_explantion1", "").strip()
         supplement_explantion = request.POST.get("supplement_explantion", "").strip()
+        join_time = time.strftime("%Y-%m-%d %H:%M:%S")
         if commit_user and product and package_name:
             test_result = Test_Result(commit_user = commit_user, product = product, branch_name = branch_name, package_name = package_name, package_path = package_path, \
-                                      plcore_branch = plcore_branch,supplement_explantion = supplement_explantion)
+                                      plcore_branch = plcore_branch,join_time = join_time, supplement_explantion = supplement_explantion)
             test_result.save()
 
             changelog_list = get_changelog_values(request.POST)
