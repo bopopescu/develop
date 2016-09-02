@@ -8,8 +8,8 @@
 
 <div align = "center">
 {{PRODUCT_LIST}}
-<form action = '/index/' method = 'GET' onsubmit = "return NotEmpty()">
-	<!--{% csrf_token %}-->
+<form action = '/index/' method = 'POST'>
+	{% csrf_token %}
 	    产品名称：
 		<!--<select name = 'product'>
 		    <span id = "d1"><option value = ""></option></span>
@@ -17,7 +17,7 @@
 			<span id = "d3"><option value = "Android Blu-ray Box AV200">Android Blu-ray Box AV200</option></span>
 			<span id = "d4"><option value = "VDMLauncher" >VDMLauncher</option></span>
 		</select>-->
-		<select name = 'product' id = "product">
+		<select name = 'product'>
 			{% for each_product in product_list %}
 			{% ifequal product  each_product %}
 			<option selected = "selected" value = "{{each_product}}">{{each_product}}</option>
@@ -29,164 +29,134 @@
 		&nbsp;&nbsp;用户名:<input type = "text" name ="username"  value = "{{username}}" />
 		&nbsp;&nbsp;邮箱:<input type = "text" name ="useremail"  value = "{{useremail}}" />
 		&nbsp;&nbsp;chipid:<input type = "text" name ="chipid" value = "{{chipid}}" />
-		&nbsp;&nbsp;开始日期:<input type = "text" onfocus="HS_setDate(this)" readonly = "readonly" id = "from_day" name ="from_day" value = "{{from_day}}"/>
-		&nbsp;&nbsp;截止日期:<input type = "text" onfocus="HS_setDate(this)" readonly = "readonly" id = "to_day" name ="to_day" value = "{{to_day}}"/>
+		&nbsp;&nbsp;开始日期:<input type = "text" onfocus="HS_setDate(this)" readonly = "readonly" name ="from_day" value = "{{from_day}}"/>
+		&nbsp;&nbsp;截止日期:<input type = "text" onfocus="HS_setDate(this)" readonly = "readonly" name ="to_day" value = "{{to_day}}"/>
 		<br />
 		<input type = 'submit' value = 'Search' onclick = "showresult()"/>
 </form>
 </div>
-<form action = '/download_dump/' method = 'GET'>
-<!--{% csrf_token %}
+<form action = '/download_dump/' method = 'POST'>
+{% csrf_token %}
         <input type = "hidden" name ="product"  value = "{{product}}" />
 		<input type = "hidden" name ="username"  value = "{{username}}" />
 		<input type = "hidden" name ="useremail"  value = "{{useremail}}" />
 		<input type = "hidden" name ="chipid" value = "{{chipid}}" />
 		<input type = "hidden" onfocus="HS_setDate(this)" readonly = "readonly" name ="from_day" value = "{{from_day}}"/>
-		<input type = "hidden" onfocus="HS_setDate(this)" readonly = "readonly" name ="to_day" value = "{{to_day}}"/>-->
+		<input type = "hidden" onfocus="HS_setDate(this)" readonly = "readonly" name ="to_day" value = "{{to_day}}"/>
 <input type = 'submit' value = 'Fresh' />
 </form>
 
-{% ifequal flag 0 %}
+
+{% ifequal count 0 %}
+{% else %}
+
+查询结果共计: <span style = "font-size:1.5em">{{count}}</span> 条记录
+
+<br /><br />
+<div>
+当前筛选条件:&nbsp;&nbsp;
+{% ifequal product '' %}
+{% else %}
+产品名称:&nbsp;&nbsp;<span style = "font-size:1.5em">{{product}}</span> &nbsp;&nbsp;
 {% endifequal %}
 
-{% ifequal flag 1 %}
-	{% ifequal count 0 %}
-		<div align = "center"><h1><i>{{empty_prompt}}</i></h1></div>
-	{% else %}
-		查询结果共计: <span style = "font-size:1.5em">{{count}}</span> 条记录
-		<br /><br />
-		<div>
-		当前筛选条件:&nbsp;&nbsp;
-		{% ifequal product '' %}
-		{% else %}
-			产品名称:&nbsp;&nbsp;<span style = "font-size:1.5em">{{product}}</span> &nbsp;&nbsp;
-		{% endifequal %}
-
-		{% ifequal username '' %}
-		{% else %}
-			用户名:&nbsp;&nbsp;<span style = "font-size:1.5em">{{username}}</span>&nbsp;&nbsp;
-		{% endifequal %}
-
-		{% ifequal useremail '' %}
-		{% else %}
-			邮箱:&nbsp;&nbsp;<span style = "font-size:1.5em">{{useremail}}</span>&nbsp;&nbsp;
-		{% endifequal %}
-
-		{% ifequal chipid '' %}
-		{% else %}
-			chipid:&nbsp;&nbsp;<span style = "font-size:1.5em">{{chipid}}</span>&nbsp;&nbsp;
-		{% endifequal %}
-
-		{% ifequal from_day '' %}
-		{% else %}
-			开始日期:&nbsp;&nbsp;<span style = "font-size:1.5em">{{from_day}}</span>
-		{% endifequal %}
-
-		{% ifequal to_day '' %}
-		{% else %}
-			截止日期:&nbsp;&nbsp;<span style = "font-size:1.5em">{{to_day}}</span>
-		{% endifequal %}
-
-		</div>
-		<br />
-		{% ifequal page 1 %}
-			<span>首页</span>
-		{% else %}
-			<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page=1">首页</a>
-		{% endifequal %}
-		{% if session.has_previous %}
-			<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{session.previous_page_number}}">&lt;上一页</a>
-		{% endif %}
-		<span>
-		{% for each_page in page_range %}
-			{% ifequal each_page session.number %}
-				<span style = "font-size: 1.8em">{{each_page}}</span>
-			{% else %}
-				<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{each_page}}">{{each_page}}</a>
-			{% endifequal %}
-		{% endfor %}
-        </span>
-		{% if session.has_next %}
-			<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{session.next_page_number}}">下一页&gt;</a>
-		{% endif %}
-		
-		{% ifequal page session.paginator.num_pages %}
-			<span>尾页</span>
-		{% else %}
-			<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{session.paginator.num_pages}}">尾页</a>
-		{% endifequal %}
-		<table width = "100%" align = "center" border="solid red 5px" style = "font-size:1.0em">
-			<tr align = "center">
-				<td><!--<a href = "?param=id">-->id</td>
-				<td><!--<a href = "?param=version">-->version</td>
-				<td><!--<a href = "?param=software_title">-->software title</td>
-				<td><!--<a href = "?param=filepath">-->filepath</td>
-				<td><!--<a href = "?param=record_type">-->record_type</td>
-				<td><!--<a href = "?param=username">-->username</td>
-				<td><!--<a href = "?param=useremail">-->useremail</td>
-				<td><!--<a href = "?param=subject">-->chipid</td>
-				<td><!--<a href = "?param=logname1">-->logname1</td>
-				<td><!--<a href = "?param=logname2">-->logname2</td>
-				<td><!--<a href = "?param=logname3">-->logname3</td>
-				<td><!--<a href = "?param=logname4">-->logname4</td>
-				<td><!--<a href = "?param=stack_file">-->stack_file</td>
-				<td><!--<a href = "?param=stack_file1">-->stack_file1</td>
-				<!--<td><a href = "?param=filename">filename</a></td>-->
-				<td><!--<a href = "?param=status">-->status</td>
-				<td><!--<a href = "?param=upload_time">-->upload_time</td>
-			</tr>
-
-			{% for record in session %}
-				<tr align = "center"  style = "background-color:{% cycle '#b7ddf7' '#def1ff'%}">
-					<td><a href = "/one_record/{{record.id}}/"  target = _blink>{{record.id}}</a></td>
-					<td>{{record.version}}</td>
-					<td>{{record.software_title}}</td>
-					<td>{{record.filepath}}</td>
-					<td>{{record.record_type}}</td>
-					<td>{{record.username}}</td>
-					<td>{{record.useremail}}</td>
-					<td>{{record.subject}}</td>
-					<td><a href = "/display_log_content/{{record.id}}?logname={{record.logname1}}" target = _blink>{{record.logname1}}</a></td>
-					<td><a href = "/display_log_content/{{record.id}}?logname={{record.logname2}}" target = _blink>{{record.logname2}}</a></td>
-					<td><a href = "/display_log_content/{{record.id}}?logname={{record.logname3}}" target = _blink>{{record.logname3}}</a></td>
-					<td><a href = "/display_log_content/{{record.id}}?logname={{record.logname4}}" target = _blink>{{record.logname4}}</a></td>
-					<td><a href = "/display_log_content/{{record.id}}?logname={{record.stack_file}}" target = _blink>{{record.stack_file}}</a></td>
-					<td><a href = "/display_log_content/{{record.id}}?logname={{record.stack_file1}}" target = _blink>{{record.stack_file1}}</a></td>
-					<!--<td>{{record.filename}}</td>-->
-					<td>{{record.status}}</td>
-					<td>{{record.upload_time}}</td>
-				</tr>
-			{% endfor %}
-
-		</table>
-		{% ifequal page 1 %}
-			<span>首页</span>
-		{% else %}
-			<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page=1">首页</a>
-		{% endifequal %}
-		{% if session.has_previous %}
-			<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{session.previous_page_number}}">&lt;上一页</a>
-		{% endif %}
-		<span>
-		{% for each_page in page_range %}
-			{% ifequal each_page session.number %}
-				<span style = "font-size: 1.8em">{{each_page}}</span>
-			{% else %}
-				<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{each_page}}">{{each_page}}</a>
-			{% endifequal %}
-		{% endfor %}
-        </span>
-		{% if session.has_next %}
-			<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{session.next_page_number}}">下一页&gt;</a>
-		{% endif %}
-		
-		{% ifequal page session.paginator.num_pages %}
-			<span>尾页</span>
-		{% else %}
-			<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{session.paginator.num_pages}}">尾页</a>
-		{% endifequal %}
-    {% endifequal %} 
+{% ifequal username '' %}
+{% else %}
+用户名:&nbsp;&nbsp;<span style = "font-size:1.5em">{{username}}</span>&nbsp;&nbsp;
 {% endifequal %}
+
+{% ifequal useremail '' %}
+{% else %}
+邮箱:&nbsp;&nbsp;<span style = "font-size:1.5em">{{useremail}}</span>&nbsp;&nbsp;
+{% endifequal %}
+
+{% ifequal chipid '' %}
+{% else %}
+chipid:&nbsp;&nbsp;<span style = "font-size:1.5em">{{chipid}}</span>&nbsp;&nbsp;
+{% endifequal %}
+
+{% ifequal from_day '' %}
+{% else %}
+开始日期:&nbsp;&nbsp;<span style = "font-size:1.5em">{{from_day}}</span>
+{% endifequal %}
+
+{% ifequal to_day '' %}
+{% else %}
+截止日期:&nbsp;&nbsp;<span style = "font-size:1.5em">{{to_day}}</span>
+{% endifequal %}
+
+</div>
+<br />
+<table width = "100%" align = "center" border="solid red 5px" style = "font-size:0.8em">
+<tr align = "center">
+<td><a href = "?param=id">id</a></td>
+<td><a href = "?param=version">version</a></td>
+<td><a href = "?param=software_title">software title</a></td>
+<td><a href = "?param=filepath">filepath</a></td>
+<td><a href = "?param=record_type">record_type</a></td>
+<td><a href = "?param=username">username</a></td>
+<td><a href = "?param=useremail">useremail</a></td>
+<td><a href = "?param=subject">chipid</a></td>
+<td><a href = "?param=logname1">logname1</a></td>
+<td><a href = "?param=logname2">logname2</a></td>
+<td><a href = "?param=logname3">logname3</a></td>
+<td><a href = "?param=logname4">logname4</a></td>
+<td><a href = "?param=stack_file">stack_file</a></td>
+<td><a href = "?param=stack_file1">stack_file1</a></td>
+<!---
+<td><a href = "?param=content">content</a></td>
+<td><a href = "?param=windows_version">windows_version</a></td>
+<td><a href = "?param=dvd_title">dvd_title</a></td>
+<td><a href = "?param=region_code">region_code</a></td>
+<td><a href = "?param=country">country</a></td>
+<td><a href = "?param=buy_link">buy_link</a></td>
+-->
+<td><a href = "?param=filename">filename</a></td>
+<td><a href = "?param=status">status</a></td>
+<td><a href = "?param=upload_time">upload_time</a></td>
+</tr>
+
+{% for record in session %}
+<tr align = "center"  style = "background-color:{% cycle '#b7ddf7' '#def1ff'%}">
+<td><a href = "/one_record/{{record.id}}/"  target = _blink>{{record.id}}</a></td>
+<td>{{record.version}}</td>
+<td>{{record.software_title}}</td>
+<td>{{record.filepath}}</td>
+<td>{{record.record_type}}</td>
+<td>{{record.username}}</td>
+<td>{{record.useremail}}</td>
+<td>{{record.subject}}</td>
+<td><a href = "/display_log_content/{{record.id}}?logname={{record.logname1}}" target = _blink>{{record.logname1}}</a></td>
+<td><a href = "/display_log_content/{{record.id}}?logname={{record.logname2}}" target = _blink>{{record.logname2}}</a></td>
+<td><a href = "/display_log_content/{{record.id}}?logname={{record.logname3}}" target = _blink>{{record.logname3}}</a></td>
+<td><a href = "/display_log_content/{{record.id}}?logname={{record.logname4}}" target = _blink>{{record.logname4}}</a></td>
+<td><a href = "/display_log_content/{{record.id}}?logname={{record.stack_file}}" target = _blink>{{record.stack_file}}</a></td>
+<td><a href = "/display_log_content/{{record.id}}?logname={{record.stack_file1}}" target = _blink>{{record.stack_file1}}</a></td>
+<!---
+<td>{{record.content}}</td>
+<td>{{record.windows_version}}</td>
+<td>{{record.dvd_title}}</td>
+<td>{{record.region_code}}</td>
+<td>{{record.country}}</td>
+<td>{{record.buy_link}}</td>
+-->
+<td>{{record.filename}}</td>
+<td>{{record.status}}</td>
+<td>{{record.upload_time}}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page=1">首页</a>
+{% if session.has_previous %}
+	<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{session.previous_page_number}}">上一页</a>
+{% endif %}
+
+{% if session.has_next %}
+	<a href = "?product={{product}}&username={{username}}&useremail={{useremail}}&chipid={{chipid}}&from_day={{from_day}}&to_day={{to_day}}&page={{session.next_page_number}}">下一页</a>
+{% endif %}
+{% endifequal %} 
 
 
 
@@ -194,58 +164,6 @@
 
 <body>
 <script>
-function format_time(src_time){
-if(src_time.split("-")[1].length==1){month = 0 + src_time.split("-")[1]}else{month = src_time.split("-")[1]}
-  if(src_time.split("-")[2].length==1){day = 0 + src_time.split("-")[2]}else{day = src_time.split("-")[2]}
-  format_date = src_time.split("-")[0] + "-" + month + "-" + day
-  return format_date;
-}
-function NotEmpty(){
-	var product_obj = document.getElementById("product");
-	var from_day_obj = document.getElementById("from_day");
-	var to_day_obj = document.getElementById("to_day");
-	
-	//检查产品名是否为空
-	if (!product_obj.value){
-	    alert("请选择产品名");
-		return false;
-	}
-	
-	//检查起始日期是否为空
-	if (from_day_obj.value){
-		var start_time = format_time(from_day_obj.value);
-	}
-	else{
-	    var start_time = "";
-	    alert("请输入开始日期");
-		return false;
-	}
-	
-	//检查截止日期是否为空
-	if (to_day_obj.value){
-	    var end_time = format_time(to_day_obj.value);
-	}
-	else{
-	    var end_time = "";
-	    alert("请输入截止日期");
-		return false;
-	}
-	
-	//if(!end_time && start_time){
-    //alert("请输入截止日期!");
-    //return false;
-    //}
-	
-	
-	//截止日期不能小于起始日期
-	cmp_result = end_time.localeCompare(start_time);
-	if (cmp_result == -1){
-    alert("你好！截止日期不能小于起始日期！请重新输入！");
-    return false;
-  }
-}
-
-
 function showresult()
 {  //alert("{{product}}");
    var product = "{{product}}"
