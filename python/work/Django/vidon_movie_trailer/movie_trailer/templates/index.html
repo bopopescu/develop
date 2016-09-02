@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Display All Movies</title>
+        <link href="/site_media/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <h1 align = "center" onclick = "test()">Display All Movies</h1>
+        <div><span style = "font-size:1.5em; float: center"><a href = "?language=English">English</a>&nbsp;<a href = "?language=Chinese">Chinese</a>&nbsp;<a href = "/">All</a></span>
+            <span style = "float: right"><form method = "GET" action = ".?language={{language}}"><input type = "hidden" name = "language" value = {{language}}>
+                <input type = "text" name = "moviename" value = "{{moviename}}" required = "required"/><input type = "submit" value = "Search">
+            </form><span>
+        </div>
+
+        <div style = "font-size:1.5em">
+            <hr />
+            <table align = "center">
+                <tr><td>Movie Name</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>Language</td></tr>
+                {% for each_movie in movie_names %}
+                    <tr>
+                        <td>
+                            <a href = "/display_movie_info/{{each_movie.id}}?language={{each_movie.language}}">{{each_movie.name}}</a>
+                        </td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>
+                            {{each_movie.language}}
+                        </td>
+                    </tr>
+                    <!--<img src = "{{each_movie.picture_path}}" />-->
+                {% endfor %}
+            </table>
+        </div><br />
+        <div align = "center" style = "font-size:1.5em">
+            {% ifequal page 1 %}
+                <span>首页</span>
+            {% else %}
+                <a href = '?{% ifequal language "" %}{% else %}language={{language}}&{% endifequal %}{% ifequal moviename "" %}{% else %}moviename={{moviename}}&{% endifequal %}page=1'>首页</a>
+            {% endifequal %}
+            
+            {% if movie_names.has_previous %}
+                <a href = '?{% ifequal language "" %}{% else %}language={{language}}&{% endifequal %}{% ifequal moviename "" %}{% else %}moviename={{moviename}}&{% endifequal %}page={{movie_names.previous_page_number}}'>&lt;上一页</a>
+            {% endif %}
+	    <span>
+                {% for each_page in page_range %}
+                    {% ifequal each_page movie_names.number %}
+                            <span style = "font-size:1.8em">{{each_page}}</span>
+                        {% else %}
+                            <a href = '?{% ifequal language "" %}{% else %}language={{language}}&{% endifequal %}{% ifequal moviename "" %}{% else %}moviename={{moviename}}&{% endifequal %}page={{each_page}}' title="{{each_page}}">{{each_page}}</a>
+                        {% endifequal %}
+                {% endfor %}
+                </span>
+
+                {% if movie_names.has_next %}
+                    <a href = '?{% ifequal language "" %}{% else %}language={{language}}&{% endifequal %}{% ifequal moviename "" %}{% else %}moviename={{moviename}}&{% endifequal %}page={{movie_names.next_page_number}}'>下一页&gt;</a>
+                {% endif %}
+                {% ifequal page movie_names.paginator.num_pages %}
+                    <span>尾页</span>
+                {% else %}
+                    <a href = '?{% ifequal language "" %}{% else %}language={{language}}&{% endifequal %}{% ifequal moviename "" %}{% else %}moviename={{moviename}}&{% endifequal %}page={{movie_names.paginator.num_pages}}'>尾页</a>
+                {% endifequal %}
+                <span>[第{{page}}/{{paginator.num_pages}}页]</span>
+        </div>
+        <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+        <script src="/site_media/js/bootstrap.min.js">
+        function test(){
+            alert("1111");
+        }
+        </script>
+    </body>
+</html>

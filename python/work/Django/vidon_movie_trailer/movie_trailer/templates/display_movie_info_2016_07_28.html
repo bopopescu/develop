@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>Display Movie Info</title>
+        <link href="/site_media/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <!--<body style="background-color:#a1a3a6">-->
+        <body>
+        <h1 align = "center">Display Movie Info</h1>
+        <hr />
+        <div>
+            <table align = "center" border = "red 3px solid">
+                {% for each_info in movie_infos %}
+                    <tr>
+                        <td>{{each_info.movie_time}}</td>
+                        <td>{{each_info.trailer_order}}</td>
+                        <td>{% if each_info.address_high_definition %}<a href = '/download_movie?movie_name={{movie_name}}&language={{language}}&movie_filename={{each_info.address_high_definition}}'>High Definition</a>{% endif %}</td>
+                        <td>{% if each_info.address_480p %}<a href = '/download_movie?movie_name={{movie_name}}&language={{language}}&movie_filename={{each_info.address_480p}}'>480P</a>{% endif %}</td>
+                        <td>{% if each_info.address_720p %}<a href = '/download_movie?movie_name={{movie_name}}&language={{language}}&movie_filename={{each_info.address_720p}}'>720P</a>{% endif %}</td>
+                        <td>{% if each_info.address_1080p %}<a href = '/download_movie?movie_name={{movie_name}}&language={{language}}&movie_filename={{each_info.address_1080p}}'>1080P</a>{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>
