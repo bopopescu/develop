@@ -254,6 +254,7 @@ def get_registry_value(regpath, regkey):
 		
 		
 def get_value(value, param):
+    """ 格式化字符串输出 """
     return '  %s "%s"' % (param, value) if value else ""
     
     
@@ -306,6 +307,7 @@ def get_Filesize(dest_path):
 	
 	
 def judge_filesize1(foldersize, big_size, small_size, type_name):
+    """ 判断文件大小 """
     if foldersize < small_size:
         result = 'folder_size too small; '
     elif foldersize > big_size:
@@ -315,7 +317,8 @@ def judge_filesize1(foldersize, big_size, small_size, type_name):
     return result
 
 
-def judge_filesize(res, Folder_size):    
+def judge_filesize(res, Folder_size):  
+    """ 判断文件大小 """  
     Folder_size = int(Folder_size.split('.')[0])
     result = ''
     if res[3].upper() == 'BD' and res[4].upper() == 'FULLDISC':
@@ -370,7 +373,8 @@ def kill_process(process_name):
         initlog('failed to kill process; %s' % str(e))      
 
         
-def catch_all_picture(picture_path, index):     
+def catch_all_picture(picture_path, index):   
+    """ 截取屏幕 """  
     initlog('picure_path: %s' % picture_path)
     current_time = time.strftime('%Y-%m-%d-%H-%M-%S')   
     if os.name == 'nt':
@@ -446,10 +450,12 @@ def read_ini(ini_file):
 
 
 def convert_to_int(value):
+    """ 转换成整型 """
     return int(value) if value else 0
     
 
 def update_registry_value(res, project, XML_FILE):   
+    """ 更新注册表的值 """
     Video_decoder_H264 = convert_to_int(res[28]) 
     Video_decoder_VC1 = convert_to_int(res[29])
     Video_decoder_MPEG2 = convert_to_int(res[30])
@@ -492,6 +498,7 @@ def update_registry_value(res, project, XML_FILE):
  
     
 def remove_fab_logfile(fab_logpath):
+    """ 在跑case之前，先清空之前的log文件 """
     if os.path.exists(fab_logpath):
         files = os.listdir(fab_logpath)    
         for onefile in files:                
@@ -504,6 +511,7 @@ def remove_fab_logfile(fab_logpath):
                
             
 def get_log_files(logpath):    
+    """ 获取所有的log文件 """
     log_filename_list = []
     if logpath:
         for path in logpath:  
@@ -549,7 +557,8 @@ def copy_file(log_filename_list, dest_path):
             initlog('the fisrt parm should be a file name')
 
     
-def zip_files(log_filename_list,zipfilename):    
+def zip_files(log_filename_list,zipfilename):  
+    """ 压缩最后运行结果的log文件 """  
     initlog("zip files log_filename_list: %s" % str(log_filename_list))
     if log_filename_list:
         zf = zipfile.ZipFile(zipfilename, 'a', zipfile.zlib.DEFLATED)      
@@ -595,6 +604,7 @@ def upload_file(log_filename_list, index):
 
 
 def get_picture_path(path):
+    """ 获取图片的保存目录 """
     return change_fuhao(os.path.split(path)[0] if os.path.splitext(path.upper())[1] == '.ISO' else path)
 
 def create_folder(folder):
@@ -611,6 +621,7 @@ def create_folder(folder):
 	
 
 def call_test_bat(test_bat):
+    """ 调用Sikuli脚本来杀死DVDFab """
     try:
 	    subprocess.call(test_bat)
 	    initlog("DVDFab may killed by Sikuli")
@@ -618,6 +629,7 @@ def call_test_bat(test_bat):
 	    initlog("DVDFab does not killed by Sikuli") 
     	
 def is_break_loop(p, analysis_time, dest_path1, re):
+    """ 判断是否跳出循环 """
     result = ""
     flag = False
     for i in range(analysis_time):               
@@ -632,7 +644,8 @@ def is_break_loop(p, analysis_time, dest_path1, re):
     return flag, result
 	
 def get_right_analysis_and_interval_time(module,ripper_mode,bd_analysis_time,bd_interval_time,bd_ripper_analysis_time,bd_ripper_interval_time,dvd_analysis_time,dvd_interval_time, file_analysis_time, file_interval_time):
-    if module == "BD": 
+    """ 根据case的类型，类获取分别对应的分析时间以及间隔时间 """
+	if module == "BD": 
 		if ripper_mode.upper() == "RIPPER":
 			initlog("this case is ripper")
 			bd_analysis_time = bd_ripper_analysis_time	
@@ -714,12 +727,13 @@ def tempfolder_to_iso(burn_engine_type, dest_path):
 
 
 def get_xml_value(node, key):
+    """ 根据给定的键值，获取xml文档里的value值 """
     return node.attrib[key] if node.attrib.has_key(key) else ""
 
 
 def before_running(res, src_iso_path, dest_path, project, XML_FILE): 
+    path_list = ["common_setting/Generic","common_setting/DVD"]
     if os.name == 'nt':
-        path_list = ["common_setting/Generic","common_setting/DVD"]
         if project.upper() == 'DVDFAB 8' or project.upper() == 'DVDFAB8':
             for path in path_list:
                 tree, nodes = windows_xml.read_xml(XML_FILE, path, xml_temp)  
@@ -733,7 +747,6 @@ def before_running(res, src_iso_path, dest_path, project, XML_FILE):
                 burn_engine_type = get_xml_value(nodes[0], 'BDBurnEngineType')
                 tempfolder_path = get_xml_value(nodes[0], 'TempFolder')  
     else:
-        path_list = ["common_setting/Generic","common_setting/DVD"]
         if project.upper() == 'DVDFAB 8' or project.upper() == 'DVDFAB8':
             for path in path_list:
                 tree, nodes = myxml.read_xml(XML_FILE, path, xml_temp)
@@ -770,6 +783,7 @@ def change_fuhao(file_path):
    
 
 def kill_DVDFab_process(dest_path, index):
+    """ 检测Win下的进程，如果存在则直接杀死 """
     result = ''
     process_list = ["DVDFab.exe", "WerFault.exe", "dwwin.exe", "FabReport.exe"]
     for process_name in process_list:
@@ -788,6 +802,7 @@ def kill_DVDFab_process(dest_path, index):
 
 
 def kill_mac_DVDFab_process(dest_path, index):
+    """ 检测Mac下的进程，如果存在则直接杀死 """
     result = ''
     process_list = ['DVDFab']
     for process_name in process_list:
@@ -808,6 +823,7 @@ def kill_mac_DVDFab_process(dest_path, index):
 
 
 def check_process(process_name):
+    """ 检测Mac下的进程 """
     cmd = 'ps -ef | grep %s' % process_name
     f = os.popen(cmd)
     regex = re.compile(r'\w+\s+(\d+)\s+.*')
@@ -816,15 +832,18 @@ def check_process(process_name):
     
     
 def kill_process_name(process_name):
+    """ 强行杀死进行 """
     os.system('killall %s' % process_name)
 	
 def get_dest_path(path):
+    """ 获取每个客户端的存放运行结果的目的路径 """
     dest_path = change_fuhao(path)
     dest_path = os.path.split(dest_path)[0] if '.ISO' == os.path.splitext(dest_path.upper())[1] else dest_path
     return dest_path
 	
 	
 def get_case_end_info(start, dest_path):
+    """在case结束的时候，计算下结束时间，整个运行过程所需时间，以及最后的目录的大小"""
     end = time.mktime(time.localtime())
     End_time = time.strftime('%Y-%m-%d %H:%M:%S')
     Total_time = int(str(end-start).split('.')[0])
@@ -834,7 +853,8 @@ def get_case_end_info(start, dest_path):
     return End_time, Total_time, Folder_size
     
     
-def running(pc_name, res, client_dest_path, DVDFab_path, params_dict, XML_FILE):     
+def running(pc_name, res, client_dest_path, DVDFab_path, params_dict, XML_FILE):
+    """  """     
     start = Start_time = dest_path = result = logpath = burn_engine_type = ''
     update_registry_value(res, params_dict["project"], XML_FILE)          
     module, iso,ripper_mode = res_to_iso(res)       
@@ -882,6 +902,7 @@ def ipv4_address():
    
 
 def get_new_file_ctime_macos(path):
+    """ 获取指定目录下的最新的以fab_config开头的文件 """
     file_list = []
     ctime_list = []
     file_ctime_list = []
@@ -905,6 +926,7 @@ def get_new_file_ctime_macos(path):
     return XML_FILE
 
 def get_new_file_ctime_windows(path):
+    """ 获取指定目录下的最新的以fab_config开头的文件 """
     c_time = 0
     xml_file = ""
     for onefile in os.listdir(path):
@@ -917,7 +939,7 @@ def get_new_file_ctime_windows(path):
                     xml_file = path_file
     return xml_file
                     
-	
+#不再使用	
 def get_new_file_ctime_windows_old(path):
     file_list = []
     ctime_list = []
@@ -933,6 +955,7 @@ def get_new_file_ctime_windows_old(path):
 	
 	
 def get_node_value(node, key):
+    """ 获得xml文档的节点的值 """
     try:
         value = node.attrib[key]
     except Exception, e:
@@ -941,6 +964,7 @@ def get_node_value(node, key):
     return value
 	
 def get_DVDFab_path(XML_FILE):
+    """ 获取DVDFab的安装路径 """
     if os.name == 'nt': 
 		tree, nodes = windows_xml.read_xml(XML_FILE, 'common_setting', xml_temp)
 		DVDFab_path = get_node_value(nodes[0], 'Path')
@@ -950,11 +974,13 @@ def get_DVDFab_path(XML_FILE):
 	
 	
 def get_case_info(res):
+    """ 获得case的信息 """
     #case_id, case_num, case_dest_path
     return res[0], res[1], res[6]
 	
 	
 def operate_file(logpath, case_id, Start_time, dest_path):
+    """ case跑完之后操作文件：包括获取log文件，上传log文件，拷贝以及压缩log文件 """
     start_time = Start_time.replace('-','_').replace(':','_').replace(' ','_')
     log_filename_list = get_log_files(logpath)      
     upload_file(log_filename_list, case_id)        
