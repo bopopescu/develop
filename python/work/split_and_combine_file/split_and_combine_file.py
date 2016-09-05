@@ -39,7 +39,10 @@ def read_file(filename):
 
 
 def split_file(filename, chunksize):
-    """ 分割文件，将一个大文件按照指定的大小分割成若干个小文件 """
+    """ 
+             分割文件，将一个大文件按照指定的大小分割成若干个小文件 ;
+             根据文件指针的变化判断文件是否读取完毕，当文件指针不再变化的时候就表明读取完毕.
+    """
     fp = open(filename, "rb")
     last_position = 0
     n = 1
