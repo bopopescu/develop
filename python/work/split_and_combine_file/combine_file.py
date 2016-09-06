@@ -37,7 +37,7 @@ def read_file(filename):
 
 
 def get_sorted_file_list(src_path):
-    """ 获得当前目录下的所有已经排好序的以数字结尾的文件名字的列表,使用冒泡算法排序 """
+    """ 获得当前目录下的所有已经排好序的以数字结尾的文件名字的列表,使用冒泡排序 """
     file_list = [os.path.join(src_path, each_file) for each_file in os.listdir(src_path) if each_file[-1].isdigit()]
     for i in xrange(len(file_list)-1):
         for j in xrange(i, len(file_list)):

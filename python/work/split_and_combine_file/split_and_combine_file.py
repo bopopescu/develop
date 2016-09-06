@@ -40,8 +40,8 @@ def read_file(filename):
 
 def split_file(filename, chunksize):
     """ 
-             分割文件，将一个大文件按照指定的大小分割成若干个小文件 ;
-             根据文件指针的变化判断文件是否读取完毕，当文件指针不再变化的时候就表明读取完毕.
+        分割文件，将一个大文件按照指定的大小分割成若干个小文件 ;
+        根据文件指针的变化判断文件是否读取完毕，当文件指针不再变化的时候就表明读取完毕.
     """
     fp = open(filename, "rb")
     last_position = 0
@@ -60,7 +60,7 @@ def split_file(filename, chunksize):
 
 
 def get_sorted_file_list(src_path):
-    """ 获得当前目录下的所有已经排好顺序的文件列表,使用冒泡算法排序 """
+    """ 获得当前目录下的所有已经排好顺序的文件列表,使用冒泡排序 """
     file_list = [os.path.join(src_path, each_file) for each_file in os.listdir(src_path) if each_file[-1].isdigit()]
     for i in xrange(len(file_list)-1):
         for j in xrange(i, len(file_list)):
