@@ -40,19 +40,23 @@ class UrlManager(object):
         self.old_urls = set()
         
     def add_url(self, url):
+        """ 将新的url添加到new_urls集合中 """
         if url is None:
             return
         if url not in self.new_urls and url not in self.old_urls:
             self.new_urls.add(url)
     
     def add_urls(self, urls):
+        """ 将新的url列表添加到new_urls集合中 """
         for url in urls:
             self.add_url(url)
     
     def has_url(self):
+        """ 判断new_urls集合中是否还有url """
         return len(self.new_urls) != 0
     
     def get_url(self):
+        """ 从new_urls集合中获得一个url """
         url = self.new_urls.pop()
         if url.endswith("/") or url.endswith("\\"):
             url = url [:-1]
@@ -62,6 +66,7 @@ class UrlManager(object):
 """url下载器"""
 class UrlDownloader(object):
     def url_download(self, url):
+        """ 获取html字符串文档 """
         if url is None:
             return 
         try:
@@ -77,6 +82,7 @@ class UrlDownloader(object):
 """html解析器"""
 class HtmlParser(object):            
     def get_movie_name(self, page):
+        """ 获得电影名字 """
         movie_name = None
         for record in page.xpath(u"//h1"):
             if "class" in record.attrib:
@@ -90,6 +96,7 @@ class HtmlParser(object):
         return movie_name
     
     def get_picture_download_url(self, page):
+        """ 获取的图片的下载路径 """
         try:
             picture_download_url = page.xpath(u"/html/body/div/div/div[@class='movie-title-mpic']/a/img")[0].attrib["src"]
         except Exception, e:
@@ -97,7 +104,8 @@ class HtmlParser(object):
             #print "get_picture_download_url: ", str(e)
         return picture_download_url
     
-    def get_movie_info(self, page):
+    def get_movie_info(self, page): 
+        """ 获得电影的信息 """
         movie_info = {}
         movie_name = self.get_movie_name(page)
         if movie_name:
@@ -111,6 +119,7 @@ class HtmlParser(object):
         return movie_info
             
     def add_link(self, p, href, key):
+        """ 获得新的连接 """
         new_full_url = ""
         if href.has_key(key):
             link = href[key]
@@ -120,6 +129,7 @@ class HtmlParser(object):
         return new_full_url
 
     def get_download_url(self, base_main_url, page):
+        """ 获得电影的下载链接 """
         hrefs = page.xpath(u"//a")
         p = r"/download/\d+"
         download_url_set = set()
@@ -130,6 +140,7 @@ class HtmlParser(object):
         return download_url_set
     
     def download_movie_or_picture(self, download_url, cur_movie_path, category = None, isDownload = False):
+        """ 下载电影或者图片 """
         if isDownload:
             if download_url is "" or download_url is None or cur_movie_path is None:
                 return
@@ -146,6 +157,7 @@ class HtmlParser(object):
         return ""
     
     def download_movie(self, download_url, cur_movie_path):
+        """ 下载电影 """
         if download_url is None:
             return
         try:
@@ -158,6 +170,7 @@ class HtmlParser(object):
         return os.path.basename(download_url)
     
     def create_movie_path(self, movie_name):
+        """ 在本地创建保存下载的电影的目录 """
         if movie_name is None:
             return   
         for each_str in SPECIAL_CHARS_LIST:
@@ -169,6 +182,7 @@ class HtmlParser(object):
         return cur_movie_path
     
     def get_all_movie_urls(self, page):
+        """ 获得所有的电影链接 """
         new_highlight_urls = set()
         hrefs = page.xpath(u"//a")
         p = r"/movie/\d+"
@@ -179,6 +193,7 @@ class HtmlParser(object):
         return new_highlight_urls
         
     def parser(self, html_doc):
+        """ 使用lxml模块解析html文档 """
         if html_doc is None:
             return
         try:
@@ -189,6 +204,7 @@ class HtmlParser(object):
         return page
     
     def get_final_download_url(self, download_url_content, cur_movie_path):
+        """ 获取最终的下载链接 """
         download_url_dict = {}
         extend_name_list = [".flv", ".mov", ".mkv", ".mp4", ".swf", ".vob", ".bdmv",".f4v"]
         try:
@@ -217,6 +233,7 @@ class HtmlParser(object):
         """not implement"""
     
     def get_adress(self, adress_dict, key):
+        """ 获取地址 """
         try:
             adress = adress_dict[key]
         except Exception, e:
@@ -227,6 +244,7 @@ class HtmlParser(object):
 """数据库"""
 class  Mysql_ZH(Mysql):       
     def insert_db_movie_name(self, movie_name, picture_path, language):
+        """ 将电影名字插入数据库 """
         if "'" in movie_name:
             insert_sql = '''insert into %s(%s,%s,%s) values ("%s","%s","%s")''' % ("movie_trailer_movie_name_zh", "name", "picture_path","language", movie_name, picture_path, language)
         else:
@@ -243,6 +261,7 @@ class  Mysql_ZH(Mysql):
         #return self.cursor.lastrowid
         
     def insert_db_movie_info(self, movie_name_id, movie_time, trailer_order, address_high_definition, address_480p, address_720p, address_1080p, url_high_definition, url_480p, url_720p,url_1080p,download_url):
+        """ 将电影信息插入数据库 """
         if "'" in trailer_order:
             insert_sql = '''insert into %s (%s,%s,%s,%s,%s,%s, %s, %s,%s,%s,%s,%s) values ("%d","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s")''' \
             % ("movie_trailer_movie_info_zh", "movie_name_id", "movie_time","trailer_order", "address_high_definition","address_480p", "address_720p", \
@@ -262,6 +281,7 @@ class  Mysql_ZH(Mysql):
             print str(e)
   
     def has_record(self, tb_name, column_name, tb_column):
+        """判断数据库是否有指定的记录"""
         select_sql = 'select * from %s where %s = "%s"' % (tb_name, column_name, tb_column)
         self.cursor.execute(select_sql)
         record = self.cursor.fetchone()
@@ -270,6 +290,7 @@ class  Mysql_ZH(Mysql):
         return len(record) != 0
     
     def get_movie_name_id(self, tb_name, column_name, movie_name):
+        """ 获取表中电影名字的id """
         if movie_name is None:
             return
         if '"' in movie_name:
@@ -294,6 +315,7 @@ class SpiderMain(object):
         self.mysql = Mysql_ZH()
          
     def craw(self, highlight_url, base_download_url):
+        """ 开始爬取网站信息 """
         page_count = 261    #这个变量表示当前的页数
         num = 0           #这个变量表示下载预告片的个数
         while 1:

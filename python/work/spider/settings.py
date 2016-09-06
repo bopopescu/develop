@@ -19,6 +19,7 @@ SPECIAL_CHARS_LIST = ['\\','/',':','*','?','"','<','>','|', '+', ',', '.',' ']
 
 
 def log(info, filename = LOG_FILENAME):
+    """ log函数，记录日志 """
     logging.basicConfig(filename = LOG_FILENAME, level = logging.NOTSET, filemode = "a", format = "%(asctime)s : %(message)s")
     logging.info(info)    
 	

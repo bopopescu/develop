@@ -34,19 +34,23 @@ class UrlManager(object):
         self.old_urls = set()
         
     def add_url(self, url):
+        """ 将新的url添加到new_urls集合中 """
         if url is None:
             return
         if url not in self.new_urls and url not in self.old_urls:
             self.new_urls.add(url)
             
     def add_urls(self, urls):
+        """ 将新的url列表添加到new_urls集合中 """
         for url in urls:
             self.add_url(url)
             
     def has_url(self):
+        """ 判断new_urls集合中是否还有url """
         return len(self.new_urls) != 0
     
     def get_url(self):
+        """ 从new_urls集合中获得一个url """
         url = self.new_urls.pop()
         if url.endswith("/") or url.endswith("\\"):
             url = url[:-1]
@@ -57,6 +61,7 @@ class UrlManager(object):
 """url下载器"""
 class UrlDownloader(object):
     def url_download(self, url):
+        """ 获取html字符串文档 """
         if url is None:
             return 
         try:
@@ -71,6 +76,7 @@ class UrlDownloader(object):
 """url解析器"""
 class HtmlParser(object):   
     def parser(self, html_doc):
+        """ 使用BeautifulSoup解析html文档 """
         if html_doc is None:
             return
         try:
@@ -81,6 +87,7 @@ class HtmlParser(object):
         return soup
     
     def get_all_movie_link_urls(self, soup):
+        """ 获取所有的电影链接 """
         movie_urls = set()
         try:
             links = soup.find("table", class_ = "libraryTextIndexList").find_all("a")
@@ -95,6 +102,7 @@ class HtmlParser(object):
         return movie_urls
     
     def get_movie_name(self, soup):
+        """ 获取电影的名字 """
         try:
             movie_name_obj = soup.find("table", class_ = "mainTopTable").find("h1", class_ = "previewTitle", itemprop = "name")
         except Exception as e:
@@ -104,18 +112,20 @@ class HtmlParser(object):
         return movie_name
     
     def get_picture_download_url(self, soup):
+        """ 获取图片的下载链接 """
         try:
             movie_picture_obj = soup.find("table", class_ = "mainTopTable").find("span", class_ = "topTableImage").find("img")
         except Exception as e:
             movie_picture_obj = None
         if movie_picture_obj:
-            picture_download_url = movie_picture_obj["src"]
+            #picture_download_url = movie_picture_obj["src"]
             picture_download_url = urlparse.urljoin("http:", picture_download_url)
         else:
             picture_download_url = None
         return picture_download_url
     
     def get_trailer(self, soup):   
+        """ 获取电影预告片的标题 """
         try:
             trailer_obj = soup.find("table", class_ = "bottomTable").find("td", id = "Trailers").find("h2")
         except Exception as e:
@@ -124,6 +134,7 @@ class HtmlParser(object):
         return trailer
     
     def get_movie_other_info(self, soup, cur_movie_path):
+        """ 获取电影的其他信息 """
         try:
             tr_obj = soup.find("table", class_ = "bottomTable").find_all("tr", itemprop = "trailer")
         except Exception as e:
@@ -153,6 +164,7 @@ class HtmlParser(object):
 
 
     def get_movie_info(self, soup):
+        """ 获取电影的所有信息 """
         movie_name = self.get_movie_name(soup)
         picture_download_url = self.get_picture_download_url(soup)
         cur_movie_path = self.create_movie_path(movie_name)
@@ -162,6 +174,7 @@ class HtmlParser(object):
     
     
     def create_movie_path(self, movie_name):
+        """ 在本地创建保存下载的电影的目录 """
         if movie_name is None:
             return   
         for each_str in SPECIAL_CHARS_LIST:
@@ -173,6 +186,7 @@ class HtmlParser(object):
         return cur_movie_path
     
     def download_movie_or_picture(self, download_url, cur_movie_path, category = None, isDownload = False):
+        """ 下载电影或者图片 """
         if isDownload:
             if download_url is "" or download_url is None or cur_movie_path is None:
                 return
@@ -187,6 +201,7 @@ class HtmlParser(object):
         return ""
     
     def get_adress(self, adress_dict, key):
+        """ 获取地址 """
         try:
             adress = adress_dict[key]
         except Exception, e:
@@ -203,6 +218,7 @@ class  Mysql(object):
         self.db = DB_NAME
         
     def connect_db(self):
+        """ 连接数据库 """
         try:
             self.conn = MySQLdb.connect(host = DB_HOST, user = DB_USER, passwd = DB_PASSWD, db = DB_NAME, charset = "utf8")
             self.cursor = self.conn.cursor()
@@ -215,6 +231,7 @@ class  Mysql(object):
         
         
     def insert_db_movie_name(self, movie_name, picture_path, language):
+        """ 将电影名字插入数据库 """
         if "'" in movie_name:
             insert_sql = '''insert into %s(%s,%s,%s) values ("%s","%s","%s")''' % ("movie_trailer_movie_name", "name", "picture_path","language", movie_name, picture_path, language)
         else:
@@ -231,6 +248,7 @@ class  Mysql(object):
         #return self.cursor.lastrowid
         
     def insert_db_movie_info(self, movie_name_id, movie_time, trailer_order, address_high_definition, address_480p, address_720p, address_1080p, url_high_definition, url_480p, url_720p,url_1080p):
+        """ 将电影其他信息插入数据库 """
         if "'" in trailer_order:
             insert_sql = '''insert into %s (%s,%s,%s,%s,%s,%s, %s, %s,%s,%s, %s) values ("%d","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s")''' \
             % ("movie_trailer_movie_info", "movie_name_id", "movie_time","trailer_order", "address_high_definition","address_480p", "address_720p", \
@@ -249,6 +267,7 @@ class  Mysql(object):
             print str(e)
   
     def has_record(self, tb_name, column_id, tb_id, column_name, tb_column):
+        """判断数据库是否有指定的记录"""
         if tb_id is None:
             if "'" in tb_column:
                 select_sql = 'select * from %s where %s = "%s"' % (tb_name, column_name, tb_column)
@@ -266,6 +285,7 @@ class  Mysql(object):
         return len(record) != 0
     
     def get_movie_name_id(self, tb_name, column_name, movie_name):
+        """ 获取表中电影名字的id """
         if movie_name is None:
             return
         if '"' in movie_name:
@@ -281,6 +301,7 @@ class  Mysql(object):
         
         
     def close_db(self):
+        """ 关闭数据库 """
         self.cursor.close()
         self.conn.close()
 		
@@ -294,6 +315,7 @@ class SpiderMain(object):
         self.mysql = Mysql()
         
     def craw(self, library_url, library_list):
+        """ 开始爬取网站信息 """
         print "begin to craw!"
         log("*******************************begin to craw!*******************************")
         for each_library in library_list:
