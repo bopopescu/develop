@@ -16,19 +16,22 @@ from buildbot.status.web import auth, authz
 from buildbot.status.mail import MailNotifier
 from buildbot.schedulers.forcesched import ForceScheduler
 from buildbot.changes.gitpoller import GitPoller
+import locks
+
+SLAVEIP = "10.10.2.73"
 
 ################################# BUILDSLAVES #################################
 
 
 ################################# CHANGESOURCES #################################
 ####################################GitPoller#################################
-cs_gitpoller = GitPoller(#project = "aaa",
-                         repourl="git_project_path_aaa",
-                         #branches = ["master"],
-                         branches = ['branches'],
-						 pollInterval = 60,
-						 gitbin = "/usr/bin/git")
-						 #gitbin = "c:/Program Files/Git/bin/git.exe")								 
+#cs_gitpoller = GitPoller(#project = "win_Server_Business",
+#                         repourl="git_project_path_win_Server_Business",
+#                         #branches = ["master"],
+#                         branches = ['branches'],
+#						 pollInterval = 60,
+#						 gitbin = "/usr/bin/git")
+#						 #gitbin = "c:/Program Files/Git/bin/git.exe")								 
 
 
 ################################# SCHEDULERS #################################	
@@ -38,7 +41,7 @@ def dev_branch_fn_git(branch):
         return branch
 			
 			
-def isImportantAAAWindows(change):
+def isImportantWin_Server_BusinessWindows(change):
     is_important = False
     for each_file in change.files:
         each_file = each_file.replace("\\","/")
@@ -52,44 +55,52 @@ def isImportantAAAWindows(change):
             break
     return is_important
 	
-scheduler_aaa_build = SingleBranchScheduler(name = "aaa",
+scheduler_win_Server_Business_build = SingleBranchScheduler(name = "win_Server_Business",
                                                change_filter = ChangeFilter(branch_fn=dev_branch_fn_git),
                                                treeStableTimer = 5,
-                                               builderNames = ["aaa"],
-                                               fileIsImportant = isImportantAAAWindows,
+                                               builderNames = ["win_Server_Business"],
+                                               fileIsImportant = isImportantWin_Server_BusinessWindows,
                                                onlyImportant = True,
-                                               properties={'owner':['1025977445@qq.com']})	
+                                               properties={'owner':['hongwei.shi@goland.cn']})	
 
 			
-AAA_time = timed.Nightly(
-					name = 'AAA',
-					builderNames = ["aaa"],
+Win_Server_Business_time = timed.Nightly(
+					name = 'Win_Server_Business',
+					builderNames = ["win_Server_Business"],
 					branch = "trunk/goland",
 					hour = [200],
 					minute = 200,
-					dayOfWeek = [0, 1, 2, 3, 4, 5])		
+					dayOfWeek = [0, 1, 2, 3, 4])		
 					
-force_builder= ForceScheduler( name="all_aaa",
-	            builderNames=["aaa"])										   
+win_Server_Business_force_builder= ForceScheduler( name="all_win_Server_Business",
+	            builderNames=["win_Server_Business"])										   
 
 
 
 ################################# Factory  ################################
 
-import dvdfab_factory_aaa
-f_aaa = BuildFactory()
-aaa = dvdfab_factory_aaa.Factory(f_aaa)
-f_aaa = aaa.f_build()
+import dvdfab_factory_win_Server_Business
+f_win_Server_Business = BuildFactory()
+win_Server_Business = dvdfab_factory_win_Server_Business.Factory(f_win_Server_Business)
+f_win_Server_Business = win_Server_Business.f_build()
 
+def get_lock(build_lock_dict):
+    db_lock = ""
+    db_lock_ip = "db_lock_" + SLAVEIP.strip().split(".")[-1]
+    if db_lock_ip in build_lock_dict.keys():
+        db_lock = build_lock_dict[db_lock_ip]
+    return db_lock
 
+db_lock = get_lock(locks.build_lock_dict)
 ################################# BUILDERS  #################################
-aaa_build_dir = "build_aaa_dir"
-b_aaa = {
-		'name' : 'aaa',
-		'slavename' : 'AAA',
-		'builddir' : aaa_build_dir,
-        'slavebuilddir' : aaa_build_dir,
-		'factory' : f_aaa}
+win_Server_Business_build_dir = "build_win_Server_Business_dir"
+b_win_Server_Business = {
+		'name' : 'win_Server_Business',
+		'slavename' : 'Win_Server_Business',
+		'builddir' : win_Server_Business_build_dir,
+                'slavebuilddir' : win_Server_Business_build_dir,
+	        'locks' : [db_lock.access("exclusive")],
+		'factory' : f_win_Server_Business}
 
 		
 ################################# STATUS TARGETS  #################################
@@ -107,25 +118,27 @@ authz_cfg=authz.Authz(
 )
 
 ################################# PROJECT MailNotifier #################################
-aaa_mail = MailNotifier(
+win_Server_Business_mail = MailNotifier(
 					fromaddr="buildbot@goland.cn",
 					sendToInterestedUsers=True,
 					lookup = "goland.cn",
 					mode='failing',
-					relayhost = '10.10.7.151',
+					relayhost = '10.10.7.100',
 					smtpPort = 25,
 					smtpUser = 'buildbot@goland.cn',
 					smtpPassword = '123456',
-					builders = ['aaa'],
-					extraRecipients=['1025977445@qq.com'])					
+					builders = ['win_Server_Business'],
+					extraRecipients=['hongwei.shi@goland.cn'])					
+
+
 
 def update_params_dict(c):
-    c['slaves'].append(BuildSlave("AAA", "123456"))
-    c['change_source'].append(cs_gitpoller)	
-    c['schedulers'].append(scheduler_aaa_build)
-    c['schedulers'].append(AAA_time)
-    c['schedulers'].append(force_builder)
-    c['builders'].append(b_aaa)
-    c['status'].append(aaa_mail)
+    c['slaves'].append(BuildSlave("Win_Server_Business", "123456"))
+    #c['change_source'].append(cs_gitpoller)	
+    c['schedulers'].append(scheduler_win_Server_Business_build)
+    c['schedulers'].append(Win_Server_Business_time)
+    c['schedulers'].append(win_Server_Business_force_builder)
+    c['builders'].append(b_win_Server_Business)
+    c['status'].append(win_Server_Business_mail)
     return c
 
