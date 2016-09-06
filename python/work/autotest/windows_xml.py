@@ -3,15 +3,19 @@ from xml.etree.ElementTree import ElementTree
 import getpass, os
 import platform
 
-user_name = getpass.getuser()
 
 
-SYSTEM_NAME = platform.platform()
-if "XP" in SYSTEM_NAME.upper():
-    XML_FILE_PATH = 'C:/Documents and Settings/%s/Application Data/DVDFab9' % user_name
-else:
-    XML_FILE_PATH = 'C:/Users/%s/AppData/Roaming/DVDFab9' % user_name
-xml_temp = os.path.join(XML_FILE_PATH, "temp.xml")
+def get_tmp_file():
+    user_name = getpass.getuser()
+    SYSTEM_NAME = platform.platform()
+    if "XP" in SYSTEM_NAME.upper():
+        XML_FILE_PATH = 'C:/Documents and Settings/%s/Application Data/DVDFab9' % user_name
+    else:
+        XML_FILE_PATH = 'C:/Users/%s/AppData/Roaming/DVDFab9' % user_name
+    xml_temp = os.path.join(XML_FILE_PATH, "temp.xml")
+    retrun xml_temp, XML_FILE_PATH
+	
+xml_temp, XML_FILE_PATH = get_tmp_file()
     
 def read_xml(xml_path, path,xml_temp):
     nodes = []

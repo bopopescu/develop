@@ -27,7 +27,7 @@ import getpass
 import MySQLdb
 
 user_name = getpass.getuser()
-xml_temp = 'C:\\Users\\' + user_name + '\\AppData\\Roaming\\DVDFab9\\temp.xml'
+xml_temp = r'C:\Users\%s\AppData\Roaming\DVDFab9\temp.xml' % user_name
 
 current_path = os.getcwd()
 TESTBAT_PATH = current_path +'/test.bat'
@@ -107,6 +107,7 @@ def get_client_path(pc_ip):
 
 
 def get_ip_address(pc_name):    
+    """ get ip from db """
     client_ip = ''
     client_dest_path = ''
     conn, cursor = connect_database() 
@@ -148,6 +149,7 @@ def res_to_iso(res):
 	
 	
 def get_path_list(path, path_mac):
+    """ get path list """
     return (path.split(','), path_mac.split(',')) if ',' in path else (path.split(';'), path_mac.split(';'))
 	
 	
@@ -171,6 +173,7 @@ def connect_server(path, ip):
 		
 		
 def get_final_iso_path(dvd_path_list, file_path_list, bd_path_list, module, iso):
+    """ get iso path from the real nas path """
     src_iso_path = ""
     cate_dict = {"DVD":dvd_path_list, "VIDEO":file_path_list}#, "BD":bd_path_list}
     if module in cate_dict:
@@ -207,6 +210,7 @@ def search_iso_path(module, iso, bd_path, dvd_path, file_path,bd_path_mac,dvd_pa
                      
      
 def update_session_table(res, Flag, case_id, case_num, pc_name, src_iso_path = '', Start_time = '', End_time = '', Total_time = '', Folder_size = '', result = ''):    
+    """ update session table before and after case running"""
     update_flag = True
     src_iso_path = res[5] if src_iso_path == '' else src_iso_path
     Start_time = res[33] if Start_time == '' else Start_time
@@ -225,19 +229,7 @@ def update_session_table(res, Flag, case_id, case_num, pc_name, src_iso_path = '
         cursor.close()    
         conn.close() 
     return update_flag
- 
- 
-def update_session_flag(Flag, case_id, case_num, pc_name):
-    conn, cursor = connect_database()   
-    sql = "update blog_session set Flag = '%d' where id = '%d' and Num = '%s' and PC_name = '%s'" % (Flag, case_id, case_num, pc_name)
-    try:      
-        cursor.execute(sql)  
-        conn.commit()   
-    except Exception, e: 
-        initlog('failed to update session table; %s' % str(e)) 
-    finally:               
-        cursor.close()    
-        conn.close() 
+
     
 #this function does not be used    
 def get_registry_value(regpath, regkey):  
@@ -254,7 +246,7 @@ def get_registry_value(regpath, regkey):
 		
 		
 def get_value(value, param):
-    """ 格式化字符串输出 """
+    """ format str """
     return '  %s "%s"' % (param, value) if value else ""
     
     
@@ -345,7 +337,8 @@ def update_registry(path, valuename, value):
         initlog('failed to update registry; %s' % str(e))
   
   
-def initlog(info):     
+def initlog(info):  
+    """ function: record the log """   
     #logging.basicConfig(filename = LOG_FILENAME, level = logging.NOTSET, filemode = 'a', format = '%(asctime)s - %(levelname)s: %(message)s') 
     logging.basicConfig(filename = LOG_FILENAME, level = logging.NOTSET, filemode = 'a', format = '%(asctime)s : %(message)s')      
     logging.info(info) 
@@ -393,7 +386,8 @@ def catch_all_picture(picture_path, index):
             initlog('failed to catch the picture; %s' % str(e))
             
 
-def read_ini(ini_file):    
+def read_ini(ini_file):  
+    """ get params from ini file """  
     project = ''
     bd_analysis_time = bd_interval_time = '' 
     bd_ripper_analysis_time = bd_ripper_interval_time = ''    
@@ -528,6 +522,7 @@ def get_log_files(logpath):
 
 
 def copy_file(log_filename_list, dest_path):  
+    """ copy file """
     for src_file in log_filename_list:
         if os.path.isfile(src_file): 
             if os.path.isdir(dest_path):      
@@ -732,6 +727,7 @@ def get_xml_value(node, key):
 
 
 def before_running(res, src_iso_path, dest_path, project, XML_FILE): 
+    """ before case running, do some things """
     path_list = ["common_setting/Generic","common_setting/DVD"]
     if os.name == 'nt':
         if project.upper() == 'DVDFAB 8' or project.upper() == 'DVDFAB8':
@@ -770,7 +766,8 @@ def before_running(res, src_iso_path, dest_path, project, XML_FILE):
     return dest_path, logpath, burn_engine_type
 
 
-def update_session_before_running(pc_name, src_iso_path, res):             
+def update_session_before_running(pc_name, src_iso_path, res):   
+    """ update session before running """          
     start = time.mktime(time.localtime())
     Start_time = time.strftime('%Y-%m-%d %H:%M:%S')
     src_iso_path = src_iso_path.replace('\\','\\\\')  
@@ -854,7 +851,7 @@ def get_case_end_info(start, dest_path):
     
     
 def running(pc_name, res, client_dest_path, DVDFab_path, params_dict, XML_FILE):
-    """  """     
+    """ case running """     
     start = Start_time = dest_path = result = logpath = burn_engine_type = ''
     update_registry_value(res, params_dict["project"], XML_FILE)          
     module, iso,ripper_mode = res_to_iso(res)       
@@ -988,6 +985,7 @@ def operate_file(logpath, case_id, Start_time, dest_path):
     zip_files(log_filename_list, dest_path + '/' + start_time +'.zip')
    
 def main(): 
+    """ 主程序入口 """
     initlog("\n\n**************************begin**************************")
     pc_name = get_pcname()         
     pc_ip = ipv4_address()
