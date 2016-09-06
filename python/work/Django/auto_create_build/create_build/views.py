@@ -1,10 +1,12 @@
 #-*- encoding:utf-8 -*- 
+
 """
     created by
     @作者: dedong.xu
     @日期: 2015-05-20
-    @目的: 提供一个工具，让相关负责人自己去创建build，不参与他们的业务逻辑
+    @目的: 提供一个工具，让相关负责人自己去创建build，不参与他们的业务逻辑.
 """
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
@@ -32,11 +34,12 @@ sys.setdefaultencoding("utf8")
 
 
 log = logging.getLogger("django")
-temp_file = os.path.dirname(__file__) + "/temp_file.txt"
+temp_file = os.path.join(os.path.dirname(__file__), "temp_file.txt")
 
 SEARCH_LIST = ["slavename", "buildername", "slave_platform", "buildip", "username"]
 
 def checkslavename(request):
+    """ check slavename, if exists, prompt user """
     slavename = request.POST.get("slavename", "").strip() 
     try:
         build_info_obj = Build_Info.objects.get(slavename__exact = slavename)
@@ -47,6 +50,7 @@ def checkslavename(request):
 
 
 def checkbuildername(request):
+    """ check buildername, if exists, prompt user """
     buildername = request.POST.get("buildername", "").strip() 
     try:
         build_info_obj = Build_Info.objects.get(buildername__exact = buildername)
@@ -130,6 +134,7 @@ def logout_old(request):
 
 
 def send_mails(to_list,sub,content):
+    """ send mail """
     mail_host="10.10.7.100"  #set mail server
     mail_user="buildbot"    #usename
     mail_pass="123456"   #password
@@ -214,15 +219,18 @@ def params_required(func = None):
 
 @params_required
 def index(request):
+    """ create new slave page """
     product = request.GET.get("product", "").strip()
     if request.session.has_key("username"):
         hours = [i for i in xrange(24)]
         minutes = [i for i in xrange(60)]
         return render_to_response("index.html",locals())
     else:
+        return render_to_response("login.html")
         return HttpResponse("<body style = 'background-color:#77ac98'><a href = '/login/'>请先登录</a></body>")
 
 def increase_file(filename, content):
+    """ increase file """
     try:
         fp = open(filename, "a+")
         fp.write(content + "\n")
@@ -232,6 +240,7 @@ def increase_file(filename, content):
 
 
 def write_file_lines(filename, content_list):
+    """ write file in lines"""
     fp = open(filename, "w+")
     for each_line in content_list:
         fp.write(each_line)
@@ -239,6 +248,7 @@ def write_file_lines(filename, content_list):
 
 
 def write_file(filename, content):
+    """ write file """
     try:
         fp = open(filename, "w")
         fp.write(content)
@@ -248,6 +258,7 @@ def write_file(filename, content):
 
 
 def read_file(filename):
+    """ read file """
     try:
         fp = open(filename, "r")
         content = fp.read()
@@ -259,6 +270,7 @@ def read_file(filename):
 
 
 def read_file_lines(filename):
+    """ read file in lines """
     try:
         fp = open(filename, "r")
         all_lines = fp.readlines()
@@ -270,7 +282,8 @@ def read_file_lines(filename):
 
 def get_salt_cmd(slave_platform, slaveip, cmd):
     """get salt cmd"""        
-    salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + cmd + '"'
+    salt_cmd = 'echo "123456"|sudo -S salt "%s_%s" cmd.run "%s"' % (slave_platform.lower(), slaveip, cmd)
+    #salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + cmd + '"'
     return salt_cmd
 
 
@@ -303,6 +316,7 @@ def create_slave(masterip,master_port, slave_path,slaveip,slave_platform,slavena
 
 
 def create_start_slave_script(slaveip, slave_platform,slave_source_path,slavename):
+    """ create start slave script """
     if slave_platform == "Win":
         extend_name = ".bat"
         start_all_slave_cmd = "start .\\start_slave_" + slavename + extend_name
@@ -325,6 +339,7 @@ def create_start_slave_script(slaveip, slave_platform,slave_source_path,slavenam
 
 
 def start_slave_script(slaveip,slave_platform,slave_source_path,slavename):
+    """ start slave script """
     try:
         log.info("begin to start slave: %s!" % slavename)
         if slaveip == "10.10.2.97":
@@ -340,6 +355,7 @@ def start_slave_script(slaveip,slave_platform,slave_source_path,slavename):
 
 
 def create_new_master(master_template,slaveip,gitpoller_file,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list):
+    """ create new master """
     content = read_file(master_template)
     new_content = content.replace("slave_ip",slaveip).replace("buildername", buildername).replace("Slave_Name", slavename).replace("git_url", git_project_path).replace("branches_list", str(branches_list))\
                   .replace("monitor_file_path", monitor_file_path).replace("start_hour",hour).replace("start_minute",minute).replace("send_mail_list",str(send_mail_list))
@@ -348,6 +364,7 @@ def create_new_master(master_template,slaveip,gitpoller_file,buildername,slavena
     log.info("create new master config file: %s successfully!" % new_master)
 
 def get_gitpoller(gitpoller_file, buildername, git_project_path, branches_list):
+    """ monitor git, when some events happended, start the slave """
     if os.path.exists(gitpoller_file):
         all_lines = read_file_lines(gitpoller_file)
         flag, branches_flag, update_gitpoller_flag = True, True, True
@@ -403,6 +420,7 @@ def get_gitpoller(gitpoller_file, buildername, git_project_path, branches_list):
 
 
 def get_lock(locks_file, slaveip):
+    """ each build has a lock """
     ip = slaveip.strip().split(".")[-1]
     if os.path.exists(locks_file):
         all_lines = read_file_lines(locks_file)
@@ -428,6 +446,7 @@ def get_lock(locks_file, slaveip):
 
 
 def import_new_master(old_master,slaveip,buildername):
+    """ import new master to the main master conf file"""
     new_list = []
     all_lines = read_file_lines(old_master)
     for each_line in all_lines:
@@ -443,12 +462,14 @@ def import_new_master(old_master,slaveip,buildername):
         log.info("import new master error: " + str(e))
 
 def create_new_factory(build_info_id,slave_platform,factory_template,new_factory):
+    """ create new factory """
     content = read_file(factory_template)
     new_content = content.replace("var_build_info_id", str(build_info_id)).replace("var_slave_platform", slave_platform)
     write_file(new_factory, new_content)
     log.info("create or update factory!")
 
 def restart_master(product):
+    """ restart master """
     current_path = "/home/goland/buildbot"
     if product.lower() == "vidon":
         restart_master_cmd = "buildbot restart master"
@@ -468,6 +489,7 @@ def deal_with_data(input_data):
 
 
 def get_params(slave_platform,slavename,buildername,product = None):
+    """ get params on master; and set slave and slave scripts path  """
     if product and product.lower() == "vidon":
         old_master = "/home/goland/buildbot/master/master.cfg"
         locks_file = "/home/goland/buildbot/master/locks.py"
@@ -502,6 +524,7 @@ def get_params(slave_platform,slavename,buildername,product = None):
 
 
 def git_commit(src_scripts_path, scripts_path, slavename, slaveip, slave_platform, message):
+    """ git commit:this function will be used when create or update slave  """
     git_pull_cmd = "git pull"    
     git_add_cmd = "git add " + scripts_path    
     git_commit_cmd = "git commit %s -m '%s %s'" % (scripts_path, message, slavename)
@@ -512,24 +535,20 @@ def git_commit(src_scripts_path, scripts_path, slavename, slaveip, slave_platfor
 
 
 def git_clone(slave_scripts_path,slavename,slaveip,slave_platform):
+    """ git clone: this function will be used where creating slave  """
     git_url = "git@10.10.2.31:autobuild/auto_build.git"
-    git_clone_cmd = "git clone " + git_url + " " + slave_scripts_path
+    git_clone_cmd = "git clone %s %s" % (git_url, slave_scripts_path)
     salt_cmd_git_clone = get_salt_cmd(slave_platform, slaveip, git_clone_cmd)
     log.info("git clone cmd is: " + git_clone_cmd)    
 
     p2 = subprocess.Popen(salt_cmd_git_clone, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
     out2 = p2.stdout.read()
     err2 = p2.stderr.read()
-    log.info("out2 " + out2)
-    log.info("err2 " + err2)
-    log.info("salt cmd git clone: " + salt_cmd_git_clone)
+    log.info("out2 %s" % out2)
+    log.info("err2 %s" % err2)
+    log.info("salt cmd git clone: %s" % salt_cmd_git_clone)
     log.info("git clone successfully!")
 
-def git_pull(slave_scripts_path, slaveip, slave_platform):
-    git_pull_cmd = "git pull "# + slave_scripts_path
-    salt_cmd = get_salt_cmd(slave_platform, slaveip, git_pull_cmd)
-    subprocess.Popen(salt_cmd, cwd = slave_scripts_path, shell = True)
-    
 
 def get_submit_script_content_values(post_dict):
     flag_str = "script_content"
@@ -555,6 +574,7 @@ def get_submit_script_content_values_new(post_dict):
 
 
 def format_file(temp_file, script_file):
+    """ format file """
     all_lines = read_file_lines(temp_file)
     fp = open(script_file, "w")
     for each_line in all_lines:
@@ -564,6 +584,7 @@ def format_file(temp_file, script_file):
 
 
 def test_salt(request):
+    """ test salt on web page """
     platform_list = ["", "win", "mac", "ubu"]
     context = {}
     context["platform_list"] = platform_list
@@ -585,6 +606,7 @@ def test_salt(request):
 
 
 def get_master_port(product):
+    """ according to product name, get the right master port """
     product_dict = {"vidon":"9989", "dvdfab":"9999"}
     if product.lower() in product_dict:
         master_port = product_dict[product.lower()]
@@ -595,6 +617,7 @@ def get_master_port(product):
 
 @csrf_exempt
 def create_new_slave(request):
+    """ create new slave: this will be used when create slave failed """
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         masterip = request.POST.get("masterip", "").strip()
@@ -618,27 +641,43 @@ def create_new_slave(request):
     return render_to_response("create_slave.html")
 
 def get_other_length(start_method, start_method_dict):
+    """ get length """
     if start_method in start_method_dict:
         other_length = start_method_dict[start_method]
     else:
         other_length = start_method_dict["radio_manual"]
     return other_length
 
+def get_other_length_old(start_method, length1, length2, length3):
+    if start_method == "radio_timing":
+        other_length = length1
+    elif start_method == "radio_trigger":
+        other_length = length2
+    else:
+        other_length = length3
+    return other_length
 
-def get_last_id():
+
+def get_last_id(obj):
+    """ get current slaved obj id """
+    return obj.id
+
+def get_last_id_old():
+    """ get last id """
     obj = Build_Info.objects.latest("id")
-    #obj = Build_Info.objects.all()[0]
     build_info_id = obj.id if obj else ""
     return build_info_id
 
 
 def create_folder(folder):
+    """ create folder """
     if not os.path.exists(folder):
         os.makedirs(folder, mode = 0777)
 
 
 @csrf_exempt
 def create_new_build(request):
+    """ create new build """
     product = request.POST.get("product", "").strip()
     masterip = request.POST.get("masterip", "").strip()
     slaveip = request.POST.get("slaveip", "").strip()
@@ -682,7 +721,7 @@ def create_new_build(request):
                             send_mail = send_mail, flag = 1, new_master = new_master, new_factory = new_factory,scripts_path = scripts_path, product = product)
     build_info.save()
     
-    build_info_id = get_last_id()
+    build_info_id = get_last_id(build_info)
     all_length = len(request.POST)
     start_method_dict = {"radio_timing":11, "radio_trigger":12, "radio_manual":9}
     other_length = get_other_length(start_method, start_method_dict)
@@ -770,6 +809,7 @@ def copy_build_info_page(request, params):
 
 @csrf_exempt
 def copy_build(request, params):
+    """ copy build according to existed build """
     cur_time = time.strftime("%Y_%m_%d_%H_%M_%S")
     product = request.GET.get("product", "").strip()
     masterip = request.POST.get("masterip", "").strip()
@@ -816,7 +856,7 @@ def copy_build(request, params):
                             send_mail = send_mail, flag = 1, new_master = new_master, new_factory = new_factory,scripts_path = scripts_path, product = product)
     build_info.save()
     
-    build_info_id = get_last_id()
+    build_info_id = get_last_id(build_info)
     all_length = len(request.POST)
     start_method_dict = {"radio_timing":9, "radio_trigger":10, "radio_manual":7}
     other_length = get_other_length(start_method, start_method_dict)
@@ -905,6 +945,7 @@ def fenye(nowpage, build_info):
 
 @params_required
 def display_all_records(request):
+    """ display all slaves """
     search_list = SEARCH_LIST
     product = request.GET.get("product", "").strip()
     search_name = request.GET.get("search_name", "").strip()
@@ -917,6 +958,7 @@ def display_all_records(request):
 
 @params_required
 def display_all_used_records(request):
+    """ display all used slaves """
     search_list = SEARCH_LIST
     product = request.GET.get("product", "").strip()
     search_name = request.GET.get("search_name", "").strip()
@@ -929,6 +971,7 @@ def display_all_used_records(request):
 
 #display each record details
 def display_details(request,params):
+    """ display slave details """
     product = request.GET.get("product", "").strip()
     build_info = Build_Info.objects.get(id = params)
     build_steps = Build_Steps.objects.filter(build_info_id = params)
@@ -950,6 +993,7 @@ def empty(request):
 
 
 def update_info_page(request, params):
+    """ display slave steps """
     if request.session.has_key("username"):
         product = request.GET.get("product", "").strip()
         hours = [i for i in xrange(24)]
@@ -975,6 +1019,7 @@ def update_info_page(request, params):
 
 @csrf_exempt
 def update_info(request,params):
+    """ update slave steps """
     product = request.GET.get("product", "").strip()
     build_info = Build_Info.objects.filter(id=params)
     build_steps = Build_Steps.objects.filter(build_info_id=params)
@@ -1048,11 +1093,13 @@ def update_info(request,params):
 
 
 def delete_files(filename):
+    """ delete file """
     if os.path.exists(filename):
         os.remove(filename)
         log.info("delete %s!" % filename)
 
 def stop_slave(slaveip,slave_platform,slave_source_path,slavename):
+    """ stop slave: change slave status to offline """
     try:
         log.info("begin to stop slave: %s!" % slavename)
         if slaveip == "10.10.2.97":
@@ -1067,6 +1114,7 @@ def stop_slave(slaveip,slave_platform,slave_source_path,slavename):
         log.info(str(e))
 
 def update_master(product,buildername):
+    """ update master conf file """
     if product.lower() == "vidon":
         old_master = "/home/goland/buildbot/master/master.cfg"
     else:
@@ -1093,17 +1141,29 @@ def update_master(product,buildername):
         
 
 def get_subprocess_content(cmd):
+    """ use subprocess module to execute cmd, and get the stdout and stderr """
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
     out = p.stdout.readlines()
-    error = p.stdout.read()
+    error = p.stderr.read()
     return out, error
+
+def delete_slave_folder(slave_source_path, slavename, slave_platform, slaveip):
+    """delete slave folder"""
+    delete_slave_folder_cmd = "rm -fr %s" % os.path.join(slave_source_path, slavename)
+    salt_cmd = get_salt_cmd(slave_platform, slaveip, delete_slave_folder_cmd)
+    out, error = get_subprocess_content(salt_cmd)
+    if error:
+        log.info("delete slave error: %s" % error)
+    if out:
+        log.info("delete slave out: %s" % out)
 
 
 def delete_slave_from_build_pc(slave_platform, slaveip, slavename, slave_source_path):
+    """ delete slave from build pc, contains slave folder, slave process """
     if slave_platform.upper() == "WIN":
         log.info("your slave: %s is in Windows platform, ip is %s , do not have any good methods to delete it!" % (slavename, slaveip))
     else:
-        cmd = "ps -ef | grep " + slavename
+        cmd = "ps -ef | grep %s" % slavename
         salt_cmd = get_salt_cmd(slave_platform, slaveip, cmd)
         out, error = get_subprocess_content(salt_cmd)
         if error:
@@ -1113,36 +1173,42 @@ def delete_slave_from_build_pc(slave_platform, slaveip, slavename, slave_source_
             for each_line in out:
                 if "buildslave start" in each_line and slavename in each_line:
                     try:
-                        slavename_pid = int([i for i in each_line.strip().split(" ") if i.strip()][1])
+                        slavename_pid = [i for i in each_line.strip().split(" ") if i.strip()][1]
                     except:
                         slavename_pid = ""
                     break
-            if isinstance(slavename_pid, int):
-                kill_pid_cmd = "kill -9 " + str(slavename_pid)
+            if slavename_pid.isdigit():
+                kill_pid_cmd = "kill -9 %s" % slavename_pid
                 salt_cmd = get_salt_cmd(slave_platform, slaveip, kill_pid_cmd)
                 out, error = get_subprocess_content(salt_cmd)
                 if error:
-                    log.info("kill pid error: " + error)
+                    log.info("kill pid error: %s" % error)
                 if out:
-                    log.info("kill pid out: " + out)
+                    log.info("kill pid out: %s" % out)
                     #delete slave folder
-                    delete_slave_folder_cmd = "rm -fr " + os.path.join(slave_source_path, slavename)
-                    salt_cmd = get_salt_cmd(slave_platform, slaveip, delete_slave_folder_cmd)
-                    out, error = get_subprocess_content(salt_cmd)
-                    if error:
-                        log.info("delete slave error: " + error)
-                    if out:
-                        log.info("delete slave out: " + out)
-                
+                    delete_slave_folder(slave_source_path, slavename, slave_platform, slaveip)
+                    
+
+def git_remove(path, folder, message):
+    """ remove slave from git responsitory """
+    git_rm_cmd = "git rm -r %s" % folder
+    git_commit_cmd = "git commit -m '%s'" % message
+    git_push_cmd = "git push origin master"
+    cmd_list = [git_rm_cmd, git_commit_cmd, git_push_cmd]
+    for cmd in cmd_list:
+        try:
+            subprocess.call(cmd, cwd = path, shell = True)
+        except Exception as e:
+            log("git remove error: %s" % str(e))
+
 
 def delete(request, params):
+    """ delete slave, update slave's flag to unactive action """
     if request.session.has_key("username"):
         product = request.GET.get("product", "").strip()
         build_info = Build_Info.objects.get(id=params)
         slavename = build_info.slavename
         if not slavename.endswith("_del"):
-            build_steps = Build_Steps.objects.filter(build_info_id=params)
-            masterip = build_info.masterip
             slaveip = build_info.slaveip
             slave_platform = build_info.slave_platform
             buildername = build_info.buildername
@@ -1157,13 +1223,15 @@ def delete(request, params):
             #kill slave pid and delete slave folder from build pc
             delete_slave_from_build_pc(slave_platform, slaveip, slavename, slave_source_path)
             username = request.session["username"]
+            git_remove(src_scripts_path, slavename, "remove no use slave: %s by %s" % (slavename, username))
             content = "Hello, " + username + u" 删除" + " build: " + buildername
             title = u"删除" + "build".encode("utf-8")
             send_mails(["dedong.xu@goland.cn"],title,content)
         else:
             log.info("%s is already deleted!\n" % slavename)
-        return HttpResponseRedirect("/display_all_used_records/?product="+product)
+        return HttpResponseRedirect("/display_all_used_records/?product=%s" % product)
     else:
         return HttpResponse("<body style = 'background-color:#77ac98'><a href = '/login/'>请先登录</a></body>")
+	
 
 
