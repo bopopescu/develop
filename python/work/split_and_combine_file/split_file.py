@@ -11,8 +11,8 @@ Created on 2016-09-05
 import os
 
 src_path = r"d:\zzz"                        #大文件所在路径
-big_file = "111.gif"                        #大文件
-per_file_size = 100000                      #单位是字节
+big_file = "111.iso"                        #大文件
+per_file_size = 1024*100              #单位是字节
 
 
 def write_file(filename, c):
@@ -27,8 +27,8 @@ def write_file(filename, c):
 
 def split_file(filename, chunksize):
     """ 
-        分割文件，将一个大文件按照指定的大小分割成若干个小文件 ;
-        根据文件指针的变化判断文件是否读取完毕，当文件指针不再变化的时候就表明读取完毕.
+             分割文件，将一个大文件按照指定的大小分割成若干个小文件 ;
+             根据文件指针的变化判断文件是否读取完毕，当文件指针不再变化的时候就表明读取完毕.
     """
     fp = open(filename, "rb")
     last_position = 0
@@ -41,6 +41,7 @@ def split_file(filename, chunksize):
             write_file(new_file, each_size)
             last_position = cur_position  
             n += 1
+            del each_size
         else:
             print "Game Over!"
             break 

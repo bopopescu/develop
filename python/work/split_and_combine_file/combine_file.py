@@ -11,7 +11,7 @@ Created on 2016-09-05
 import os
 
 src_path = r"d:\zzz"                        #小文件的目的路径以及新生成的大文件的所在路径
-new_big_file = "new_big_file.gif"           #新的大文件的名字
+new_big_file = "new_big_file.iso"           #新的大文件的名字
 
 
 def write_file(filename, c):
@@ -51,11 +51,12 @@ def get_sorted_file_list(src_path):
 
 def combine_files(file_list, combine_filename):
     """ 从一个大文件分割好的一些小的文件再重新组合成一个新的大文件 """
-    t = ""
+    fp = open(combine_filename, "wb")
     for each_file in file_list:
         c = read_file(each_file)
-        t += c
-    write_file(combine_filename, t)
+        fp.write(c)
+        del c
+    fp.close()
     return
 
 
@@ -70,6 +71,8 @@ def main(src_path, new_big_file):
     combine_filename = get_combine_filename(src_path, new_big_file)
     sorted_file_list = get_sorted_file_list(src_path)
     combine_files(sorted_file_list, combine_filename)
+    
+
 
 if __name__ == "__main__":
     main(src_path, new_big_file)

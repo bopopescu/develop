@@ -40,8 +40,8 @@ def read_file(filename):
 
 def split_file(filename, chunksize):
     """ 
-        分割文件，将一个大文件按照指定的大小分割成若干个小文件 ;
-        根据文件指针的变化判断文件是否读取完毕，当文件指针不再变化的时候就表明读取完毕.
+             分割文件，将一个大文件按照指定的大小分割成若干个小文件 ;
+             根据文件指针的变化判断文件是否读取完毕，当文件指针不再变化的时候就表明读取完毕.
     """
     fp = open(filename, "rb")
     last_position = 0
@@ -54,13 +54,14 @@ def split_file(filename, chunksize):
             write_file(new_file, each_size)
             last_position = cur_position  
             n += 1 
+            del each_size
         else:
             print "Game Over!"
             break
 
 
 def get_sorted_file_list(src_path):
-    """ 获得当前目录下的所有已经排好顺序的文件列表,使用冒泡排序 """
+    """ 获得当前目录下的所有已经排好序的以数字结尾的文件名字的列表,使用冒泡算法排序 """
     file_list = [os.path.join(src_path, each_file) for each_file in os.listdir(src_path) if each_file[-1].isdigit()]
     for i in xrange(len(file_list)-1):
         for j in xrange(i, len(file_list)):
@@ -74,11 +75,12 @@ def get_sorted_file_list(src_path):
 
 def combine_files(file_list, combine_filename):
     """ 从一个大文件分割好的一些小的文件再重新组合成一个新的大文件 """
-    t = ""
+    fp = open(combine_filename, "wb")
     for each_file in file_list:
         c = read_file(each_file)
-        t += c
-    write_file(combine_filename, t)
+        fp.write(c)
+        del c
+    fp.close()
     return
 
 
