@@ -1,0 +1,16 @@
+﻿<h1 align = "center">欢迎来到注册中心</h1>
+<form action = "/register/" method = "POST">
+{% csrf_token %}
+<table align = "center">
+{{form.as_table}}
+<!--<tr><td>姓名:</td><td><input type = "text" name = "username" /></td></tr>
+<tr><td>密码：</td><td><input type = "password" name = "password" /></td></tr>
+<tr><td>确认密码：</td><td><input type = "password" name = "repassword" /></td></tr>
+<tr><td>邮箱：</td><td><input type = "text" name = "email" /></td></tr>-->
+</table>
+
+<p align = "center"><input type = "submit" value = "注册" /></a>
+</form>
+
+有账号就直接<a href = "/login/">登录</a>吧
+

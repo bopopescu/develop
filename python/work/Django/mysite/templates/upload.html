@@ -1,0 +1,44 @@
+<form id="form_upload" action="/upload/" method="POST">
+{% csrf_token %}
+	  <input type="file" name="picture" id="picture" />
+	  <input type="hidden" id="X-Progress-ID" name="X-Progress-ID" value=""/>
+	  <input type="hidden" id="id" name="id" value=""/>
+	  <input id="form_submit_button" class="tp-button" type="submit" value="Submit" />
+</form>
+
+<script type = "text/javascript" src = "/site_media/js/jquery-1.2.1.js"></script>
+<script type = "text/javascript">
+	$('#X-Progress-ID').val('random string');
+	var options = {
+	  dataType: 'xml',
+	  url: '/upload?X-Progress-ID='+$('#X-Progress-ID').val(),
+	  beforeSubmit: showRequest,
+	  success: showResponse
+	}
+	$('#form_upload').ajaxSubmit(options);
+	function showRequest(formData, jqForm, options) {
+	    // do something with formData
+	    return True;
+	}
+	function showResponse(response) {
+	    // do something with response
+	}
+	$('#form_upload').find('#form_submit_input').append('&lt;span id="uploadprogressbar"&gt;&lt;/span&lt;');
+	$('#form_upload').find('#uploadprogressbar').progressBar();
+	function startProgressBarUpdate(upload_id) {
+	  $("#uploadprogressbar").fadeIn();
+	  if(g_progress_intv != 0)
+	    clearInterval(g_progress_intv);
+	  g_progress_intv = setInterval(function() {
+	    $.getJSON("/get_upload_progress?X-Progress-ID="
+	+ upload_id, function(data) {
+	      if (data == null) {
+	        $("#uploadprogressbar").progressBar(100);
+	        clearInterval(g_progress_intv);
+	        g_progress_intv = 0;
+	        return;
+	      }
+	      var percentage = Math.floor(100 * parseInt(data.uploaded) / parseInt(data.length));
+	      $("#uploadprogressbar").progressBar(percentage);
+	    });
+</script>

@@ -1,0 +1,52 @@
+<title>DVDFab Update DVD</title>
+{% extends 'base.html'%}
+{% block content%}
+<h1 align = 'center'>Update DVD sample</h1>
+<div align = 'center' style = 'background-color:gray'>
+<form action = '/update_DVD/{{param1}}/' method = 'POST'> 
+<br />
+<table width = '800'>
+<tr>
+<td>Name:</td><td><input type = 'text' name = 'Name' value = '{{dvd.Name}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Locations:</td><td><input type = 'text' name = 'Locations' value = '{{dvd.Locations}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Video_info:</td><td><input type = 'text' name = 'Video_info' value = '{{dvd.Video_info}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Audio_info:</td><td><input type = 'text' name = 'Audio_info' value = '{{dvd.Audio_info}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>File_size:</td><td><input type = 'text' name = 'File_size' value = '{{dvd.File_size}}' style = 'width :800px'></td>
+</tr>
+
+<tr>
+<td>Channel:</td><td><input type = 'text' name = 'Channel' value = '{{dvd.Channel}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Framerate:</td><td><input type = 'text' name = 'Framerate' value = '{{dvd.Framerate}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Standard:</td><td><input type = 'text' name = 'Standard' value = '{{dvd.Standard}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Scan_type:</td><td><input type = 'text' name = 'Scan_type' value = '{{dvd.Scan_type}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Company:</td><td><input type = 'text' name = 'Company' value = '{{dvd.Company}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Description:</td><td><input type = 'text' name = 'Description' value = '{{dvd.Description}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Volume_label:</td><td><input type = 'text' name = 'Volume_label' value = '{{dvd.Volume_label}}' style = 'width :800px'></td>
+</tr>
+</table>
+
+**<input type = 'submit' value = 'Update_DVDsample'>**
+</form>
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

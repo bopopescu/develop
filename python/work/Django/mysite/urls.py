@@ -2,72 +2,56 @@ from django.conf.urls.defaults import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
-from django.views.generic.simple import direct_to_template
-from django.views.generic import list_detail
-from blog import models
 admin.autodiscover()
 
-def get_bd():
-    return models.Samples.objects.all()
-
-bd_info = {
-             "queryset": models.Samples.objects.all(), 
-             "template_name": "BD.html",
-             "template_object_name": "samples",
-             "extra_context":{"obj_list": get_bd}}
-
-
 urlpatterns = patterns('blog.views',
-    url(r'^bd_test/$', list_detail.object_list, bd_info),
-    #url(r'^about/$', "about", {"template":"about.html", "extra_context": {"xdd":"123213"}}),
-    url(r'^about/$', direct_to_template, {"template":"about.html", "extra_context": {"xdd":"123213"}}),
-    url(r'^version/$','object_list', {"template_name": "version.html", "model": models.Versions}),
-    url(r'^BD/$','object_list', {"template_name": "BD.html", "model": models.Samples}),
-    url(r'^DVD/$','object_list', {"template_name": "DVD.html", "model": models.DVD_samples}),
-    url(r'^BD3D/$','object_list', {"template_name": "BD3D.html", "model": models.BD3D_samples}),
-    url(r'^test_url/(?P<year>\d{4})/$','test_url', {"template_name": "4040.html"}),
-    url(r'^xdd/$','xdd'),
     url(r'^upload/$','upload'),
     url(r'^$','index'),
     url(r'^index/$','index'),
     url(r'^new_add_case/$','new_add_case'),
     url(r'^new_add_client/$','new_add_client'),
-
-    url(r'^new_add_BD/$','new_add_obj', {"template_name": "new_BD.html", "model": models.Samples, "url": "/BD/", "numbers_jar_flag": True}),
-    url(r'^new_add_DVD/$','new_add_obj', {"template_name": "new_DVD.html", "model": models.DVD_samples, "url": "/DVD/", "numbers_jar_flag": False}),
-    url(r'^new_add_BD3D/$','new_add_obj', {"template_name": "new_BD3D.html", "model": models.BD3D_samples, "url": "/BD3D/", "numbers_jar_flag": True}),
+    url(r'^new_add_BD/$','new_add_BD'),
+    url(r'^new_add_DVD/$','new_add_DVD'),
+    url(r'^new_add_BD3D/$','new_add_BD3D'),
     url(r'^new_add_version/$','new_add_version'),
 
     url(r'^case/$','case'),
     url(r'^insert_session/$','insert_session'),
     url(r'^client/$','client'),
+    url(r'^version/$','version'),
+    url(r'^bd_samples/$','bd_samples'),
+    url(r'^dvd_samples/$','dvd_samples'),
+    url(r'^bd3d_samples/$','bd3d_samples'),
     url(r'^all_samples/$','all_samples'),
     url(r'^session/$','session'),
-
-    url(r'^search/DVD/$','search_object', {"template_name": "search_DVD.html", "model": models.DVD_samples}),
-    url(r'^search/BD/$','search_object', {"template_name": "search_BD.html", "model": models.Samples}),
-    url(r'^search/3D/$','search_object', {"template_name": "search_BD3D.html", "model": models.BD3D_samples}),
-    url(r'^search/File/$','search_object', {"template_name": "search_File.html", "model": models.BD3D_samples}),
+    url(r'^search/DVD/$','search_DVD'),
+    url(r'^search/BD/$','search_BD'),
+    url(r'^search/3D/$','search_3D'),
+    url(r'^search/File/$','search_File'),
     url(r'^test_result/$','test_result'),
     url(r'^search_type/$','search_type'),
 
-    url(r'^search/BD/type/$','search_object_type', {"template_name": "BD.html", "model": models.Samples, "url": "/BD/"}),
-    url(r'^search/DVD/type/$','search_object_type', {"template_name": "DVD.html", "model": models.DVD_samples, "url": "/DVD/"}),
-    url(r'^search/BD3D/type/$','search_object_type', {"template_name": "BD3D.html", "model": models.BD3D_samples, "url": "/BD3D/"}),
-    
+    url(r'^search/BD/type/$','search_BD_type'),
+    url(r'^search/DVD/type/$','search_DVD_type'),
+    url(r'^search/BD3D/type/$','search_BD3D_type'),
     url(r'^search/all/type/$','search_all_type'),
     url(r'^search/session/$','search_session'),
     url(r'^search_test_result/$','search_test_result'),
 
 
-    url(r'^BD/sort/$','object_sort', {"template_name": "BD.html", "model": models.Samples}),
-    url(r'^DVD/sort/$','object_sort', {"template_name": "DVD.html", "model": models.DVD_samples}),
-    url(r'^BD3D/sort/$','object_sort', {"template_name": "BD3D.html", "model": models.BD3D_samples}),
+    url(r'^BD/sort/$','BD_sort'),
+    url(r'^DVD/sort/$','DVD_sort'),
+    url(r'^BD3D/sort/$','BD3D_sort'),
 
     url(r'^update_case_page/(?P<param1>\d*)/$','update_case_page'),
     url(r'^update_case/(?P<param1>\d*)/$','update_case'),
 
+    #url(r'^update_client_page/(?P<param1>\d*)/$','update_client_page'),
+    #url(r'^update_client/(?P<param1>\d*)/$','update_client'),
+    url(r'^update_client_page$','update_client_page'),
     url(r'^update_client/(?P<param1>\d*)/$','update_client'),
+
+    url(r'^update_version_page/(?P<param1>\d*)/$','update_version_page'),
     url(r'^update_version/(?P<param1>\d*)/$','update_version'),
 
     url(r'^update_BD_page/(?P<param1>\d*)/$','update_BD_page'),

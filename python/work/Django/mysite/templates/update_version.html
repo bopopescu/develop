@@ -1,0 +1,27 @@
+<title>DVDFab Update Version</title>
+{% extends 'base.html'%}
+{% block content%}
+<h1 align = 'center'>Update Version</h1>
+<div align = 'center' style = 'background-color:gray'>
+<form action = '/update_version/{{param1}}/' method = 'POST'> 
+<br />
+<table width = '800'>
+<tr>
+<td>Version:</td><td><input type = 'text' name = 'Version' value = '{{version.Version}}' style = 'width :800px'></td>
+</tr>
+<tr>
+<td>Create_time:</td><td><input type = 'text' name = 'Create_time'  value = '{{version.Create_time}}' style = 'width :800px'/></td>
+</tr>
+<tr>
+<td>Description:</td><td><input type = 'text' name = 'Description'  value = '{{version.Description}}' style = 'width :800px'/></td>
+</tr>
+<tr>
+<td>Notes:</td><td><input type = 'text' name = 'Notes'  value = '{{version.Notes}}' style = 'width :800px'/></td>
+</tr>
+</table>
+**<input type = 'submit' value = 'Update_version'/>**
+<br />
+</form>
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

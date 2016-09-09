@@ -1,0 +1,28 @@
+<title>DVDFab Update Client</title>
+{% extends 'base.html'%}
+{% block content%}
+<h1 align = 'center'>Update Client</h1>
+<div align = 'center' style = 'background-color:gray'>
+
+<form action = '/update_client/{{param1}}/' method = 'POST'> 
+    <br />
+    <table width = '800'>
+      <tr>
+        <td>PC_name:</td><td><input type = 'text' name = 'PC_name' value = '{{client.PC_name}}' style = 'width :800px'></td>
+      </tr>
+      <tr>
+        <td>PC_ip:</td><td><input type = 'text' name = 'PC_ip'  value = '{{client.PC_ip}}' style = 'width :800px'/></td>
+      </tr>
+      <tr>
+        <td>DVDFab_path:</td><td><input type = 'text' name = 'Dvdfab_path'  value = '{{client.Dvdfab_path}}' style = 'width :800px'/></td>
+      </tr>
+      <tr>
+        <td>Dest_path:</td><td><input type = 'text' name = 'Dest_path'  value = '{{client.Dest_path}}' style = 'width :800px'/></td>
+      </tr>
+    </table>
+
+    **<input type = 'submit' value = 'Update_client'/>**
+</form>
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

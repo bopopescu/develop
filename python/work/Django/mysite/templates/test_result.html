@@ -1,0 +1,227 @@
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <style>
+#tr_id{background-color:#4ff5f4}
+.td{width:'30px'; overflow:hidden}
+tr td a{text-decoration:none;}
+tr td a:hover{color:#080808; text-decoration:underline}
+</style>
+<title>DVDFab test_result</title>
+{% extends 'base.html'%}
+{% block content%}
+<div><h1 align = 'center'>Display Test Result Info</h1></div>
+<div align = 'center'>
+    <form action = '.' method = 'POST'>
+	{% csrf_token %}
+		Display days:
+		{% if days %}
+		<input type = 'text' name = 'days' value = '{{days}}' />
+		{% else %}
+		<input type = 'text' name = 'days' value = '7' />
+		{% endif %}
+		<input type = 'submit' value = 'Search'>
+	</form>
+	
+    <form action = '.' method = 'POST'>
+	{% csrf_token %}
+	<!--Display result by PC_name:<input type = 'text' name = 'PC_name' />-->
+	Display results by &nbsp;&nbsp;&nbsp;PC_name:
+	<select name = 'PC_name'>
+	{% ifequal PC_name '' %}
+	<option value = '{{i.PC_name}}'> - - - - - - - - - - - - </option>
+	{% else %}
+	<option value = '{{i.PC_name}}'>{{PC_name}}</option>
+	{% endifequal %}
+	{% for i in client %}
+	<option value = '{{i.PC_name}}'>{{i.PC_name}}</option>
+	{% endfor %}
+	</select>
+	Flag:<input type = 'text' name = 'check_Flag'  value = '{{check_Flag}}'/>
+	<input type = 'submit' value = 'Submit' />
+	</form>
+	
+	<form action = '.' method = 'POST'>
+	{% csrf_token %}
+		<select name = 'test_api' onchange = 'change(this.options[this.options.selectedIndex].value)'>
+			<option value = 'id'> Index </option>
+			<option value = 'PC_name'> PC_name </option>
+			<option value = 'Init_time'> Init_time </option>
+			<option value = 'Flag_1'> Flag </option>
+		</select>
+		<span id = 'test_name'><input type = 'text' name = 'test_name' value = ' '/></span>
+		Update Flag from <input type = 'text'  name = 'Flag_old'  value = ' '/> to:<input type = 'text'  name = 'Flag'  value = ' '/>
+		<input type = 'submit' value = 'Submit' />
+	</form>
+	
+	<form action = '.' method = 'POST'>
+	{% csrf_token %}
+    Update Flag by day from:<input type = 'text' name = 'update_flag_from_day'/>to:<input type = 'text' name = 'update_flag_to_day'/>
+	PC_name:<select name = 'PC_name_by_day'>
+	{% ifequal PC_name '' %}
+	<option value = '{{i.PC_name}}'> - - - - - - - - - - - - </option>
+	{% else %}
+	<option value = '{{i.PC_name}}'> - - - - - - - - - - - - </option>
+	{% endifequal %}
+	{% for i in client %}
+	<option >{{i.PC_name}}</option>
+	{% endfor %}
+	</select>
+	Update Flag from <input type = 'text'  name = 'Flag_old_by_day'  value = ' '/> to:<input type = 'text'  name = 'Flag_by_day'  value = ' '/>
+    <input type = 'submit' value = 'Submit' />
+	</form>
+</div>
+<!--<h1>{{display_days}}</h1>
+<h1>{{a.Init_time}}</h1><div>
+   <h1>{{web_params.Days_display}}</h1>-->
+<table border = 'solid 3px red' align = 'center' style = 'color:black' width = '100%'>
+	<tr align = 'center' style = 'font-size:0.9em; background-color :gray'>
+		<td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Index'>Index</a></td>
+		<td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Num'>Num</a></td>
+		<td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Mode'>Iso_type</a></td>
+		<td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Mode'>Mode</a></td>
+		<td width='4%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=PC_name'>PC</a></td>
+
+		<td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Out_disc'>Outdisc</a></td>
+		<td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Remove_HD_audio'>R-HD</a></td>
+		<td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=BD3D_convert_type'>3D-T</a></td>
+		<td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Compress_to_AC3'>C-AC3</a></td>
+		<td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Video_decoder_H264'>DH</a></td>
+
+		<td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Video_decoder_VC1'>DV</a></td>
+		<td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Video_decoder_MPEG2'>DM</a></td>
+		<td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Video_encoder_H264'>EH</a></td>
+		<td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Enable_2Dto3D'>3D</a></td>
+
+		<td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Profile'>Profile</a></td>
+		<td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Src_path'>Src_path</a></td>
+		<td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Dest_path'>Dest_path</a></td>
+		<td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Start_time'>Start_time</a></td>
+		<td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=End_time'>End_time</a></td>
+
+		<td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Total_time'>Total_time</a></td>
+		<td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Folder_size'>Folder_size</a></td>
+		<td width='4%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=DVDFab_description'>Descript</a></td>
+		<td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Result'>Result</a></td>
+
+		<td width='4%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Developer'>Develop</a></td>
+		<td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis'><a href = '?ziduan=Flag'>Fg</a></td>
+	</tr>
+</table>
+<!--{{web_params.Days_display}}-->
+{% for i in day_info_list %}
+<h1>{{i.0}}</h1> 
+
+<table style = 'font-size :0.9em' width = '100%'> 
+	 {% for j in i.1 %}
+	<tr id = 'tr_id' align = 'center' style = "background-color: {% cycle 'E5E5E5' '#D1EEEE'%}">	
+		<div>
+		     <td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.id}}</td>
+			 <td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Num}}</td>
+			 <td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Iso_type}}</td>
+
+			 <td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Mode}}</td>
+			 <td width='4%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.PC_name}}</td>
+			 
+			 <td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Out_disc}}</td>
+			 <td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Remove_HD_audio}}</td>
+			 <td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.BD3D_convert_type}}</td>
+			 <td width='3%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Compress_to_AC3}}</td>
+			 
+			 <td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Video_decoder_H264}}</td>
+			 <td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Video_decoder_VC1}}</td>
+			 <td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Video_decoder_MPEG2}}</td>
+			 <td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Video_encoder_H264}}</td>
+			 
+			 <td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Enable_2Dto3D}}</td>
+			 <td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Profile}}</td>
+			 <td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Src_path}}</td>
+			 <td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Dest_path}}</td>
+			 
+			 <td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Start_time}}</td>
+			 <td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.End_time}}</td>
+			 <td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Total_time}}</td>
+			 <td width='5%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Folder_size}}</td>
+			 
+			 <td width='4%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.DVDFab_description}}</td>
+			 <td width='6%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Result}}</td>
+			 <td width='4%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Developer}}</td>
+			 <td width='2%' style = 'word-break:break-all;overflow:hidden; word-wrap:break; table-layout:fixed;text-overflow: ellipsis' onClick = "window.open('/update_test_result_page/{{j.id}}/')">{{j.Flag}}</td>
+			
+			<!--
+			<a href = 'javascript:' onClick = "window.open('/update_test_result_page/{{j.id}}/')">		
+			
+				<td width = '3%' style = 'word-break:break-all;overflow:hidden'>{{j.id}}</td>
+				<td width = '3%' style = 'word-break:break-all;overflow:hidden'>{{j.Num}}</td>
+				<td width = '5%' style = 'word-break:break-all;overflow:hidden'>{{j.Mode}}</td>
+				<td width = '4%' style = 'word-break:break-all;overflow:hidden'>{{j.PC_name}}</td>
+
+				<td width = '5%' style = 'word-break:break-all;overflow:hidden'>{{j.Out_disc}}</td>
+				<td width = '3%' style = 'word-break:break-all;overflow:hidden'>{{j.Remove_HD_audio}}</td>
+				<td width = '3%' style = 'word-break:break-all;overflow:hidden'>{{j.BD3D_convert_type}}</td>
+				<td width = '3%' style = 'word-break:break-all;overflow:hidden'>{{j.Compress_to_AC3}}</td>   
+
+				<td width = '2%' style = 'word-break:break-all;overflow:hidden'>{{j.Video_decoder_H264}}</td>
+				<td width = '2%' style = 'word-break:break-all;overflow:hidden'>{{j.Video_decoder_VC1}}</td>
+				<td width = '2%' style = 'word-break:break-all;overflow:hidden'>{{j.Video_decoder_MPEG2}}</td>
+				<td width = '2%' style = 'word-break:break-all;overflow:hidden'>{{j.Video_encoder_H264}}</td>
+
+				<td width = '2%' style = 'word-break:break-all;overflow:hidden'>{{j.Enable_2Dto3D}}</td>
+				<td width = '6%' style = 'word-break:break-all;overflow:hidden'>{{j.Profile}}</td>
+				<td width = '7%' style = 'word-break:break-all;overflow:hidden'>{{j.Src_path}}</td>
+				<td width = '7%' style = 'word-break:break-all;overflow:hidden'>{{j.Dest_path}}</td>
+
+				<td width = '7%' style = 'word-break:break-all;overflow:hidden'>{{j.Start_time}}</td>
+				<td width = '7%' style = 'word-break:break-all;overflow:hidden'>{{j.End_time}}</td>
+				<td width = '5%' style = 'word-break:break-all;overflow:hidden'>{{j.Total_time}}</td>
+
+				<td width = '5%' style = 'word-break:break-all;overflow:hidden'>{{j.Folder_size}}</td>
+				<td width = '4%' style = 'word-break:break-all;overflow:hidden'>{{j.DVDFab_description}}</td>
+				<td width = '7%' style = 'word-break:break-all;overflow:hidden'>{{j.Result}}</td>
+
+				<td width = '4%' style = 'word-break:break-all;overflow:hidden'>{{j.Developer}}</td>
+				<td width = '2%' style = 'word-break:break-all;overflow:hidden'>{{j.Flag}}</td>
+			</a>
+			-->
+		</div> 
+    </tr>
+ {% endfor %}
+</table>
+ {% endfor %}
+ 
+ <script>
+ function order(){}
+ function change(s)
+ {
+	 var obj = document.getElementById('test_name');
+	 if (s == 'PC_name')
+		{ obj.innerHTML = "<select name = 'test_name'>\
+		<option value = '{{i.PC_name}}'> - - - - - - - - - - - - </option>\
+			{% for i in client %}\
+			<option value = '{{i.PC_name}}'>{{i.PC_name}}</option>\
+			{% endfor %}\
+			</select>"
+		}
+	else if(s == "Flag_1"){ obj.innerHTML = ''};
+	else{obj.innerHTML = "<input  type = 'text' name = 'test_name' value = ' '/>"}
+}
+ </script>
+ 
+{% endblock %}
+{% block footer %}{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
