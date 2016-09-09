@@ -1129,7 +1129,7 @@ def update_session_page(request,param1):
     return render_to_response('update_session.html',locals())
 
 
-def update_session(request,param1):
+def update_session(request,param1, url):
     session = Session.objects.filter(id = param1)
     Num = request.GET.get('Num','').strip()
     Sub_num = request.GET.get('Sub_num','').strip()
@@ -1188,17 +1188,6 @@ def update_session(request,param1):
     #        ('七月').decode('GB2312'),'7', ('八月').decode('GB2312'),'8', ('九月').decode('GB2312'),'9', ('十月').decode('GB2312'),'10', ('十一月').decode('GB2312'),'11', ('十二月').decode('GB2312'),'12']
     dict = ['一月','1', '二月','2', '三月','3', '四月','4', '五月','5', '六月','6',\
             '七月','7', '八月','8', '九月','9', '十月','10', '十一月','11', '十二月','12']
-    
-    a1 = Init_time.split(' ')    
-    a2 = a1[1].split(',')  
-    #a1[0] == ('十一月').decode('GB2312') 
-    index = dict.index(a1[0])                        #a1[0]是汉字编码
-    #return HttpResponse(a1[0])
-    a2.append(dict[index + 1])
-    date=a2[0]
-    a2.remove(date)
-    a2.append(date)
-    Init_time = Start_time[0:4] + '-'.join(a2)
    
     session.update(Num = Num,  Sub_num = Sub_num, Iso_type = Iso_type, Mode = Mode, Src_path = Src_path, Dest_path = Dest_path, PC_name = PC_name, Dvdfab_path = Dvdfab_path, Audio = Audio, \
                    Audio_type = Audio_type, Change_play_order = Change_play_order, Copy_IFO = Copy_IFO,  Display_forced_sub = Display_forced_sub, Jump_menu = Jump_menu, \
@@ -1209,7 +1198,7 @@ def update_session(request,param1):
                    Init_time = Init_time, Web_log_path = Web_log_path,  Log_folder_path = Log_folder_path, Result = Result,Developer = Developer, Enable_2Dto3D = Enable_2Dto3D,\
                    BD3D_convert_type = BD3D_convert_type, Compress_to_AC3 = Compress_to_AC3, Current_src_path = Current_src_path)
     
-    return HttpResponseRedirect('/session/')
+    return HttpResponseRedirect(url)
 
 
 def update_test_result_page(request,param1): 
@@ -1236,89 +1225,6 @@ def update_test_result_page(request,param1):
         iso = video = ''
     
     return render_to_response('update_test_result.html',locals())
-
-
-def update_test_result(request,param1):   
-    session = Session.objects.filter(id = param1)  
-    Num = request.GET.get('Num','').strip()
-    Sub_num = request.GET.get('Sub_num','').strip()
-    Iso_type = request.GET.get('Iso_type','').strip()
-    Mode = request.GET.get('Mode','').strip()
-    Src_path = request.GET.get('Src_path','').strip()
-    
-    Dest_path = request.GET.get('Dest_path','').strip()
-    PC_name = request.GET.get('PC_name','').strip()
-    Dvdfab_path = request.GET.get('Dvdfab_path','').strip()
-    Audio = request.GET.get('Audio','').strip()
-    Audio_type = request.GET.get('Audio_type','').strip()
-    Change_play_order = request.GET.get('Change_play_order','').strip()
-    Copy_IFO = request.GET.get('Copy_IFO','').strip()
-    Display_forced_sub = request.GET.get('Display_forced_sub','').strip()
-    
-    Jump_menu = request.GET.get('Jump_menu','').strip()
-    Jump_main = request.GET.get('Jump_main','').strip()
-    Out_disc = request.GET.get('Out_disc','').strip()
-    Path_player = request.GET.get('Path_player','').strip()
-    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','').strip()
-    Profile = request.GET.get('Profile','').strip()
-    Remove_DTS = request.GET.get('Remove_DTS','').strip()
-    Remove_HD_audio = request.GET.get('Remove_HD_audio','').strip()
-    Remove_menu = request.GET.get('Remove_menu','').strip()
-    Remove_PGC = request.GET.get('Remove_PGC','').strip()
-    
-    Rewind = request.GET.get('Rewind','').strip()
-    Subtitle = request.GET.get('Subtitle','').strip()
-    Title = request.GET.get('Title','').strip()
-    Volume = request.GET.get('Volume','').strip()
-    Video_decoder_H264 = request.GET.get('Video_decoder_H264','').strip()
-    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','').strip()
-    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','').strip()
-    Video_encoder_H264 = request.GET.get('Video_encoder_H264','').strip()
-    DVDFab_description = request.GET.get('DVDFab_description','').strip()
-      
-    Start_time = request.GET.get('Start_time','').strip()
-    End_time = request.GET.get('End_time','').strip()
-    Total_time = request.GET.get('Total_time','').strip()
-    Flag = request.GET.get('Flag','').strip()
-    Folder_size = request.GET.get('Folder_size','').strip()
-    Init_time = request.GET.get('Init_time','').strip()
-    #dict = {'一月':'1', '二月':'2', '三月':'3', '四月':'4', '五月':'5', '六月':'6', '七月':'7', '八月':'8', '九月':'9', '十月':'10', '十一月':'11', '十二月':'12'}
-    #dict = [('一月').decode('GB2312'),'1', ('二月').decode('GB2312'),'2', ('三月').decode('GB2312'),'3', ('四月').decode('GB2312'),'4', ('五月').decode('GB2312'),'5', ('六月').decode('GB2312'),'6',\
-    #        ('七月').decode('GB2312'),'7', ('八月').decode('GB2312'),'8', ('九月').decode('GB2312'),'9', ('十月').decode('GB2312'),'10', ('十一月').decode('GB2312'),'11', ('十二月').decode('GB2312'),'12']
-    dict = ['一月','1', '二月','2', '三月','3', '四月','4', '五月','5', '六月','6',\
-            '七月','7', '八月','8', '九月','9', '十月','10', '十一月','11', '十二月','12']
-    a1 = Init_time.split(' ')
-    a2 = a1[1].split(',')
-    #a1[0] == ('十一月').decode('GB2312')
-    index = dict.index(a1[0])                      #a1[0]是汉字编码
-   # return HttpResponse(a1[0])
-    a2.append(dict[index + 1])
-    date=a2[0]
-    a2.remove(date)
-    a2.append(date)
-    current_year = time.strftime("%Y-%m-%d %H:%M:%S")[0:4]
-    Init_time = current_year + '-'.join(a2)
-   
-    Web_log_path = request.GET.get('Web_log_path','')
-    Log_folder_path = request.GET.get('Log_folder_path','')
-    Result = request.GET.get('Result','')
-    Developer = request.GET.get('Developer','')
-    
-    Enable_2Dto3D = request.GET.get('Enable_2Dto3D','')
-    BD3D_convert_type = request.GET.get('BD3D_convert_type','')
-    Compress_to_AC3 = request.GET.get('Compress_to_AC3','')
-    Current_src_path = request.GET.get('Current_src_path','')
-    
-    session.update(Num = Num, Sub_num = Sub_num, Iso_type = Iso_type, Mode = Mode, Src_path = Src_path, Dest_path = Dest_path, PC_name = PC_name, Dvdfab_path = Dvdfab_path, Audio = Audio,\
-                   Audio_type = Audio_type, Change_play_order = Change_play_order, Copy_IFO = Copy_IFO,  Display_forced_sub = Display_forced_sub, Jump_menu = Jump_menu,\
-                   Jump_main = Jump_main, Out_disc = Out_disc, Path_player = Path_player, Preserve_menu_disc2 = Preserve_menu_disc2, Profile = Profile, Remove_DTS = Remove_DTS,\
-                   Remove_HD_audio = Remove_HD_audio, Remove_menu = Remove_menu,  Remove_PGC = Remove_PGC, Rewind = Rewind, Subtitle = Subtitle, Title = Title, Volume = Volume, \
-                   Video_decoder_H264 = Video_decoder_H264, Video_decoder_VC1 = Video_decoder_VC1, Video_decoder_MPEG2 = Video_decoder_MPEG2, Video_encoder_H264 = Video_encoder_H264,\
-                   DVDFab_description = DVDFab_description, Start_time = Start_time, End_time = End_time, Total_time = Total_time ,Flag = Flag, Folder_size = Folder_size,\
-                   Init_time = Init_time, Web_log_path = Web_log_path, Log_folder_path = Log_folder_path, Result = Result, Developer = Developer, Enable_2Dto3D = Enable_2Dto3D,\
-                   BD3D_convert_type = BD3D_convert_type, Compress_to_AC3 = Compress_to_AC3, Current_src_path = Current_src_path)
-    
-    return HttpResponseRedirect('/test_result/')
 
 
 def display_bdverify_log(request):

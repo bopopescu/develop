@@ -91,10 +91,10 @@ urlpatterns = patterns('blog.views',
 
 
     url(r'^update_session_page/(?P<param1>\d*)/$','update_session_page'),
-    url(r'^update_session/(?P<param1>\d*)/$','update_session'),
+    url(r'^update_session/(?P<param1>\d*)/$','update_session', {"url": "/session/"}),
 
     url(r'^update_test_result_page/(?P<param1>\d*)/$','update_test_result_page'),
-    url(r'^update_test_result/(?P<param1>\d*)/$','update_test_result'),
+    url(r'^update_test_result/(?P<param1>\d*)/$','update_session', {"url": "/test_result/"}),
     #url(r'^display/days/result/$','display_days_result'),
 
     url(r'^download_log_folder/(?P<param1>\d*)/$','download_log_folder'),
