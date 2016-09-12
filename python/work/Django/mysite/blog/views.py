@@ -852,7 +852,7 @@ def search_object_type(request, template_name, model, url):
         return HttpResponseRedirect(url)
  
 def object_sort(request, template_name, model):
-    return HttpResponse(template_name)
+    #return HttpResponse(template_name)
     sort_name = request.GET.get('sort_name','').strip()
     obj_list = model.objects.all().order_by(sort_name) 
     return render_to_response(template_name, locals())
@@ -968,9 +968,9 @@ def update_version(request,param1):
     return render_to_response('update_version.html',locals())
 
 
-def update_BD(request,param1):
+def update_obj(request,param1, template_name, model, url, numbers_jar_flag):
     if request.method == "POST":
-        bd = Samples.objects.filter(id = param1)
+        obj = model.objects.filter(id = param1)
         Name = request.POST.get('Name','').strip()
         Video_info = request.POST.get('Video_info','').strip()
         Audio_info = request.POST.get('Audio_info','').strip()
@@ -984,204 +984,77 @@ def update_BD(request,param1):
         Locations = request.POST.get('Locations','').strip()
         Description = request.POST.get('Description','').strip()
         Volume_label = request.POST.get('Volume_label','').strip()
-    
-        bd.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, Scan_type = Scan_type, \
-                Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
-        return HttpResponseRedirect('/BD/')
+        if numbers_jar_flag:
+            obj.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, Scan_type = Scan_type, \
+                    Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
+        else:
+            obj.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, Scan_type = Scan_type, \
+                   Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
+        return HttpResponseRedirect(url)
     else:
-        bd = Samples.objects.get(id = param1)
-        return render_to_response('update_BD.html',locals())
+        bd = dvd = bd3d = obj = model.objects.get(id = param1)
+        return render_to_response(template_name,locals())
 
-
-def update_DVD(request,param1):
-    if request.method == "POST":
-        dvd = DVD_samples.objects.filter(id = param1)
-        Name = request.POST.get('Name','').strip()
-        Video_info = request.POST.get('Video_info','').strip()
-        Audio_info = request.POST.get('Audio_info','').strip()
-        File_size = request.POST.get('File_size','').strip()
-        Channel = request.POST.get('Channel','').strip()
-        Framerate = request.POST.get('Framerate','').strip()
-        Standard = request.POST.get('Standard','').strip()
-        Scan_type = request.POST.get('Scan_type','').strip()
-        Company = request.POST.get('Company','').strip()
-        Locations = request.POST.get('Locations','').strip()
-        Description = request.POST.get('Description','').strip()
-        Volume_label = request.POST.get('Volume_label','').strip()
-    
-        dvd.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, Scan_type = Scan_type, \
-                     Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
-        return HttpResponseRedirect('/DVD/')
-    else:
-        dvd = DVD_samples.objects.get(id = param1)
-        return render_to_response('update_DVD.html',locals())
-
-
-def update_BD3D(request,param1):
-    if request.method == "POST":
-        bd3d = BD3D_samples.objects.filter(id = param1)
-        Name = request.POST.get('Name','').strip()
-        Video_info = request.POST.get('Video_info','').strip()
-        Audio_info = request.POST.get('Audio_info','').strip()
-        File_size = request.POST.get('File_size','').strip()
-        Channel = request.POST.get('Channel','').strip()
-        Framerate = request.POST.get('Framerate','').strip()
-        Standard = request.POST.get('Standard','').strip()
-        Scan_type = request.POST.get('Scan_type','').strip()
-        Numbers_jar = request.POST.get('Numbers_jar','').strip()
-        Company = request.POST.get('Company','').strip()
-        Locations = request.POST.get('Locations','').strip()
-        Description = request.POST.get('Description','').strip()
-        Volume_label = request.POST.get('Volume_label','').strip()
-        bd3d.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, \
-                    Scan_type = Scan_type, Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
-        return HttpResponseRedirect('/BD3D/')
-    else:
-        bd3d = BD3D_samples.objects.get(id = param1)
-        return render_to_response('update_BD3D.html',locals())
  
-def update_all_BD_page(request,param1):
-     bd = Samples.objects.get(id = param1)
-     context= {'request':request,'bd':bd, 'param1':param1}
-     return render_to_response('update_all_BD.html',context)
-
-
-def update_all_DVD_page(request,param1):
-     dvd = DVD_samples.objects.get(id = param1)
-     context= {'request':request,'dvd':dvd,'param1':param1}
-     return render_to_response('update_all_DVD.html',context)
- 
-
-def update_all_BD3D_page(request,param1):
-     bd3d = BD3D_samples.objects.get(id = param1)
-     context= {'request':request,'bd3d':bd3d,'param1':param1}
-     return render_to_response('update_all_BD3D.html',context)
- 
-
-def update_all_BD(request,param1):
-    bd = Samples.objects.filter(id = param1)           
-    Name = request.GET.get('Name','').strip()
-    Video_info = request.GET.get('Video_info','').strip()
-    Audio_info = request.GET.get('Audio_info','').strip()
-    File_size = request.GET.get('File_size','').strip()
-    Channel = request.GET.get('Channel','').strip()
-    Framerate = request.GET.get('Framerate','').strip()
-    Standard = request.GET.get('Standard','').strip()
-    Scan_type = request.GET.get('Scan_type','').strip()
-    Numbers_jar = request.GET.get('Numbers_jar','').strip()
-    Company = request.GET.get('Company','').strip()
-    Locations = request.GET.get('Locations','').strip()
-    Description = request.GET.get('Description','').strip()
-    Volume_label = request.GET.get('Volume_label','').strip()
-     
-    bd.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard, \
-              Scan_type = Scan_type, Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
-    
-    return HttpResponseRedirect('/all_samples/')
-
-
-def update_all_DVD(request,param1):
-    dvd = DVD_samples.objects.filter(id = param1)          
-    Name = request.GET.get('Name','').strip()
-    Video_info = request.GET.get('Video_info','').strip()
-    Audio_info = request.GET.get('Audio_info','').strip()
-    File_size = request.GET.get('File_size','').strip()
-    Channel = request.GET.get('Channel','').strip()
-    Framerate = request.GET.get('Framerate','').strip()
-    Standard = request.GET.get('Standard','').strip()
-    Scan_type = request.GET.get('Scan_type','').strip()
-    Numbers_jar = request.GET.get('Numbers_jar','').strip()
-    Company = request.GET.get('Company','').strip()
-    Locations = request.GET.get('Locations','').strip()
-    Description = request.GET.get('Description','').strip()
-    Volume_label = request.GET.get('Volume_label','').strip()
-     
-    dvd.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard,\
-               Scan_type = Scan_type, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
-    
-    return HttpResponseRedirect('/all_samples/')
-
-
-def update_all_BD3D(request,param1):
-    bd3d = BD3D_samples.objects.filter(id = param1)        
-    Name = request.GET.get('Name','').strip()
-    Video_info = request.GET.get('Video_info','').strip()
-    Audio_info = request.GET.get('Audio_info','').strip()
-    File_size = request.GET.get('File_size','').strip()
-    Channel = request.GET.get('Channel','').strip()
-    Framerate = request.GET.get('Framerate','').strip()
-    Standard = request.GET.get('Standard','').strip()
-    Scan_type = request.GET.get('Scan_type','').strip()
-    Numbers_jar = request.GET.get('Numbers_jar','').strip()
-    Company = request.GET.get('Company','').strip()
-    Locations = request.GET.get('Locations','').strip()
-    Description = request.GET.get('Description','').strip()
-    Volume_label = request.GET.get('Volume_label','').strip()
-     
-    bd3d.update(Name = Name, Video_info = Video_info, Audio_info = Audio_info, File_size = File_size, Channel = Channel, Framerate = Framerate, Standard = Standard,\
-                Scan_type = Scan_type, Numbers_jar = Numbers_jar, Company = Company, Locations = Locations, Description = Description, Volume_label = Volume_label)
-    
-    return HttpResponseRedirect('/all_samples/')
-
 
 def update_session_page(request,param1):
     session = Session.objects.get(id = param1)
     return render_to_response('update_session.html',locals())
 
-
+@csrf_exempt
 def update_session(request,param1, url):
     session = Session.objects.filter(id = param1)
-    Num = request.GET.get('Num','').strip()
-    Sub_num = request.GET.get('Sub_num','').strip()
-    Iso_type = request.GET.get('Iso_type','').strip()
-    Mode = request.GET.get('Mode','').strip()
-    Src_path = request.GET.get('Src_path','').strip()
-    Dest_path = request.GET.get('Dest_path','').strip()
-    PC_name = request.GET.get('PC_name','').strip()
-    Dvdfab_path = request.GET.get('Dvdfab_path','').strip()
-    Audio = request.GET.get('Audio','').strip()
-    Audio_type = request.GET.get('Audio_type','').strip()
+    Num = request.POST.get('Num','').strip()
+    Sub_num = request.POST.get('Sub_num','').strip()
+    Iso_type = request.POST.get('Iso_type','').strip()
+    Mode = request.POST.get('Mode','').strip()
+    Src_path = request.POST.get('Src_path','').strip()
+    Dest_path = request.POST.get('Dest_path','').strip()
+    PC_name = request.POST.get('PC_name','').strip()
+    Dvdfab_path = request.POST.get('Dvdfab_path','').strip()
+    Audio = request.POST.get('Audio','').strip()
+    Audio_type = request.POST.get('Audio_type','').strip()
     
-    Change_play_order = request.GET.get('Change_play_order','').strip()
-    Copy_IFO = request.GET.get('Copy_IFO','').strip()
-    Display_forced_sub = request.GET.get('Display_forced_sub','').strip()
-    Jump_menu = request.GET.get('Jump_menu','').strip()
-    Jump_main = request.GET.get('Jump_main','').strip()
-    Out_disc = request.GET.get('Out_disc','').strip()
-    Path_player = request.GET.get('Path_player','').strip()
-    Preserve_menu_disc2 = request.GET.get('Preserve_menu_disc2','').strip()
-    Profile = request.GET.get('Profile','').strip()
+    Change_play_order = request.POST.get('Change_play_order','').strip()
+    Copy_IFO = request.POST.get('Copy_IFO','').strip()
+    Display_forced_sub = request.POST.get('Display_forced_sub','').strip()
+    Jump_menu = request.POST.get('Jump_menu','').strip()
+    Jump_main = request.POST.get('Jump_main','').strip()
+    Out_disc = request.POST.get('Out_disc','').strip()
+    Path_player = request.POST.get('Path_player','').strip()
+    Preserve_menu_disc2 = request.POST.get('Preserve_menu_disc2','').strip()
+    Profile = request.POST.get('Profile','').strip()
     
-    Remove_DTS = request.GET.get('Remove_DTS','').strip()
-    Remove_HD_audio = request.GET.get('Remove_HD_audio','').strip()
-    Remove_menu = request.GET.get('Remove_menu','').strip()
-    Remove_PGC = request.GET.get('Remove_PGC','').strip()
-    Rewind = request.GET.get('Rewind','').strip()
-    Subtitle = request.GET.get('Subtitle','').strip()
-    Title = request.GET.get('Title','').strip()
-    Volume = request.GET.get('Volume','').strip()
+    Remove_DTS = request.POST.get('Remove_DTS','').strip()
+    Remove_HD_audio = request.POST.get('Remove_HD_audio','').strip()
+    Remove_menu = request.POST.get('Remove_menu','').strip()
+    Remove_PGC = request.POST.get('Remove_PGC','').strip()
+    Rewind = request.POST.get('Rewind','').strip()
+    Subtitle = request.POST.get('Subtitle','').strip()
+    Title = request.POST.get('Title','').strip()
+    Volume = request.POST.get('Volume','').strip()
     
-    Video_decoder_H264 = request.GET.get('Video_decoder_H264','').strip()
-    Video_decoder_VC1 = request.GET.get('Video_decoder_VC1','').strip()
-    Video_decoder_MPEG2 = request.GET.get('Video_decoder_MPEG2','').strip()
-    Video_encoder_H264 = request.GET.get('Video_encoder_H264','').strip()
-    DVDFab_description = request.GET.get('DVDFab_description','').strip()
+    Video_decoder_H264 = request.POST.get('Video_decoder_H264','').strip()
+    Video_decoder_VC1 = request.POST.get('Video_decoder_VC1','').strip()
+    Video_decoder_MPEG2 = request.POST.get('Video_decoder_MPEG2','').strip()
+    Video_encoder_H264 = request.POST.get('Video_encoder_H264','').strip()
+    DVDFab_description = request.POST.get('DVDFab_description','').strip()
     
-    Start_time = request.GET.get('Start_time','').strip()
-    End_time = request.GET.get('End_time','').strip()
-    Total_time = request.GET.get('Total_time','').strip()
-    Flag = request.GET.get('Flag','').strip()
-    Folder_size = request.GET.get('Folder_size','').strip()
-    Init_time = request.GET.get('Init_time','').strip()
-    Web_log_path = request.GET.get('Web_log_path','').strip()
-    Log_folder_path = request.GET.get('Log_folder_path','').strip()
-    Result = request.GET.get('Result','').strip()
-    Developer = request.GET.get('Developer','').strip()
+    Start_time = request.POST.get('Start_time','').strip()
+    End_time = request.POST.get('End_time','').strip()
+    Total_time = request.POST.get('Total_time','').strip()
+    Flag = request.POST.get('Flag','').strip()
+    Folder_size = request.POST.get('Folder_size','').strip()
+    Init_time = request.POST.get('Init_time','').strip()
+    Web_log_path = request.POST.get('Web_log_path','').strip()
+    Log_folder_path = request.POST.get('Log_folder_path','').strip()
+    Result = request.POST.get('Result','').strip()
+    Developer = request.POST.get('Developer','').strip()
     
-    Enable_2Dto3D = request.GET.get('Enable_2Dto3D','').strip()
-    BD3D_convert_type = request.GET.get('BD3D_convert_type','').strip()
-    Compress_to_AC3 = request.GET.get('Compress_to_AC3','').strip()
-    Current_src_path = request.GET.get('Current_src_path','').strip()
+    Enable_2Dto3D = request.POST.get('Enable_2Dto3D','').strip()
+    BD3D_convert_type = request.POST.get('BD3D_convert_type','').strip()
+    Compress_to_AC3 = request.POST.get('Compress_to_AC3','').strip()
+    Current_src_path = request.POST.get('Current_src_path','').strip()
     #dict = {('一月').decode('GB2312'):1, ('二月').decode('GB2312'):2, ('三月').decode('GB2312'):3, ('四月').decode('GB2312'):4, ('五月').decode('GB2312'):5, ('六月').decode('GB2312'):6,\
     #        ('七月').decode('GB2312'):7, ('八月').decode('GB2312'):8, ('九月').decode('GB2312'):9, ('十月').decode('GB2312'):10, ('十一月').decode('GB2312'):11, ('十二月').decode('GB2312'):12}
     #dict = [('一月').decode('GB2312'),'1', ('二月').decode('GB2312'),'2', ('三月').decode('GB2312'),'3', ('四月').decode('GB2312'),'4', ('五月').decode('GB2312'),'5', ('六月').decode('GB2312'),'6',\
@@ -1261,7 +1134,6 @@ def upload_file(request, param1):
 @csrf_exempt
 def upload(request):
     if request.method == 'POST':
-         
         form = UploadFileForm(request.POST, request.FILES)
         return HttpResponse(form)
         if form.is_valid():
