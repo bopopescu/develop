@@ -27,6 +27,18 @@ def read_conf(field):
     cf.read(CONFFIlE)
     value = cf.items(field)
     return value
+	
+def read_file(html_file):
+    fp = open(html_file,"r")
+    content = fp.read()
+    fp.close()
+    return content
+	
+def read_file_lines(html_file):
+    fp = open(html_file,"r")
+    all_list = fp.readlines()
+    fp.close()
+    return all_list
 
 
 def get_params():
@@ -139,6 +151,11 @@ def start_send_mail(mail_dict, title, CONTENT, mailto_one, filename):
 def initlog(info):     
     logging.basicConfig(filename = LOG_FILENAME, level = logging.NOTSET, filemode = 'a', format = '%(asctime)s : %(message)s')      
     logging.info(info) 
+	
+def format_time(mytime):
+    if mytime < 10:
+        mytime = '0%s' % mytime
+    return mytime
         
 
 def get_date(date):
@@ -147,72 +164,65 @@ def get_date(date):
         date = 0
     end = time.time() - int(date) * 3600 * 24.0
     end = time.localtime(end)
-    if end[3] < 10:
-        end_hour = '0' + str(end[3])
-    else:
-        end_hour = str(end[3])
-        
-    if end[4] < 10:
-        end_min = '0' + str(end[4])
-    else:
-        end_min = str(end[4])
-        
-    if end[5] < 10:
-        end_sec = '0' + str(end[5])
-    else:
-        end_sec = str(end[5])
-    end_time = str(end[0]) + '-' + str(end[1]) + '-' + str(end[2]) + ' ' +  end_hour + ':' +  end_min + ':' +  end_sec
+    end_hour = format_time(str(end[3]))
+    end_min = format_time(str(end[4]))
+    end_sec = format_time(str(end[5]))
+    end_time = "%s-%s-%s %s:%s:%s" % (str(end[0]), str(end[1]), str(end[2]), end_hour, end_min, end_sec)
     return start_time, end_time  
-
+	
+def create_folder(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+		
+def remove_file(filename):	
+    if os.path.exists(filename):
+        os.remove(filename)	
+		
+		
+def get_svn_log_cmdline(folder_full_path, start_time, end_time, user_name, pass_word, txtfile):
+    if username:
+		user_name = '--username ' + username
+	else:
+		user_name = ''
+	if password:
+		pass_word = ' --password ' + password
+	else:
+		pass_word = ''
+    cmdline = 'svn log '+ folder_full_path + ' -r {"' + start_time +'"}:{"' + end_time + '"} -v ' + user_name  + pass_word + ' --stop-on-copy>' + txtfile
+    return cmdline
+	
+def increase_file(filename, c):
+    fp = open(filename, 'a')
+	fp.write(c)
+	fp.close()
 
 def deal_with_file(start_time, end_time, shared_folder, local_ip_address, extension_name_list, username, password, svn_path, common_path, folders_list_set):
     CONTENT = ''
     txtfile = shared_folder + TXTFILENAME
     each_folder = time.strftime('%Y%m%d%H%M%S')
-    base_path = shared_folder + each_folder + '/'
-    if not os.path.exists(base_path):
-        os.mkdir(base_path)
+    base_path = os.path.join(shared_folder, each_folder)
+    create_folder(base_path)
     for folder in folders_list_set:
         folder = folder.strip()
         initlog("begin to deal with " + folder)
-        folder_full_path = common_path + folder
-        if '/' in folder:
-            folder = folder.replace('/', '_')
-        if '\\' in folder:
-            folder = folder.replace('\\', '_')
-        base_path_folder = base_path + folder
-        if not os.path.exists(base_path_folder):
-            os.mkdir(base_path_folder)
+        folder_full_path = os.path.join(common_path, folder)
+        base_path_folder = os.path.join(base_path, folder.replace('/', '_').replace('\\', '_'))
+        create_folder(base_path_folder)
         htmlfile = shared_folder + folder + '.html'
-        if os.path.exists(htmlfile):
-            os.remove(htmlfile)
+        remove_file(htmlfile)
         _list = []
-        if username:
-            user_name = '--username ' + username
-        else:
-            user_name = ''
-        if password:
-            pass_word = ' --password ' + password
-        else:
-            pass_word = ''
+        cmdline = get_svn_log_cmdline(folder_full_path, start_time, end_time, user_name, pass_word, txtfile)
         try:
-            os.system('svn log '+ folder_full_path + ' -r {"' + start_time +'"}:{"' + end_time + '"} -v ' + user_name  + pass_word + ' --stop-on-copy>' + txtfile)
-            initlog("create %s log info" % folder)
+            os.system(cmdline)
         except Exception, e:
             initlog(str(e))
         if os.path.exists(txtfile):
             p_0 = '[^-]+[^\n]+'
-            fp = open(txtfile, 'r')
-            content_0 = fp.read()
-            fp.close()
+            content_0 = read_file(txtfile)
             result = re.findall(p_0, content_0)
             CONTENT = folder_full_path + '\n'
-            fp = open(htmlfile, 'a')
-            fp.write(CONTENT)
-            fp.close()
-            fp = open(txtfile, 'r')
-            fcontent_list = fp.readlines()
-            fp.close()
+            increase_file(htmlfile, CONTENT)
+            fcontent_list = read_file_lines(txtfile)
             #--------------------------------------------------------------------------------------------
             p = '^[-]+'
             for line in fcontent_list:
@@ -266,24 +276,16 @@ def deal_with_file(start_time, end_time, shared_folder, local_ip_address, extens
                         Sum = 0
                         while flag:
                             if fcontent_list[index_1].strip("\n"):
-                                fullpath_filename = svn_path + fcontent_list[index_1].strip().split(' ')[1]
-                                if '/' in fullpath_filename:
-                                    fullpath = fullpath_filename.replace('/', '_')
-                                if '\\' in fullpath:
-                                    fullpath = fullpath_filename.replace('\\', '_')
-                                if ':' in fullpath:
-                                    fullpath = fullpath.replace(':', '_')
+                                fullpath_filename = os.path.join(svn_path, fcontent_list[index_1].strip().split(' ')[1])
+                                fullpath = fullpath_filename.replace('/', '_').replace('\\', '_').replace(':', '_')
                                 patch_file = base_path_folder + '/' + fullpath + '.' + revision + '.patch'
                                 if os.path.splitext(fullpath)[1].upper()[1:] in extension_name_list:
                                     try:
                                         os.system('svn diff -r ' + str(int(revision) - 1) + ':' + revision + ' ' + fullpath_filename + '>' + patch_file)
-                                        #initlog("create %s patch file, revision is %s" % (fcontent_list[index_1].strip().split(' ')[1], revision))
                                     except Exception, e:
                                         initlog(str(e))
                                     else:
-                                        fp = open(patch_file, 'r')
-                                        content_lines = fp.readlines()
-                                        fp.close()
+                                        content_lines = read_file_lines(patch_file)
                                         length = len(content_lines)
                                         Sum += length
                                         fcontent_list[index_1] = '&nbsp;&nbsp;&nbsp;'+fcontent_list[index_1].strip().split(' ')[0]+\
@@ -295,9 +297,7 @@ def deal_with_file(start_time, end_time, shared_folder, local_ip_address, extens
                                 index_1 += 1
                             else:
                                 flag = 0
-                        if Sum == 0:
-                            pass
-                        else:
+                        if Sum != 0:
                             fcontent_list[index] = "<span style = 'color:red'> Total patch file lines: " + str(Sum) + '</span><br />&nbsp;&nbsp;' + fcontent_list[index]
                         if index == f_len - 1:
                             break
@@ -312,7 +312,7 @@ def deal_with_file(start_time, end_time, shared_folder, local_ip_address, extens
                 fp.write('<p>&nbsp;</p>')
                 fp.close()
         else:
-            initlog(txtfile + ' does not exists')
+            initlog('%s does not exists' % txtfile)
                    
             
 def send_mail_to_developers(title, filename, mail_dict, mailto_list, users_folders_list, shared_folder, common_path):
@@ -321,20 +321,11 @@ def send_mail_to_developers(title, filename, mail_dict, mailto_list, users_folde
             if mailto_one in record:
                 CONTENT = ''
                 for foldername in users_folders_list[users_folders_list.index(record)][1].split(','):
-                    if '/' in foldername:
-                        name = foldername.replace('/', '_')
-                    elif '\\' in foldername:
-                        name = foldername.replace('\\', '_')
-                    else:
-                        name = foldername
+                    name = foldername.replace('/', '_').replace('\\', '_').strip()
                     html_file = shared_folder + name.strip() + '.html'
                     if os.path.exists(html_file):
-                        fp = open(html_file, 'r')
-                        fcontent_list= fp.readlines()
-                        fp.close()
-                        fp = open(html_file, 'r')
-                        fcontent= fp.read()
-                        fp.close()
+                        fcontent_list= read_file_lines(html_file)
+                        fcontent= read_file(html_file)
                         if len(fcontent_list) <= 1:
                             CONTENT += '%s<br /><br />' % (common_path + foldername.strip())
                         else:

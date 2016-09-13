@@ -13,9 +13,10 @@ from email.mime.multipart import MIMEMultipart
 
 
 GIT_LOG_TXT = r"d:\git_log\share_folders\git_log.txt"
-share_folder= "d:/git_log/share_folders/"
+share_folder= r"d:\git_log\share_folders"
 LOG_FILENAME = r"d:\git_log\src\sendmail.log"
 CONFFIlE = r"d:\git_log\src\gitloginfo.conf"
+SLEEP_TIME = 3600*18
 
 
 def initlog(info):     
@@ -56,10 +57,7 @@ def get_params():
     else:
         for record in users_folders_list:
             mailto_list.append(record[0])
-            if ';' in record[1]:
-                symbool = ';'
-            else:
-                symbool = ','
+            symbool = ';' if ';' in record[1] else ','
             for onerecord in record[1].split(symbool):
                 folders_list.append(onerecord.strip())
         folders_list_set = [i for i in set(folders_list)]
@@ -84,18 +82,15 @@ def get_service_mail():
 
 def get_all_branches(dest_path):
     all_branches_list = []
-    all_branches_txt = share_folder + "all_branches.txt"
-    cmd = "git branch -a > " + all_branches_txt
+    all_branches_txt = os.path.join(share_folder, "all_branches.txt")
+    cmd = "git branch -a > %s" % all_branches_txt
     subprocess.call(cmd, cwd = dest_path, shell = True)
-    fp = open(all_branches_txt, "r")
-    all_lines = fp.readlines()
-    fp.close()
+    all_lines = read_file_lines(all_branches_txt)
     all_branches_list.append(dest_path)
     for each_line in all_lines:
         if each_line.strip().startswith("remotes/origin") and each_line.count("origin") == 1:
             branch_name = each_line.split("origin/")[1]
             all_branches_list.append(branch_name)
-    print "all_branches_list: ", all_branches_list
     return all_branches_list
 
 
@@ -109,130 +104,129 @@ def get_time():
 
 
 def get_git_log(date_time,dest_path,branch_name):
+    git_reset_cmd = "git reset --hard"
+    git_checkout_cmd = "git checkout %s" % branch_name
     git_pull_cmd = "git pull"
-    subprocess.call(git_pull_cmd, cwd = dest_path, shell = True)
-    git_checkout_cmd = "git checkout " + branch_name
-    subprocess.call(git_checkout_cmd, cwd = dest_path, shell = True)
-    subprocess.call(git_pull_cmd, cwd = dest_path, shell = True)
-    git_log_cmd = "git log --branches=" + branch_name + " --stat --since=" + date_time + '>' + GIT_LOG_TXT
-    #print git_log_cmd,"*****************************************************"
-    subprocess.call(git_log_cmd, cwd = dest_path, shell = True)
-    p = subprocess.Popen("git remote -v", cwd = dest_path, shell = True, stdout = subprocess.PIPE)
+    git_log_cmd = "git log --branches=%s --stat --since=%s>%s" %(branch_name, date_time, GIT_LOG_TXT)
+    cmd_list = [git_reset_cmd, git_checkout_cmd, git_pull_cmd, git_log_cmd]
+    for cmd in cmd_list:    
+        subprocess.call(cmd, cwd = dest_path, shell = True)
+		
+		
+def get_gitpath(dest_path):
+    p = subprocess.Popen("git remote -v", cwd = dest_path, stdout = subprocess.PIPE, shell = True)
     all_lines = p.stdout.readlines()
     gitpath = ""
     for each_line in all_lines:
         if "(fetch)" in each_line:
-            print each_line
-            gitpath = each_line.split("(fetch)")[0].strip().split(" ")[-1]
             gitpath = each_line.split("(fetch)")[0].split("origin")[1].strip()
-            print gitpath
+            break
     return gitpath
 
     
 def get_cur_time_folder():
-    cur_time = time.strftime("%Y%m%d%H%M%S")
-    return cur_time
+    return time.strftime("%Y%m%d%H%M%S")
 
-
-def get_diff_content(dest_path,commit_version, cur_time,basefilename):
-    patch_path = os.path.join(share_folder, cur_time)
-    if not os.path.exists(patch_path):
-        os.mkdir(patch_path)
-    final_patch_path = os.path.join(patch_path, dest_path.replace("/","_").replace("\\","_").replace(":","_"))
-    if not os.path.exists(final_patch_path):
-        os.mkdir(final_patch_path)
-    patchfile = final_patch_path + "\\" + commit_version + "_" + cur_time + ".patch"
-    
+	
+def create_folder(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+		
+		
+def get_diff_file(dest_path, basefilename):
     diff_filename = ""
-    if basefilename.startswith(".../"):
-        basefilename = basefilename[4:].replace("\\","/").strip()
-        print basefilename,111111111111111111111111
-    else:
-        basefilename = basefilename.replace("\\","/").strip()
-        
-    for roots, dirs, files in os.walk(dest_path):
+    for roots, _, files in os.walk(dest_path):
         for onefile in files:
             filename = os.path.join(roots, onefile).replace("\\","/")
-
             if basefilename in filename:
                 diff_filename = filename
-                print "filename: ", filename
-                print "basefilename:", basefilename
                 break
-    if diff_filename:       
-        cmd = "git diff " + '"' + commit_version + '^" ' + commit_version + " -- " + diff_filename + ">" + patchfile
-        subprocess.call(cmd, cwd = dest_path, shell = True)
-    else:
-        print "***************************************************************"
+    return diff_filename
 
+	
+def get_diff_content(dest_path,commit_version, cur_time,basefilename):
+    patch_path = os.path.join(share_folder, cur_time)
+    create_folder(patch_path)
+    final_patch_path = os.path.join(patch_path, dest_path.replace("/","_").replace("\\","_").replace(":","_"))
+    create_folder(final_patch_path)
+    patchfile = final_patch_path + "\\" + commit_version + "_" + cur_time + ".patch"
+    if basefilename.startswith(".../"):
+        basefilename = basefilename[4:].replace("\\","/").strip() 
+    else:
+        basefilename = basefilename.replace("\\","/").strip()
+    diff_filename = get_diff_file(dest_path, basefilename)
+    if diff_filename:       
+        cmd = 'git diff "%s^" %s -- %s>%s' % (commit_version, commit_version, diff_filename, patchfile)
+        subprocess.call(cmd, cwd = dest_path, shell = True)
     return patchfile
     
-
+	
+def clean_file(filename):
+    fp = open(filename, "w")
+    fp.close()
+	
+	
 def format_git_log(date_time,cur_time,all_branches_list,extension_name_list):
     dest_path = all_branches_list[0]
-    html_file_path = dest_path.replace("\\","_").replace(":","_")
-    #os.path.join(dest_path, )
-    html_file = share_folder + html_file_path + ".html"
-    fp = open(html_file, "w")
-    fp.close()
+    html_file_path = dest_path.replace("\\","_").replace(":","_") + ".html"
+    html_file = os.path.join(share_folder, html_file_path)
+    clean_file(html_file)
     
     for branch_name in all_branches_list[1:]:
-            branch_name = branch_name.strip()
-            gitpath = get_git_log(date_time,dest_path,branch_name)
-            fp = open(GIT_LOG_TXT, "r")
-            all_lines = fp.readlines()
-            fp.close()
+		branch_name = branch_name.strip()
+		get_git_log(date_time,dest_path,branch_name)
+        gitpath = get_gitpath(dest_path)
+		all_lines = read_file_lines(GIT_LOG_TXT)
+		fp = open(html_file, "a+")
+		fp.write("<div style = 'font-size:1.5em'><br /><div>--------------------------------------------------------------------------------------</div><strong>" + gitpath + "</strong></div>")   
+		fp.write("<div style = 'font-size:1.5em'><strong>" + branch_name + "</strong></div>")
+		for each_line in all_lines:
+			if each_line.startswith("commit"):
+				commit_version = each_line.split(" ")[1].strip()
+				fp.write("<div><br /></div><div><span style = 'color:red'>" + each_line.split(" ")[0] + ":</span> " + each_line.split(" ")[1] + "</div>")    
+			elif  each_line.startswith("Author:"):
+				fp.write("<div><span style = 'color:red'>Author:</span> " + each_line.replace("Author:","") + "</div>")
+			elif each_line.startswith("Date:"):
+				fp.write("<div><span style = 'color:red'>Date:</span> " + each_line.replace("Date:","") + "</div>")
+			elif "|" in each_line and "/" in each_line:
+				basefilename = each_line.split("|")[0].strip()
+				patchfile = get_diff_content(dest_path,commit_version, cur_time,basefilename)
+				print "patchfile: ", patchfile
+				
+				changed_filename = basefilename.replace("/","_").replace("\\","_").replace(".","_").replace('"',"_")
+                new_patchfile = "%s_%s_%s%s" % (os.path.splitext(patchfile)[0], changed_filename, branch_name, os.path.splitext(patchfile)[1])
+				if os.path.exists(patchfile):
+					os.rename(patchfile, new_patchfile)
+				initlog(basefilename)
+				initlog(patchfile)
+				initlog(new_patchfile) 
+				new_patchfile = new_patchfile.replace("/","\\").replace("d:", "\\\\10.10.2.201")
 
-            fp = open(html_file, "a+")
-            fp.write("<div style = 'font-size:1.5em'><br /><div>--------------------------------------------------------------------------------------</div><strong>" + gitpath + "</strong></div>")   
-            fp.write("<div style = 'font-size:1.5em'><strong>" + branch_name + "</strong></div>")
-            for each_line in all_lines:
-                if each_line.startswith("commit"):
-                    commit_version = each_line.split(" ")[1].strip()
-                    fp.write("<div><br /></div><div><span style = 'color:red'>" + each_line.split(" ")[0] + ":</span> " + each_line.split(" ")[1] + "</div>")    
-                elif  each_line.startswith("Author:"):
-                    fp.write("<div><span style = 'color:red'>Author:</span> " + each_line.replace("Author:","") + "</div>")
-                elif each_line.startswith("Date:"):
-                    fp.write("<div><span style = 'color:red'>Date:</span> " + each_line.replace("Date:","") + "</div>")
-                elif "|" in each_line and "/" in each_line:
-                    basefilename = each_line.split("|")[0].strip()
-                    patchfile = get_diff_content(dest_path,commit_version, cur_time,basefilename)
-                    print "patchfile: ", patchfile
-                    
-                    changed_filename = basefilename.replace("/","_").replace("\\","_").replace(".","_").replace('"',"_")
-                    new_patchfile = os.path.splitext(patchfile)[0] + "_" + changed_filename + "_" + branch_name + os.path.splitext(patchfile)[1]
-                    if os.path.exists(patchfile):
-                        os.rename(patchfile, new_patchfile)
-                    initlog(basefilename)
-                    initlog(patchfile)
-                    initlog(new_patchfile) 
-                    new_patchfile = new_patchfile.replace("/","\\").replace("d:", "\\\\10.10.2.201")
+				if os.path.splitext(basefilename)[1].upper()[1:] in extension_name_list:
+					fp.write('<div><a href = "'+ new_patchfile + '">' + each_line + "</a></div>")
+				else:
+					fp.write("<div>%s</div>" % each_line)
+			else:
+				fp.write("<div>%s</div>" % each_line)
 
-                    if os.path.splitext(basefilename)[1].upper()[1:] in extension_name_list:
-                        fp.write('<div><a href = "'+ new_patchfile + '">' + each_line + "</a></div>")
-                    else:
-                        fp.write("<div>"+ each_line + "</div>")
-                else:
-                    fp.write("<div>" + each_line + "</div>")
-
-                if each_line.startswith("Date:"):
-                    date_index = all_lines.index(each_line)
-                    flag = 1
-                    while flag:
-                        all_lines[date_index + 2] = "<span style = 'color:red'>Message: </span>" + all_lines[date_index + 2]#.decode("gb2312").encode("utf-8")
-                        
-                        if date_index + 3 > len(all_lines) -1  or all_lines[date_index + 3].strip() == "":
-                            flag = 0
-                        else:
-                            date_index += 1
-                            flag = 1
-            fp.close()
+			if each_line.startswith("Date:"):
+				date_index = all_lines.index(each_line)
+				flag = 1
+				while flag:
+					all_lines[date_index + 2] = "<span style = 'color:red'>Message: </span>" + all_lines[date_index + 2]#.decode("gb2312").encode("utf-8")
+					
+					if date_index + 3 > len(all_lines) -1  or all_lines[date_index + 3].strip() == "":
+						flag = 0
+					else:
+						date_index += 1
+						flag = 1
+		fp.close()
 
 
 def send_mail(mail_dict, title, content, mailto_one, filename = ""):
     flag = False    
     if mail_dict:
-        me = mail_dict['mail_user'] + '@' + mail_dict['mail_postfix']
+        me = "%s@%s" % (mail_dict['mail_user'], mail_dict['mail_postfix'])
         msg = MIMEMultipart()  
         msg.attach(MIMEText(content, _subtype = 'html', _charset = 'utf-8')) 
         msg['Subject'] = title
@@ -252,38 +246,32 @@ def send_mail(mail_dict, title, content, mailto_one, filename = ""):
             
         try:
             s = smtplib.SMTP()
-            initlog("1111111111111111")
             s.connect(mail_dict['mail_host'], "25")
-            initlog("2222222222222222")
             s.starttls()   #启动安全传输模式
             s.login(mail_dict['mail_user'], mail_dict['mail_passwd'])
-            initlog("3333333333333333")
             s.sendmail(me, mailto_one, msg.as_string())
-            initlog("4444444444444444")
             s.close()
-            initlog("5555555555555555")
             flag = True
             initlog("send mail successfully")
         except Exception as e:
-            initlog(str(e)+ '    qqqqqqqqqq')
+            initlog("send mail exception; %s" % str(e))
     else:
         initlog('Server_Mails conf error!')
-        
     return flag
 
-def start_send_mail(mail_dict, title, content, mailto_one, filename):
-    flag = send_mail(mail_dict, title, content, mailto_one, filename)
-    if flag:
-        initlog('sent to ' + mailto_one + ' successfully!')
-    else:
-        initlog('failed to send!')
-        
 
 def read_file(html_file):
     fp = open(html_file,"r")
     content = fp.read()
     fp.close()
     return content
+	
+	
+def read_file_lines(html_file):
+    fp = open(html_file,"r")
+    all_list = fp.readlines()
+    fp.close()
+    return all_list
 
 
 def send_mail_to_developers(title, filename, mail_dict, mailto_list, users_folders_list):
@@ -292,36 +280,22 @@ def send_mail_to_developers(title, filename, mail_dict, mailto_list, users_folde
             if mailto_one in record:
                 CONTENT = ''
                 for foldername in users_folders_list[users_folders_list.index(record)][1].split(','):
-                    if '/' in foldername:
-                        name = foldername.replace('/', '_')
-                    elif '\\' in foldername:
-                        name = foldername.replace('\\', '_')
-                    else:
-                        name = foldername
-                    html_file = share_folder + name.replace("\\","_").replace("/","_").replace(":","_").strip() + '.html'
-                    print "html_file is: ", html_file
+                    name = foldername.replace('/', '_').replace('\\', '_').replace(":","_").strip() + ".html"
+                    html_file = os.path.join(share_folder, name)
                     if os.path.exists(html_file):
-                        fp = open(html_file, 'r')
-                        fcontent_list= fp.readlines()
-                        fp.close()
-                        fp = open(html_file, 'r')
-                        fcontent= fp.read()
-                        fp.close()
+                        fcontent_list= read_file_lines(html_file)
+                        fcontent= read_file(html_file)
                         if len(fcontent_list) <= 0:
-                            CONTENT += '%s<br /><br />'%fcontent
+                            CONTENT += '%s<br /><br />' % fcontent
                         else:
                             CONTENT += fcontent.strip()
-                start_send_mail(mail_dict, title, CONTENT, mailto_one, filename)
-
+                send_mail(mail_dict, title, CONTENT, mailto_one, filename)
 
 
 def main():
     while 1:
-        send_time_list = []
         send_time = read_ini("Params", "send_time")
-        for onetime in send_time.split(","):
-            send_time_list.append(onetime.strip())
-          
+        send_time_list = [onetime.strip() for onetime in send_time.split(",")]
         if time.strftime("%H:%M:%S") in send_time_list:
             cur_time = get_cur_time_folder()
             date_time = get_time()
@@ -331,8 +305,7 @@ def main():
                 format_git_log(date_time,cur_time,all_branches_list,extension_name_list)
                 mail_dict = get_service_mail()
             send_mail_to_developers(title, filename, mail_dict, mailto_list, users_folders_list)
-            time.sleep(3600*18)
-            #break
+            time.sleep(SLEEP_TIME)
             
 
 if __name__ == "__main__":
