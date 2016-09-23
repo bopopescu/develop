@@ -34,14 +34,6 @@ class Sql(object):
         except:
             self.conn = None
             self.cursor = None
-            
-            
-    def select_data(self, tb_name):
-        """ 获取指定表中的所有数据 """
-        select_sql = "select * from %s" % tb_name
-        self.cursor.execute(select_sql)
-        record = self.cursor.fetchall()
-        return record
     
     
     def insert_data(self, tb_name, **kwargs):
@@ -87,12 +79,27 @@ class Sql(object):
             self.conn.commit()
         except:
             self.conn.rollback()
+            
+            
+    def select_data(self, tb_name, **kwargs):
+        """ 根据给定的条件, 获取指定表中的所有数据 """
+        cmd = " AND ".join(["%s='%s'" % (key, kwargs[key]) for key in kwargs])
+        if kwargs:
+            select_sql = "select * from %s WHERE %s" % (tb_name, cmd)
+        else:
+            select_sql = "select * from %s" % tb_name
+        self.cursor.execute(select_sql)
+        record = self.cursor.fetchall()
+        return record
     
     
     def has_record(self, tb_name, **kwargs):
         """ 判断某个表中某个字段是否有某个值 """
         cmd = " AND ".join(["%s='%s'" % (key, kwargs[key]) for key in kwargs])
-        select_sql = "select * from %s WHERE %s" % (tb_name, cmd)
+        if kwargs:
+            select_sql = "select * from %s WHERE %s" % (tb_name, cmd)
+        else:
+            select_sql = "select * from %s" % tb_name
         print select_sql
         self.cursor.execute(select_sql)
         record = self.cursor.fetchone()
