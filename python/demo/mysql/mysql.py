@@ -4,7 +4,7 @@ Created on 2016-09-19
 
 @author: dedong.xu
 
-@description: 封装mysql，实现插入和查询，以及给定的记录是否存在的功能
+@description: 封装mysql，实现增删改查的功能
 '''
 
 import MySQLdb
@@ -89,9 +89,11 @@ class Sql(object):
             self.conn.rollback()
     
     
-    def has_record(self, tb_name, column_name, column_value):
+    def has_record(self, tb_name, **kwargs):
         """ 判断某个表中某个字段是否有某个值 """
-        select_sql = "select * from %s WHERE %s='%s'" % (tb_name, column_name, column_value)
+        cmd = " AND ".join(["%s='%s'" % (key, kwargs[key]) for key in kwargs])
+        select_sql = "select * from %s WHERE %s" % (tb_name, cmd)
+        print select_sql
         self.cursor.execute(select_sql)
         record = self.cursor.fetchone()
         if record:
@@ -119,7 +121,7 @@ def main():
     sql = Sql(DB_HOST, DB_USER, DB_PASSWD, DB_NAME)
     sql.connect_db()
     sql.select_data(TB_NAME)
-    print sql.has_record(TB_NAME, "name", "asdad")
+    print sql.has_record(TB_NAME, age = "13428", name = "13sda")
     sql.insert_data(TB_NAME, name = "456", age = "789")
     sql.delete_data(TB_NAME, name = "qwe1", age = "678")
     sql.update_data(TB_NAME, {"name": "13", "age": 13428})
