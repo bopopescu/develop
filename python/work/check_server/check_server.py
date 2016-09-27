@@ -31,7 +31,7 @@ def get_server_list(data_dict):
 
 
 def read_file(filename):
-    """ 读文件，返回字符串格式的数据 """
+    """ 读文件，返回字符串格式的数据：json格式字符串 """
     
     try:
         fp = open(filename, "r")
@@ -42,8 +42,8 @@ def read_file(filename):
     return c
     
     
-def get_json_data(c):
-    """ 返回json格式的数据 """
+def loads_json_data(c):
+    """ 将json格式的数据转换成python字典对象 """
     
     try:
         data_dict = json.loads(c)
@@ -125,12 +125,12 @@ def restart_service(local_file, shadowsocks_file):
 
 def main(allnode_file, shadowsocks_file, CHECK_URL, SLEEP_TIME):
     c_allnode = read_file(allnode_file)
-    allnode_dict = get_json_data(c_allnode)
+    allnode_dict = loads_json_data(c_allnode)
     server_list = get_server_list(allnode_dict)
     num = 1
     for server in server_list:
         c_shadowsocks = read_file(shadowsocks_file)
-        shadowsocks_dict = get_json_data(c_shadowsocks)
+        shadowsocks_dict = loads_json_data(c_shadowsocks)
         server_url = get_shadowsocks_server(shadowsocks_dict)  #获shadowsocks.json文件里的server
         if server_url:
             """替换server """
