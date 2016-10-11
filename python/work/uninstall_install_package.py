@@ -19,7 +19,7 @@ build_path = r"\\10.10.2.72\nas\VidOn_package\VidOn_Server\VidOn_Server_for_Wind
 registry_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VidOn Server 2_is1"
 process_name_list = ["VidOnTray2.exe", "VidOnServer2.exe", "VidOnMysqld.exe"]
 dirs_list = [r"C:\Users\Public\Documents\VidOn Server", r"C:\Users\Public\Documents\VidOnCloud", r"C:\Users\Public\Documents\VMS2"]
-
+valuename = "UninstallString"
 
 class Install_Package(object):
     """ 安装 安装包 """
@@ -70,11 +70,11 @@ class Uninstall_Package(object):
         os.system("%s /verysilent" % uninstall_file)
     
         
-    def get_uninstall_file(self):
+    def get_uninstall_file(self, valuename):
         """ 通过注册表获取卸载程序的路径 """
         try:
             key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, self.registry_path)
-            uninstall_file = _winreg.QueryValueEx(key, "UninstallString")[0]
+            uninstall_file = _winreg.QueryValueEx(key, valuename)[0]
         except Exception as e:
             uninstall_file = ""
             print str(e)
@@ -126,7 +126,7 @@ def main_uninstall(registry_path, dirs_list, process_name_list):
     up = Uninstall_Package(registry_path, dirs_list, process_name_list)
     up.kill_process_list()
     up.remove_dirs_list()
-    uninstall_file = up.get_uninstall_file()
+    uninstall_file = up.get_uninstall_file(valuename)
     up.uninstall_package(uninstall_file)
 
 
