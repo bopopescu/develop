@@ -40,12 +40,12 @@ class Install_Package(object):
             return ""
         
     
-    def get_package(self):
+    def get_package(self, newest_path):
         """ 获得当前目录下的扩展名为 exe的文件"""
         package_file = ""
-        for each_file in os.listdir(self.newest_path):
+        for each_file in os.listdir(newest_path):
             if os.path.splitext(each_file)[1].lower() == ".exe":
-                package_file = os.path.join(self.newest_path, each_file)
+                package_file = os.path.join(newest_path, each_file)
                 break
         return package_file
 
@@ -122,7 +122,7 @@ def main_install(build_path):
     newest_path = ip.find_newest_path()
     print newest_path
     if newest_path:
-        package_file = ip.get_package()
+        package_file = ip.get_package(newest_path)
         if package_file:
             ip.install_package(package_file)
         else:
@@ -142,6 +142,6 @@ def main_uninstall(registry_path, dirs_list, process_name_list):
 
 if __name__ == "__main__":
     main_uninstall(registry_path, dirs_list, process_name_list)
-    main_install(build_path)
+    #main_install(build_path)
     
     
