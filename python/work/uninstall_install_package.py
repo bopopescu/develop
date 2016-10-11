@@ -72,22 +72,12 @@ class Uninstall_Package(object):
         
     def get_uninstall_file(self):
         """ 通过注册表获取卸载程序的路径 """
-        uninstall_file = ""
         try:
             key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, self.registry_path)
+            uninstall_file = _winreg.QueryValueEx(key, "UninstallString")[0]
         except Exception as e:
-            return uninstall_file
-        n = 0
-        while 1:
-            try:
-                current_record =  _winreg.EnumValue(key,n)
-                if current_record[0].lower() == "UninstallString".lower():
-                    uninstall_file = current_record[1]
-                    break
-                n += 1
-            except Exception as e:
-                print str(e)
-                break
+            uninstall_file = ""
+            print str(e)
         return uninstall_file
     
     
@@ -142,6 +132,6 @@ def main_uninstall(registry_path, dirs_list, process_name_list):
 
 if __name__ == "__main__":
     main_uninstall(registry_path, dirs_list, process_name_list)
-    #main_install(build_path)
+    main_install(build_path)
     
     
