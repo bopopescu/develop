@@ -20,14 +20,14 @@ SAVED_FILE = "savefile.txt"                                     #分析后的结
 FAILED_COUNTS = 3                                               #允许失败的次数
 count = 0                                                       #统计失败次数
 
-MAIL_HOST="10.10.7.100"                                         #mail server
-MAIL_USER="buildbot"                                            #用户名
-MAIL_PASS="123456"                                              #密码
-MAIL_POSTFIX="goland.cn"                                        #邮箱后缀
+MAIL_HOST="xx.xx.x.xxx"                                         #mail server
+MAIL_USER="xxxxxxxx"                                            #用户名
+MAIL_PASS="xxxxxx"                                              #密码
+MAIL_POSTFIX="xxxxxxxxx"                                        #邮箱后缀
 
 MAIL_TITLE = "title"                                            #邮件标题
 MAIL_CONTENT = "content"                                        #邮件正文
-MAIL_LIST = ["dedong.xu@goland.cn"]                             #收件人列表
+MAIL_LIST = ["xxxx"]                                            #收件人列表
 
 
 def multi_send_mail(mail_list, sub, content):
