@@ -1,0 +1,192 @@
+<meta http-equiv="refresh" content="1888880; url='http://10.10.2.64:9004">
+<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <!--<link href="/site_media/css/bootstrap.min.css" rel="stylesheet">-->
+        <title>Auto OM Platform</title>
+    </head>
+    {% endblock %}
+    {% block subtitle %}--Management Page{% endblock %}
+    {% block content %}
+    <!--<body style = "background-color:#D1EEEE">-->
+    <body style = "background-color:#EAF6F7">
+        <!--<h1 align = "center" style = "font-family:Arial, Verdana, Sans-serif">Management Page</h1>-->
+        <div align = "center">
+            <form action = "." method = "GET" onsubmit = "return NotEmpty()" autocomplete="on">
+                <select name = "search_name">
+                    {% for each_record in search_list %}
+                        {% ifequal each_record search_name %}
+                            <option selected = "selected" value = "{{each_record}}">{{each_record}}</option>
+                        {% else %}
+                            <option value = "{{each_record}}">{{each_record}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                </select>
+                <input type = "text" id = "record_value" name = "record_name" value = "{{record_name}}" required = "required">
+                <label><img src = "/static/admin/img/icon_searchbox.png" alt = "Search"><input hidden = "hidden" type = "submit" value = "Submit"/></label> 
+            </form>
+        </div>
+
+        <!--<div><input type = "submit" value = "操作记录" onClick = "window.open('/display_operation_record','_self')"/></div>
+        <div><input type = "submit" value = "添加" onClick = "window.open('/add_pc','_self')"/></div>-->
+        <!--<div id = "time">{{cur_time}}</div>-->
+        <form action = "/shutdown_all/" method = "POST" onsubmit = "return shutdown_all()">
+            {% csrf_token %}
+            <table width = "100%" border style = "font-family:Arial, Verdana, Sans-serif; bacground-color:#7CFC00">
+                <tr align = "center" style = "background-color:#5CACEE" height = "40px">
+                    <td>Operation</td>
+                    <td><a href = '?ziduan=platform&order={{order}}'>Platform</a></td>
+                    <!--<td><a href = '?ziduan=id&order={{order}}'>id</a></td>-->
+                    <td><a href = '?ziduan=ip&order={{order}}'>IP</a></td>
+                    <td><a href = '?ziduan=memory&order={{order}}'>Memory</a></td>
+                    {% if is_esxi %}<td><a href = '?ziduan=memory_left&order={{order}}'>Memory Left</a></td>{% endif %}
+                    <td><a href = '?ziduan=cpu&order={{order}}'>CPU</a></td>
+                    {% if is_esxi %}<td><a href = '?ziduan=cpu_left&order={{order}}'>CPU Left</a></td>{% endif %}
+                    <td><a href = '?ziduan=hard_disk&order={{order}}'>Hard Disk</a></td>
+                    {% if is_esxi %}<td><a href = '?ziduan=hard_disk_left&order={{order}}'>Hard Disk Left</a></td>{% endif %}
+                    <td><a href = '?ziduan=username&order={{order}}'>Username</a></td>
+                    <td><a href = '?ziduan=password&order={{order}}'>Password</a></td>
+                    <td><a href = '?ziduan=is_virtual&order={{order}}'>Is Virtual</a></td>
+                    <td><a href = '?ziduan=join_date&order={{order}}'>Join Date</a></td>
+                    <td><a href = '?ziduan=modify_date&order={{order}}'>Modify Date</a></td>
+                    <td><a href = '?ziduan=status&order={{order}}'>Status</a></td>
+                    <td><a href = '?ziduan=description&order={{order}}'>Description</a></td>
+                </tr>
+                {% for pc_info in pc_info_list %}
+                    <!--<tr align = "center" style = "background-color: {% cycle '#98FB98' '#97FFFF'%}">-->
+                    <tr align = "center" style = "background-color: {% cycle '#DC143CE' '#97FFFF'%}">
+                        <td><input type = "checkbox" name = "checkbox" value = "{{pc_info.id}}" />
+                        <!--<input type = "hidden" value ="{{pc_info.id}}" onClick = "shutdown({{pc_info.id}})" />-->
+                        <input type = "button" value = "删除" onClick = "del({{pc_info.id}})" />
+                        <!--<input type = "button" value = "修改" onClick = "window.open('/update/{{pc_info.id}}','_self')"/>-->
+                        <input type = "button" value = "修改" onClick = "window.open('{{pc_info.get_absolute_url}}','_self')"/></td>
+                        <!--<td><a href = "/update?id={{pc_info.id}}">Edit</a>&nbsp;&nbsp;<a href = "/update/{{pc_info.id}}">Edit</a></td>-->
+                        <td>{{pc_info.platform.name}}</td>
+                        <!--<td>{{pc_info.get_update_url}}</td>-->
+                        <td>{{pc_info.ip}}</td>
+                        <td>{{pc_info.memory}}</td>
+                        {% if is_esxi %}<td>{{pc_info.memory_left}}</td>{% endif %}
+                        <td>{{pc_info.cpu}}</td>
+                        {% if is_esxi %}<td>{{pc_info.cpu_left}}</td>{% endif %}
+                        <td>{{pc_info.hard_disk}}</td>
+                        {% if is_esxi %}<td>{{pc_info.hard_disk_left}}</td>{% endif %}
+                        <td>{{pc_info.username}}</td>
+                        <td>{{pc_info.password}}</td>
+                        <td>{{pc_info.is_virtual}}</td>
+                        <td>{{pc_info.join_date}}</td>
+                        <td>{{pc_info.modify_date}}</td>
+                        {% ifequal pc_info.status ONLINE %}
+                            <td style = "background-color:#7FFF00">{{pc_info.status}}</td>
+                        {% endifequal %}
+                        {% ifequal pc_info.status OFFLINE %}
+                            <td name = "offline" style = "background-color:grey" title = "{{pc_info.ip}}可能关机或者死机了">{{pc_info.status}}</td>
+                        {% endifequal %}
+                        <td>{{pc_info.description}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <div><label><input type = "checkbox" id = "select_all_id" onClick = "select_all()"/>全选/取消全选</label>
+            <input type = "submit" value = "关机" /></div>
+        </form>
+{% for k in li %}
+<span name = "data">{{k}}</span>
+{%endfor%}
+    </body>
+    <input type = "hidden" id = "status" value = "{{OFFLINE}}" />
+{% endblock %}
+
+{% block footer %}
+<script>
+function select_all(){
+    var obj = document.getElementById("select_all_id");
+    var all_list = document.getElementsByName("checkbox");
+    if (obj.checked){
+        for(i=0; i<all_list.length; i++){
+            all_list[i].checked = true;
+        }
+    }
+    else{
+        for(i=0; i<all_list.length; i++){
+            all_list[i].checked = false;
+        }
+    }
+}
+
+function shutdown(id){
+    var flag = confirm("  确定要关机吗?");
+    if(flag){
+        document.location.href = "/shutdown/"+id
+        }
+    else{
+        return false;
+        }
+}
+
+function shutdown_all(){
+    var all_list = document.getElementsByName("checkbox");
+    var flag = false;
+    for(i=0; i<all_list.length; i++){
+        if(all_list[i].checked){
+            flag = true;
+            break;
+        }
+    }
+    if (!flag){
+        alert("请选择要关机的主机！");
+        return false;
+    }
+    
+    var flag = confirm("  确定要关机吗?");
+    if(flag){
+        document.location.href = "/shutdown_all/"
+        }
+    else{
+        return false;
+        }
+}
+
+function del(id){
+    var flag = confirm("  确定要删除吗?");
+    if(flag){
+        document.location.href = "/delete/"+id
+        }
+    else{
+        return false;
+        }
+    }
+
+function delay(){
+    var obj = document.getElementsByName("offline");
+    var status_value = document.getElementById("status").value;
+    for(var i=0; i<obj.length; i++){
+        div_content = obj[i].textContent;
+        //alert(div_content)
+        if (div_content != status_value){
+            //document.write("offline");
+            obj[i].innerHTML = status_value;
+        }
+        else{
+            obj[i].innerHTML = "";
+        }
+    }
+}
+setInterval("delay()", 1000);
+
+var obj = document.getElementsByName("data");
+function dd(){var a=1}
+function delay1(ins){
+        //ins.style.color = "red";
+        setTimeout(dd(), 1000);
+    }
+
+
+for(var j=0; j<obj.length; j++){
+    setTimeout(delay1(obj[j]), 100000);
+    obj[j].style.color= "red"
+    obj[j].innerHTML = "aaa"
+    //alert(j);
+    //setInterval(delay1(obj, j), 1000);
+}
+</script>
+{% endblock %}

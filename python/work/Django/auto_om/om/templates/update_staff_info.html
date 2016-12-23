@@ -1,0 +1,186 @@
+<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <style>
+            .input_width{
+                width: 70%;
+            }
+            .right_position{
+                text-align:right;
+                width: 30%
+            }
+        </style>
+        <title>Update PC</title>
+    </head>
+    {% endblock %}
+
+    {%block subtitle%}--Update PC{% endblock%}
+    {% block content %}
+    <body style = "background-color:#EAF6F7">
+    <!--<p><input type = "submit" value = "管理页面" onClick = "window.open('/','_self')"/>-->
+    <div style = "color: red" align="center"><strong>{{exist_prompt}}</strong></div>
+    <form action = "." method = "POST" onsubmit = "return NotEmpty()">
+        {% csrf_token %}
+        <table align = "center" width = "100%">
+            <tr>
+                <td class = "right_position">部门:</td>
+                <td>
+                    <select class = "input_width" id = "department" name = "department">
+                    {% for department in department_list %}
+                        {% ifequal cur_department department.name %}
+                            <option value = "{{department}}" selected>{{department}}</option>
+                        {% else %}
+                            <option value = "{{department}}">{{department}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">操作系统:</td>
+                <td>
+                    <select class = "input_width" id = "platform" name = "platform">
+                    {% for platform in platform_list %}
+                        {% ifequal cur_platform platform.name %}
+                            <option value = "{{platform}}" selected>{{platform}}</option>
+                        {% else %}
+                            <option value = "{{platform}}">{{platform}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">员工姓名:</td>
+                <td>
+                    {% if staff_name %}
+                        <input class = "input_width" type = "text" name = "staff_name" value = "{{staff_name}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "staff_name" value = "{{staff_info.staff_name}}" reqiuired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">IP:</td>
+                <td>
+                    {% if ip %}
+                        <input class = "input_width" type = "text" id = "ip" name = "ip" value = "{{ip}}" requiried = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" id = "ip" name = "ip" value = "{{staff_info.ip}}" requiired = "required"/>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Mac 地址:</td>
+                <td>
+                    {% if mac_address %}
+                        <input class = "input_width" type = "text" id = "mac_address" name = "mac_address" value = "{{mac_address}}" requiried = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" id = "mac_address" name = "mac_address" value = "{{staff_info.mac_address}}" requiired = "required"/>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">资产名称:</td>
+                <td>
+                    {% if asset_name %}
+                        <input class = "input_width" type = "text" name = "asset_name" value = "{{asset_name}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "asset_name" value = "{{staff_info.asset_name}}" reqiuired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">资产编号:</td>
+                <td>
+                    {% if serial_num %}
+                        <input class = "input_width" type = "text" name = "serial_num" value = "{{serial_num}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "serial_num" value = "{{staff_info.serial_num}}" reqiuired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">资产地址:</td>
+                <td>
+                    {% if asset_address %}
+                        <input class = "input_width" type = "text" name = "asset_address" value = "{{asset_address}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "asset_address" value = "{{staff_info.asset_address}}" reqiuired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">内存:</td>
+                <td>
+                    {% if memory %}
+                        <input class = "input_width" type = "text" name = "memory" value = "{{memory}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "memory" value = "{{staff_info.memory}}" reqiuired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">CPU:</td>
+                <td>
+                    {% if cpu %}
+                        <input class = "input_width" type = "text" name = "cpu" value = "{{cpu}}" requiired = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "cpu" value = "{{staff_info.cpu}}" requiired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            
+            <tr>
+                <td class = "right_position">硬盘:</td>
+                <td>
+                    {% if hard_disk %}
+                        <input class = "input_width" type = "text" id = "hard_disk" name = "hard_disk" value = "{{hard_disk}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" id = "hard_disk" name = "hard_disk" value = "{{staff_info.hard_disk}}" reiquired = "required"/>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">描述:</td>
+                <td>
+                    {% if description %}
+                        <textarea class = "input_width" name = "description" rows = 8 requiredi = "required">{{description}}</textarea>
+                    {% else %}
+                        <textarea class = "input_width" name = "description" rows = 8 requiredi = "required">{{staff_info.description}}</textarea>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+        <div align = "center"><input type = "submit" value = "Submit" /></div>
+    </form>
+{% endblock %}
+
+
+{% block footer %}
+    <script>
+        function NotEmpty(){
+            var ip_obj = document.getElementById("ip")
+            var department_obj = document.getElementById("department")
+            var platform_obj = document.getElementById("platform")
+            var hard_disk_obj = document.getElementById("hard_disk")
+            var input_obj = document.getElementsByTagName("input");
+            var textarea_obj = document.getElementsByTagName("textarea");
+            var msg = "每一项都是必填项，请填写完整之后再提交！";
+            
+            
+            //check department is valid
+            if (!department_obj.value){
+                alert("部门必须选择")
+                return false;
+            }
+
+            //check platform is valid
+            if (!platform_obj.value){
+                alert("操作系统必须选择")
+                return false;
+            }
+        }
+    </script>
+{% endblock %}

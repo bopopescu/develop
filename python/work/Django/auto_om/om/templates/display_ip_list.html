@@ -1,0 +1,76 @@
+<meta http-equiv="refresh">
+<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <!--<link href="/site_media/css/bootstrap.min.css" rel="stylesheet">-->
+        <title>Auto OM Platform</title>
+
+    </head>
+    {% endblock %}
+    {% block subtitle %}--Display IP List{% endblock %}
+    {% block content %}
+    <!--<body style = "background-color:#D1EEEE">-->
+    <body style = "background-color:#EAF6F7">
+        <!--<h1 align = "center" style = "font-family:Arial, Verdana, Sans-serif">Management Page</h1>-->
+        <div align = "center">
+            <!--<form action = "." method = "GET" onsubmit = "return NotEmpty()" autocomplete="on">
+                <select name = "search_name">
+                    {% for each_record in search_list %}
+                        {% ifequal each_record search_name %}
+                            <option selected = "selected" value = "{{each_record}}">{{each_record}}</option>
+                        {% else %}
+                            <option value = "{{each_record}}">{{each_record}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                </select>
+                <input type = "text" id = "record_value" name = "record_name" value = "{{record_name}}" required = "required">
+                <label>&nbsp;&nbsp;<img src = "/static/admin/img/icon_searchbox.png" alt = "Search">&nbsp;&nbsp;<input hidden = "hidden" type = "submit" value = "Submit"/></label> 
+            </form>-->
+        </div>
+
+        共计 <span style = "font-size:2.0em">{{total_ip}}</span> 个IP
+        {% ifequal total_ip 0 %}
+            <div align = "center" style = "font-size:2.0em"><b><i>Sorry, your search result does not exist!</i></b></div>
+        {% else %}
+        <!--<span id = "export_excel" style = "float:right"><a href = "/export_excel/">导出表格</a></span>-->
+        <!--<a  style = "float:right" href = "/export_excel/" class = "btn btn-primary">导出表格</a>-->
+        <br /><br />
+        <form action = "/shutdown_all/" method = "POST" onsubmit = "return shutdown_all()">
+            {% csrf_token %}
+            <table width = "100%" border style = "font-family:Arial, Verdana, Sans-serif; bacground-color:#7CFC00">
+                <tr class = "common_cls"  align = "center" style = "background-color:#5CACEE" height = "40px">
+                    <td>操作</td>
+                    <td><strong><a href = '?ziduan=name&order={{order}}'>ip</a></strong></td>
+                    <td><strong><a href = '?ziduan=flag&order={{order}}'>status</a></strong></td>
+                </tr>
+                {% for ip in ip_list %}
+                    <tr align = "center" style = "background-color: {% cycle '#DC143CE' '#97FFFF'%}">
+                        <td><!--<input type = "checkbox" name = "checkbox" value = "{{ip.id}}" />-->
+                        <input type = "button" value = "删除" onClick = "del({{ip.id}})" />
+                        <input type = "button" value = "修改" onClick = "window.open('{{ip.get_absolute_url}}','_self')"/></td>
+                        <td>{{ip.name}}</td>
+                        <td>{% ifequal ip.flag "0" %}未占用{% else %}已占用{% endifequal %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </form>
+        {% endifequal %}
+    </body>
+{% endblock %}
+
+{% block footer %}
+<script>
+function del(id){
+    var flag = confirm("  确定要删除吗?");
+    if(flag){
+        document.location.href = "/delete_ip/"+id
+        }
+    else{
+        return false;
+        }
+    }
+
+
+</script>
+{% endblock %}

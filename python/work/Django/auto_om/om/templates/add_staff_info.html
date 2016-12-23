@@ -1,0 +1,164 @@
+﻿<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <style>
+            .input_width {
+                width: 70%;
+            }
+            .right_position{
+                text-align: right;
+                width: 30%;
+            }
+        </style>
+        <title>Add New PC</title>
+    </head>
+    {% endblock %}
+
+    {%block subtitle%}--Add New PC{% endblock%}
+    {% block content %}
+    <body style = "background-color:#EAF6F7">
+    <!--<p><input type = "submit" value = "管理页面" onClick = "window.open('/','_self')"/>-->
+    <br />
+    <div style = "color: red" align="center"><strong>{{exist_prompt}}</strong></div>
+    <form action = "." method = "POST" onsubmit = "return NotEmpty()">
+        {% csrf_token %}
+        <table align = "center" width = "100%">
+            <tr>
+                <td class = "right_position">部门:</td>
+                <td>
+                    <select id = "department" name = "department" class = "input_width">
+                    {% for each_department in department_list %}
+                        {% ifequal department each_department %}
+                            <option selected value = "{{each_department}}">{{each_department}}</option>
+                        {% else %}
+                            <option value = "{{each_department}}">{{each_department}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">操作系统:</td>
+                <td>
+                    <select id = "platform" name = "platform" class = "input_width">
+                    {% for each_platform in platform_list %}
+                        {% ifequal platform each_platform %}
+                            <option selected value = "{{each_platform}}">{{each_platform}}</option>
+                        {% else %}
+                            <option value = "{{each_platform}}">{{each_platform}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">员工姓名:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "staff_name" value = "{{staff_name}}" reqiuiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">IP:</td>
+                <td>
+                    <input class = "input_width" type = "text" id = "ip" name = "ip" value = "{{ip}}" requiiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Mac 地址:</td>
+                <td>
+                    <input class = "input_width" type = "text" id = "mac_address" name = "mac_address" value = "{{mac_address}}" requiiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">资产名称:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "asset_name" value = "{{assett_name}}" requiiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">资产编号:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "serial_num" value = "{{serial_num}}" requiiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">资产地址:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "asset_address" value = "{{asset_address}}" requiiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">内存:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "memory" value = "{{memory}}" requiriedi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">CPU:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "cpu" value = "{{cpu}}" requiriedi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">硬盘:</td>
+                <td>
+                    <input class = "input_width" type = "text" id = "hard_disk" name = "hard_disk" value = "{{hard_disk}}" reiquiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">描述:</td>
+                <td>
+                    <textarea class = "input_width" name = "description" rows = 8 irequired = "required">{{description}}</textarea>
+                </td>
+            </tr>
+        </table>
+        <div align = "center"><input type = "submit" value = "Submit" /></div>
+    </form>
+    {% endblock %}
+
+
+{% block footer %}
+    <script>
+        function NotEmpty(){
+            var ip_obj = document.getElementById("ip")
+            var department_obj = document.getElementById("department")
+            var platform_obj = document.getElementById("platform")
+            var hard_disk_obj = document.getElementById("hard_disk")
+            var input_obj = document.getElementsByTagName("input");
+            var textarea_obj = document.getElementsByTagName("textarea");
+            var msg = "每一项都是必填项，请填写完整之后再提交！";
+            
+            
+            //check department is valid
+            if (!department_obj.value){
+                alert("部门必须选择")
+                return false;
+            }
+
+            //check platform is valid
+            if (!platform_obj.value){
+                alert("操作系统必须选择")
+                return false;
+            }
+            
+            /*//check slaveip is valid
+            reg_slaveip = /^(\d{2}\.\d{2}\.\d{1}\.\d{1,3})$/;
+            flag_slaveip = ip_obj.value.search(reg_slaveip)
+            if (flag_slaveip == -1){
+                alert("ip格式不正确，请重新填写！格式为xx.xx.x.x(x)(x)；括号里表示非必须")
+                return false;
+            }*/
+            
+            /*//check hard disk is valid
+            reg_hard_disk = /^(\d+)([GgMm]?)$/;
+            flag_hard_disk = hard_disk_obj.value.search(reg_hard_disk)
+            if (hard_disk_obj.value && flag_hard_disk == -1){
+                alert("hard disk 格式不正确，请重新填写！可以只填写数字，不写单位的话，默认为G，不区分大小写!")
+                //alert("hard disk 格式不正确，请重新填写！格式为100G；数字在前，单位为G或者M，不区分大小写!")
+                return false;
+            }*/
+        
+        }
+    </script>
+{% endblock %}

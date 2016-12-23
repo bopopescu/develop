@@ -1,0 +1,178 @@
+﻿<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <style>
+            .input_width {
+                width: 70%;
+            }
+            .right_position{
+                text-align: right;
+                width: 30%;
+            }
+        </style>
+        <title>Create Virtual</title>
+    </head>
+    {% endblock %}
+
+    {%block subtitle%}--Create Virtual{% endblock%}
+    {% block content %}
+    
+    <body style = "background-color:#EAF6F7">
+    <br />
+    <!--<p><input type = "submit" value = "管理页面" onClick = "window.open('/','_self')"/>-->
+    <div style = "color: red" align="center"><strong>{{not_available_ip}}</strong></div>
+    <div style = "color: red" align="center"><strong>{{exist_prompt}}</strong></div>
+    <div style = "color: red" align="center"><strong>{{no_suitable_esxi_prompt}}</strong></div>
+    <form action = "." method = "POST" onsubmit = "return NotEmpty1()">
+        {% csrf_token %}
+        <table align = "center" width = "100%">
+            <tr>
+                <td class = "right_position">Platform:</td>
+                <td>
+                    <select name = "platform" id = "platform" class = "input_width">
+                        {% for each_platform in platform_list %}
+                            {% ifequal platform each_platform %}
+                                <option selected value = "{{each_platform}}">{{each_platform}}</option>
+                            {% else %}
+                                <option value = "{{each_platform}}">{{each_platform}}</option>
+                            {% endifequal %}
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <!--<tr>
+                <td class = "right_position">IP:</td>
+                <td>
+                    <input class = "input_width" type = "text" id = "ip" name = "ip" value = "{{ip}}" requiired = "required"/>
+                </td>
+            </tr>-->
+            <!--<tr>
+                <td class = "right_position">Memory:</td>
+                <td>
+                    <select name = "memory" class = "input_width">
+                        {% for each_memory in memory_list %}
+                            {% ifequal memory each_memory %}
+                                <option selected value = "{{each_memory}}">{{each_memory}}</option>
+                            {% else %}
+                                <option value = "{{each_memory}}">{{each_memory}}</option>
+                            {% endifequal %}
+                        {% endfor %}
+                    </select>
+                </td>
+            <tr>
+                <td class = "right_position">CPU:</td>
+                <td>
+                    <select name = "cpu" class = "input_width">
+                        {% for each_cpu in cpu_list %}
+                            {% ifequal cpu each_cpu %}
+                                <option selected value = "{{each_cpu}}">{{each_cpu}}</option>
+                            {% else %}
+                                <option value = "{{each_cpu}}">{{each_cpu}}</option>
+                            {% endifequal %}
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>-->
+            <!--<tr>
+                <td class = "right_position">Hard Disk:</td>
+                <td>
+                    <input class = "input_width" type = "text" id = "hard_disk" name = "hard_disk" value = "{{hard_disk}}" reiquired = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Username:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "username" value = "{{username}}" reqiuired = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Password:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "password" value = "{{password}}" reiquired = "required"/>
+                </td>
+            </tr>-->
+            <!--<tr>
+                <td class = "right_position">Is Virtual:</td>
+                <td>
+                    {% if not is_virtual %}
+                        YES:<input type = "radio" name = "is_virtual" value = "yes" requireid = "required"/>&nbsp;&nbsp;
+                        NO:<input type = "radio" name = "is_virtual" value = "no" requiredi = "required"/>
+                    {% else %}
+                        {% ifequal is_virtual "yes" %}
+                            YES:<input type = "radio" name = "is_virtual" checked = "checked" value = "yes" requiired = "required"/>&nbsp;&nbsp;
+                            NO:<input type = "radio" name = "is_virtual" value = "no" requireid = "required"/>
+                        {% endifequal %}
+                        {% ifequal is_virtual "no" %}
+                            YES:<input type = "radio" name = "is_virtual" value = "yes" requireid = "required"/>&nbsp;&nbsp;
+                            NO:<input type = "radio" name = "is_virtual" checked = "checked" value = "no" required = "required"/>
+                        {% endifequal %}
+                    {% endif %}
+                </td>
+            </tr>-->
+            <tr>
+                <td class = "right_position">Description:</td>
+                <td>
+                    <textarea class = "input_width" name = "description" rows = 8 irequired = "required">{{description}}</textarea>
+                </td>
+            </tr>
+        </table>
+        <div align = "center"><input type = "submit" value = "Create Virtual" /></div>
+    </form>
+    <script>
+        function NotEmpty1(){
+            alert("该功能尚在开发中！");
+            return false;
+            var platform_obj = document.getElementById("platform")
+            //var ip_obj = document.getElementById("ip")
+            //var hard_disk_obj = document.getElementById("hard_disk")
+            //var input_obj = document.getElementsByTagName("input");
+            var textarea_obj = document.getElementsByTagName("textarea");
+            var msg = "每一项都是必填项，请填写完整之后再提交！";
+            
+            //check select is empty or not
+            if(!platform_obj.value){
+                alert(msg);
+                return false;
+            }
+            
+            //check input is empty or not
+            /*for(i=0; i<input_obj.length; i++){
+                if(!input_obj[i].value){
+                    alert(msg);
+                    return false;
+                }
+            }*/
+            
+            //check textarea is empty or not
+            for(j=0; j<textarea_obj.length; j++){
+                if(!textarea_obj[j].value){
+                    alert(msg);
+                    return false;
+                }
+            }
+            
+            //check slaveip is valid
+            /*reg_slaveip = /^(\d{2}\.\d{2}\.\d{1}\.\d{1,3})$/;
+            flag_slaveip = ip_obj.value.search(reg_slaveip)
+            if (flag_slaveip == -1){
+                alert("ip格式不正确，请重新填写！格式为xx.xx.x.x(x)(x)；括号里表示非必须")
+                return false;
+            }
+            
+            //check hard disk is valid
+            reg_hard_disk = /^(\d+)([GgMm]?)$/;
+            flag_hard_disk = hard_disk_obj.value.search(reg_hard_disk)
+            if (hard_disk_obj.value && flag_hard_disk == -1){
+                alert("hard disk 格式不正确，请重新填写！可以只填写数字，不写单位的话，默认为G，不区分大小写!")
+                //alert("hard disk 格式不正确，请重新填写！格式为100G；数字在前，单位为G或者M，不区分大小写!")
+                return false;
+            }*/
+
+        
+        }
+
+    </script>
+    {% endblock %}
+
+

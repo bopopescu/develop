@@ -1,0 +1,74 @@
+﻿<html>
+    {% extends "navmenu.html" %}
+    <link href="styles.css" type="text/css" media="screen" rel="stylesheet" />
+    {% block title %}
+    <head>
+        <style type="text/css">
+		.juzhong{
+		    background-color: #AFEEEE;
+			width: 600px; height:400px;
+			position: relative;
+			top: 0; bottom: 0; left: 0; right: 0; margin: auto;
+			text-align: center;
+			border-radius: 4px;
+			
+		}
+		.inner_juzhong{
+		    width: 300px; height: 300px;
+			position: absolute;
+			top: 0; bottom: 0; left: 0; right: 0; margin: auto;
+		}
+		.in{
+		    line-height: 100px;
+			height: 100px;
+		}
+		input{
+		    border-radius: 2px;
+			border: 2px solid #F4F4F4;
+			height: 30px;
+			font-size: 16px;
+		}
+		</style>
+        <title>Login</title>
+    </head>
+    {% endblock %}
+    {% block subtitle %}--Login Page{% endblock %}
+    {% block login %}{% endblock %}
+
+    {% block content %}
+    <body id = "first_body" style = "background-color:#eaf6f7">
+    换肤:<select onchange = "getColor(this.options[this.options.selectedIndex].value)">
+    <option>默认</option>
+    <option value = "red">Red</option>
+    <option value = "green">Green</option>
+    <option value = "silver">Silver</option>
+    <option value = "grey">Grey</option>
+    <option value = "gold">Gold</option>
+    <option value = "pink">Pink</option>
+    <option value = "orange">Orange</option>
+	<option value = "blue">Blue</option>
+    </select>
+	<div class = "juzhong" id = "first_div">
+    <form action = "./?next={{redirect_url}}" method = "POST">
+        {% csrf_token %}
+            <div align = "center" style = "font-size:1.2em; color:red"><strong>{{failed_prompt}}</strong></div>
+            <div class = "inner_class">
+                <br /><br />
+                <div class = "in"><label><strong>Username: </strong></label><input type = "text" name = "username" value = "{{username}}" required = "required"/></div>
+                <div class = "in"><label><strong>Password: </strong></label><input type = "password" name = "password" value = "{{password}}" required = "required"/></div>
+                <br /><br /><div class = "in"><input type = "submit" value = "Login" /></div>
+            </div>
+    </form>
+    </div>
+    <strong>换肤:</strong><span onclick = "getColor('#AFEEEE')"><strong>默认</strong></span>|<span onclick = "getColor('silver')"><strong>Silver</strong></span>|
+	<span onclick = "getColor('pink')"><strong>Pink</strong></span>|<span onclick = "getColor('green')"><strong>Green</strong></span>|
+	<span onclick = "getColor('grey')"><strong>Grey</strong></span>|<span onclick = "getColor('orange')"><strong>Orange</strong></span>|
+	<span onclick = "getColor('gold')"><strong>Gold</strong></span>|<span onclick = "getColor('blue')"><strong>Blue</strong></span>
+<script>
+function getColor(color){
+    var obj = document.getElementById("first_div");
+    obj.setAttribute("style", "background-color:"+color);
+    //obj.style = "background-color:"+color;
+}
+</script>
+{%  endblock%}

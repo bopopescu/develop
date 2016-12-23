@@ -1,0 +1,29 @@
+<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <style>
+            .input_width{
+                width: 70%;
+            }
+            .right_position{
+                text-align:right;
+                width: 30%
+            }
+        </style>
+        <title>Update PC</title>
+    </head>
+    {% endblock %}
+
+    {%block subtitle%}--Update PC{% endblock%}
+    {% block content %}
+    <body style = "background-color:#EAF6F7">
+    <div style = "color: red" align="center"><strong>{{exist_prompt}}</strong></div>
+    <form action = "." method = "POST" onsubmit = "return NotEmpty()">
+        {% csrf_token %}
+        <div align = "center">IP:<input type = "text" id = "name" name = "name" value = "{{ip_obj.name}}" required = "required"/>
+        <input type = "submit" value = "Update IP" /></div>
+    </form>
+{% endblock %}
+
+

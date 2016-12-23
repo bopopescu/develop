@@ -1,0 +1,106 @@
+﻿<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <style>
+            .input_width {
+                width: 70%;
+            }
+            .right_position{
+                text-align: right;
+                width: 30%;
+            }
+        </style>
+        <title>Add New PC</title>
+    </head>
+    {% endblock %}
+
+    {%block subtitle%}--Add New PC{% endblock%}
+    {% block content %}
+    <body style = "background-color:#EAF6F7">
+    <!--<p><input type = "submit" value = "管理页面" onClick = "window.open('/','_self')"/>-->
+    <br />
+    <div style = "color: red" align="center"><strong>{{exist_prompt}}</strong></div>
+    <form action = "." method = "POST" onsubmit = "return NotEmpty()">
+        {% csrf_token %}
+        <table align = "center" width = "100%">
+            <tr>
+                <td class = "right_position">Platform:</td>
+                <td>
+                    <select name = "platform" class = "input_width">
+                    {% for each_platform in platform_list %}
+                        {% ifequal platform each_platform %}
+                            <option selected value = "{{each_platform}}">{{each_platform}}</option>
+                        {% else %}
+                            <option value = "{{each_platform}}">{{each_platform}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">IP:</td>
+                <td>
+                    <input class = "input_width" type = "text" id = "ip" name = "ip" value = "{{ip}}" requiiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Memory:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "memory" value = "{{memory}}" requiriedi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">CPU:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "cpu" value = "{{cpu}}" requiriedi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Hard Disk:</td>
+                <td>
+                    <input class = "input_width" type = "text" id = "hard_disk" name = "hard_disk" value = "{{hard_disk}}" reiquiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Username:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "username" value = "{{username}}" reqiuiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Password:</td>
+                <td>
+                    <input class = "input_width" type = "text" name = "password" value = "{{password}}" reiquiredi = "required"/>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Is Virtual:</td>
+                <td>
+                    {% if not is_virtual %}
+                        YES:<input type = "radio" name = "is_virtual" value = "yes" requireidi = "required"/>&nbsp;&nbsp;
+                        NO:<input type = "radio" name = "is_virtual" value = "no" requiredii = "required"/>
+                    {% else %}
+                        {% ifequal is_virtual "yes" %}
+                            YES:<input type = "radio" name = "is_virtual" checked = "checked" value = "yes" requiiired = "required"/>&nbsp;&nbsp;
+                            NO:<input type = "radio" name = "is_virtual" value = "no" requireid = "required"/>
+                        {% endifequal %}
+                        {% ifequal is_virtual "no" %}
+                            YES:<input type = "radio" name = "is_virtual" value = "yes" requireid = "required"/>&nbsp;&nbsp;
+                            NO:<input type = "radio" name = "is_virtual" checked = "checked" value = "no" required = "required"/>
+                        {% endifequal %}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Description:</td>
+                <td>
+                    <textarea class = "input_width" name = "description" rows = 8 irequired = "required">{{description}}</textarea>
+                </td>
+            </tr>
+        </table>
+        <div align = "center"><input type = "submit" value = "Submit" /></div>
+    </form>
+    {% endblock %}
+
+

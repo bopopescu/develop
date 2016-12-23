@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+	    {% block title %}
+		{% endblock %}
+		<style>
+			.common_cls a{
+				text-decoration:none;
+			}
+			#menu a{
+				text-decoration:none;
+				color:#fff;
+				display:inline-block;
+				height:40px;
+				line-height:40px;
+				border-radius:5px;
+				background:#666;
+				padding:0 10px;
+			}
+			#menu a:hover{
+				background:#000000
+			}
+			tr:hover{
+				background:#eaeaea
+			}
+			.link_td td{
+				cursor:pointer
+			}
+			#export_excel a{
+				text-decoration:none;
+				color:#fff000;
+				display:inline-block;
+				height:40px;
+				line-height:40px;
+				border-radius:5px;
+				background:#9932CC;
+				padding:0 10px;
+			}
+            #export_excel a:hover{
+                background:#9932CC
+            }
+
+		</style>
+        <link rel="stylesheet" href="/site_media/css/bootstrap.css1">
+	</head>
+	<body>
+        {% block login %}
+            <span style = "float:right">
+                {% if request.user.is_authenticated %}
+                    <div><strong>{{request.session.username}}|<a href = "/logout/?next={{redirect_url}}">注销</a></strong></div>
+                {% else %}
+                    <div><a href = "/login/"><strong>登录</strong></a></div>
+                {% endif %}
+            </span>
+        {% endblock %}
+        <h1 align = "center" style = "font-family:Arial, Verdana, Sans-serif">Auto OM Platform{% block subtitle %}{% endblock %}</h1>
+        <div align = "center"><img src = "/site_media/image/logo.png"></div>
+        <!--{% if request.session.username %}
+            <div><strong>{{request.session.username}}|<a href = "/logout/?next={{redirect_url}}">Logout</a></strong></div>
+        {% else %}
+            <div><a href = "/login/"><strong>Login</strong></a></div>
+        {% endif %}
+        -->
+        {% if request.session.username %}
+            <div id="menu">
+                {% if request.user.is_superuser %}
+                        <a href = "/" onmouseover = "display_image('management_page', 'logo.png')" onmouseout = "hide_image('management_page')">管理页面</a>
+                        <a href = "/add_pc/" onmouseover = "display_image('add_page', 'VidOn Server.png')" onmouseout = "hide_image('add_page')">添加</a>
+                        <a href = "/add_ip/">添加IP</a>
+                        <a href = "/display_ip_list/">展示IP</a>
+                        <a href = "/display_operation_record/" onmouseover = "display_image('display_record_page', 'logo.png')" onmouseout = "hide_image('display_record_page')">操作记录</a>
+                {% endif %}            
+                {% if request.user.is_staff %}            
+                    <a href = "/display_staff_info/" onmouseover = "display_image('display_staff_info', 'VidOn Server.png')" onmouseout = "hide_image('display_staff_info')">资产管理</a>
+                    <a href = "/add_staff_info/" onmouseover = "display_image('add_staff_info', 'VidOn Server.png')" onmouseout = "hide_image('add_staff_info')">添加资产</a>
+                {% endif %}
+                <!--<p id = "medu">
+                    <input type = "submit" value = "管理页面" onClick = "window.open('/','_self')"/>
+                    <input type = "submit" value = "操作记录" onClick = "window.open('/display_operation_record','_self')"/>
+                    <input type = "submit" value = "添加" onClick = "window.open('/add_pc','_self')"/>
+                </p>-->
+                <a href = "/create_virtual/" onmouseover = "display_image('create_virtual', 'vidon.png')" onmouseout = "hide_image('create_virtual')">创建虚拟机</a>
+                <span id = "management_page"></span><span id = "esxi_page"></span><span id = "add_page"></span><span id = "create_virtual"></span><span id = "display_record_page"></span>
+            </div>		
+        {% endif %}
+
+        {% block content%}
+        {% endblock %}
+        <br /><br />
+        <hr />
+        <div style = "font-size:0.9em; color:gray" align = "center">北京世纪高蓝科技有限公司2003-2016@CopyRight</div>
+    </body>
+</html>
+{% block footer %}
+    <script>// src="/site_media/js/bootstrap.js">
+        function NotEmpty(){
+            var ip_obj = document.getElementById("ip")
+            var hard_disk_obj = document.getElementById("hard_disk")
+            var input_obj = document.getElementsByTagName("input");
+            var textarea_obj = document.getElementsByTagName("textarea");
+            var msg = "每一项都是必填项，请填写完整之后再提交！";
+            
+            //check input is empty or not
+            //for(i=0; i<input_obj.length; i++){
+            //    if(!input_obj[i].value){
+            //        alert(msg);
+            //        return false;
+            //    }
+            //}
+            
+            ////check textarea is empty or not
+            //for(j=0; j<textarea_obj.length; j++){
+            //    if(!textarea_obj[j].value){
+            //        alert(msg);
+            //        return false;
+            //    }
+            //}
+            
+            //check slaveip is valid
+            reg_slaveip = /^(\d{2}\.\d{2}\.\d{1}\.\d{1,3})$/;
+            flag_slaveip = ip_obj.value.search(reg_slaveip)
+            if (flag_slaveip == -1){
+                alert("ip格式不正确，请重新填写！格式为xx.xx.x.x(x)(x)；括号里表示非必须")
+                return false;
+            }
+            
+            //check hard disk is valid
+            reg_hard_disk = /^(\d+)([GgMm]?)$/;
+            flag_hard_disk = hard_disk_obj.value.search(reg_hard_disk)
+            if (hard_disk_obj.value && flag_hard_disk == -1){
+                alert("hard disk 格式不正确，请重新填写！可以只填写数字，不写单位的话，默认为G，不区分大小写!")
+                //alert("hard disk 格式不正确，请重新填写！格式为100G；数字在前，单位为G或者M，不区分大小写!")
+                return false;
+            }
+
+        
+        }
+    </script>
+{%  endblock %}
+
+{% block image %}
+    <script>
+       function display_image1(id, image){
+            var obj = document.getElementById(id);
+            obj.innerHTML = '<image src = "/site_media/image/' + image + '" />';
+            obj.style.visibility = "visible";
+            obj.style.positon = "absolute";
+            obj.style.left = event.clientX+1300;
+            obj.style.top=event.clientY;
+        }
+        
+        function hide_image1(id){
+            var obj = document.getElementById(id);
+            obj.innerHTML = '';
+        }
+    </script>
+{%  endblock %}
+

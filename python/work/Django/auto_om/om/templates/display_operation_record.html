@@ -1,0 +1,59 @@
+﻿<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <title>Display Record</title>
+    </head>
+    {% endblock %}
+
+    {% block subtitle %}--Operation Records{% endblock %}
+    {% block content %}
+        <body style = "background-color:#EAF6F7">
+        <!--{% if request.user.is_superuser %}
+            <p><input type = "submit" value = "管理页面" onClick = "window.open('/','_self')"/>
+        {% endif %}-->
+        <hr />
+        <table>
+            {% for record in record_list %}
+                <tr>
+                    <td align = "right">
+                        <strong>{{forloop.counter}}:</strong>
+                    </td>
+                    <td>
+                        <strong>{{record.content}}</strong>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        
+        {% ifequal page 1 %}
+            <span>首页</span>
+        {% else %}
+            <span><a href = "?page=1">首页</a></span>
+        {% endifequal %}
+        {% if record_list.has_previous %}
+            <a href = "?page={{record_list.previous_page_number}}">&lt;上一页</a>
+        {% endif %}
+        <span>
+            {% for each_page in page_range %}
+                {% ifequal each_page record_list.number %}
+                    <span style = "font-size: 1.8em">{{each_page}}</span>
+                {% else %}
+                    <a href = "?page={{each_page}}" title = "第{{each_page}}页">{{each_page}}</a>
+                {% endifequal %}
+            {% endfor %}
+        </span>
+
+        {% if record_list.has_next %}
+            <a href = "?page={{record_list.next_page_number}}">下一页&gt;</a>
+        {% endif %}
+
+        {% ifequal page record_list.paginator.num_pages %}
+            <span>尾页</span>
+        {% else %}
+            <span><a href = "?page={{record_list.paginator.num_pages}}">尾页</a></span>
+        {% endifequal %}
+
+        <span style = "font-size: 1.3em">[第{{page}}/{{paginator.num_pages}}页]</span>
+    {% endblock %}
+

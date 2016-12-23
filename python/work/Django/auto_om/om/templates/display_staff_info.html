@@ -1,0 +1,179 @@
+<meta http-equiv="refresh" content="6000; url='http://10.10.2.64:9004/display_staff_info">
+<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <!--<link href="/site_media/css/bootstrap.min.css" rel="stylesheet">-->
+        <title>Auto OM Platform</title>
+
+    </head>
+    {% endblock %}
+    {% block subtitle %}--Display Staff Info{% endblock %}
+    {% block content %}
+    <!--<body style = "background-color:#D1EEEE">-->
+    <body style = "background-color:#EAF6F7">
+        <!--<h1 align = "center" style = "font-family:Arial, Verdana, Sans-serif">Management Page</h1>-->
+        <div align = "center">
+            <form action = "." method = "GET" onsubmit = "return NotEmpty()" autocomplete="on">
+                <select name = "search_name">
+                    {% for each_record in search_list %}
+                        {% ifequal each_record search_name %}
+                            <option selected = "selected" value = "{{each_record}}">{{each_record}}</option>
+                        {% else %}
+                            <option value = "{{each_record}}">{{each_record}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                </select>
+                <input type = "text" id = "record_value" name = "record_name" value = "{{record_name}}" required = "required">
+                <label>&nbsp;&nbsp;<img src = "/static/admin/img/icon_searchbox.png" alt = "Search">&nbsp;&nbsp;<input hidden = "hidden" type = "submit" value = "Submit"/></label> 
+            </form>
+        </div>
+
+        <div>共计 <span style = "font-size:2.0em">{{total_pc}}</span> 条记录</div>
+        {% ifequal page 1 %}
+            <span>首页</span>
+        {% else %}
+            <span><a href = "?page=1">首页</a></span>
+        {% endifequal %}
+        {% if record_list.has_previous %}
+            <a href = "?page={{record_list.previous_page_number}}">&lt;上一页</a>
+        {% endif %}
+        <span>
+            {% for each_page in page_range %}
+                {% ifequal each_page record_list.number %}
+                    <span style = "font-size: 1.8em">{{each_page}}</span>
+                {% else %}
+                    <a href = "?page={{each_page}}" title = "第{{each_page}}页">{{each_page}}</a>
+                {% endifequal %}
+            {% endfor %}
+        </span>
+
+        {% if record_list.has_next %}
+            <a href = "?page={{record_list.next_page_number}}">下一页&gt;</a>
+        {% endif %}
+
+        {% ifequal page record_list.paginator.num_pages %}
+            <span>尾页</span>
+        {% else %}
+            <span><a href = "?page={{record_list.paginator.num_pages}}">尾页</a></span>
+        {% endifequal %}
+
+        <span style = "font-size: 1.3em">[第{{page}}/{{paginator.num_pages}}页]</span>
+        {% ifequal total_pc 0 %}
+            <div align = "center" style = "font-size:2.0em"><b><i>Sorry, your search result does not exist!</i></b></div>
+        {% else %}
+        <span id = "export_excel" style = "float:right"><a href = "/export_excel/">导出表格</a></span>
+        <!--<a  style = "float:right" href = "/export_excel/" class = "btn btn-primary">导出表格</a>-->
+        <br /><br />
+        <form action = "/shutdown_all/" method = "POST" onsubmit = "return shutdown_all()">
+            {% csrf_token %}
+            <table width = "100%" border style = "font-family:Arial, Verdana, Sans-serif; bacground-color:#7CFC00">
+                <tr class = "common_cls"  align = "center" style = "background-color:#5CACEE" height = "40px">
+                    <td>操作</td>
+                    <td><strong><a href = '?ziduan=asset_name&order={{order}}'>资产名称</a></strong></td>
+                    <td><strong><a href = '?ziduan=serial_num&order={{order}}'>资产编号</a></strong></td>
+                    <td><strong><a href = '?ziduan=asset_address&order={{order}}'>资产地址</a></strong></td>
+                    <td><strong><a href = '?ziduan=platform&order={{order}}'>操作系统</a></strong></td>
+                    <td><strong><a href = '?ziduan=ip&order={{order}}'>IP</a></strong></td>
+                    <td><strong><a href = '?ziduan=mac_address&order={{order}}'>Mac 地址</a></strong></td>
+                    <td><strong><a href = '?ziduan=department&order={{order}}'>部门</a></strong></td>
+                    <td><strong><a href = '?ziduan=staff_name&order={{order}}'>员工姓名</a></strong></td>
+                    <td><strong><a href = '?ziduan=status&order={{order}}'>状态</a></strong></td>
+                    <td><strong><a href = '?ziduan=memory&order={{order}}'>内存</a></strong></td>
+                    <td><strong><a href = '?ziduan=cpu&order={{order}}'>CPU</a></strong></td>
+                    <td><strong><a href = '?ziduan=hard_disk&order={{order}}'>硬盘</a></strong></td>
+                    <td><strong><a href = '?ziduan=description&order={{order}}'>描述</a></strong></td>
+                </tr>
+                {% for pc_info in pc_info_list %}
+                    <tr align = "center" style = "background-color: {% cycle '#DC143CE' '#97FFFF'%}">
+                        <td><!--<input type = "checkbox" name = "checkbox" value = "{{pc_info.id}}" />-->
+                        <input type = "button" value = "删除" onClick = "del({{pc_info.id}})" />
+                        <input type = "button" value = "修改" onClick = "window.open('{{pc_info.get_absolute_url}}','_self')"/></td>
+                        <td>{{pc_info.asset_name}}</td>
+                        <td>{{pc_info.serial_num}}</td>
+                        <td>{{pc_info.asset_address}}</td>
+                        <td>{{pc_info.platform.name}}</td>
+                        <td>{{pc_info.ip}}</td>
+                        <td>{{pc_info.mac_address}}</td>
+                        <td>{{pc_info.department.name}}</td>
+                        <td>{{pc_info.staff_name}}</td>
+                        {% if pc_info.ip %}
+                            {% ifequal pc_info.status ONLINE %}
+                                <td style = "background-color:#7FFF00">{{pc_info.status}}</td>
+                            {% endifequal %}
+                            {% ifequal pc_info.status OFFLINE %}
+                                <td name = "offline" style = "background-color:grey" title = "{{pc_info.ip}}可能关机或者死机了">{{pc_info.status}}</td>
+                            {% endifequal %}
+                        {% else %}
+                                <td></td>
+                        {% endif %}
+                        <td>{{pc_info.memory}}</td>
+                        <td>{{pc_info.cpu}}</td>
+                        <td>{{pc_info.hard_disk}}</td>
+                        <td>{{pc_info.description}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </form>
+        {% endifequal %}
+    </body>
+    <input type = "hidden" id = "status" value = "{{OFFLINE}}" />
+{% endblock %}
+
+{% block footer %}
+<script>
+function del(id){
+    var flag = confirm("  确定要删除吗?");
+    if(flag){
+        document.location.href = "/delete_staff_info/"+id
+        }
+    else{
+        return false;
+        }
+    }
+
+function delay(){
+    var obj = document.getElementsByName("offline");
+    var status_value = document.getElementById("status").value;
+    for(var i=0; i<obj.length; i++){
+        div_content = obj[i].textContent;
+        //alert(div_content)
+        if (div_content != status_value){
+            //document.write("offline");
+            obj[i].innerHTML = status_value;
+        }
+        else{
+            obj[i].innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+        }
+    }
+}
+setInterval("delay()", 1000);
+
+var obj = document.getElementsByName("data");
+var n = 0;
+
+function changecolor_size(ins, newcolor, newsize){
+    ins.style.color = newcolor;
+    ins.style.fontSize = newsize;
+}
+
+function change(n){
+    changecolor_size(obj[n], "red", "2.0em")
+    if (n == 0){
+        changecolor_size(obj[obj.length-1], "", "")
+    }
+    else{
+        changecolor_size(obj[n-1], "", "")
+    }
+} 
+
+function loop(){
+    if (n == obj.length){
+        n =0;
+    }
+    change(n++)
+}
+//setInterval("loop()", 200);
+
+</script>
+{% endblock %}

@@ -1,0 +1,165 @@
+<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+    <head>
+        <style>
+            .input_width{
+                width: 70%;
+            }
+            .right_position{
+                text-align:right;
+                width: 30%
+            }
+        </style>
+        <title>Update PC</title>
+    </head>
+    {% endblock %}
+
+    {%block subtitle%}--Update PC{% endblock%}
+    {% block content %}
+    <body style = "background-color:#EAF6F7">
+    <!--<p><input type = "submit" value = "管理页面" onClick = "window.open('/','_self')"/>-->
+    <div style = "color: red" align="center"><strong>{{exist_prompt}}</strong></div>
+    <form action = "." method = "POST" onsubmit = "return NotEmpty()">
+        {% csrf_token %}
+        <table align = "center" width = "100%">
+            <tr>
+                <td class = "right_position">Platform:</td>
+                <td>
+                    <select class = "input_width" name = "platform">
+                    {% for platform in platform_list %}
+                        {% ifequal cur_platform platform.name %}
+                            <option value = "{{platform}}" selected>{{platform}}</option>
+                        {% else %}
+                            <option value = "{{platform}}">{{platform}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">IP:</td>
+                <td>
+                    {% if ip %}
+                        <input class = "input_width" type = "text" id = "ip" name = "ip" value = "{{ip}}" requiried = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" id = "ip" name = "ip" value = "{{pc_info.ip}}" requiired = "required"/>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Memory:</td>
+                <td>
+                    {% if memory %}
+                        <input class = "input_width" type = "text" name = "memory" value = "{{memory}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "memory" value = "{{pc_info.memory}}" reqiuired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            {% ifequal pc_info.platform.name "ESXi" %}
+            <tr>
+                <td class = "right_position">Memory Left:</td>
+                <td>
+                    {% if memory_left %}
+                        <input class = "input_width" type = "text" name = "memory_left" value = "{{memory_left}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "memory_left" value = "{{pc_info.memory_left}}" riequired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            {% endifequal %}
+            <tr>
+                <td class = "right_position">CPU:</td>
+                <td>
+                    {% if cpu %}
+                        <input class = "input_width" type = "text" name = "cpu" value = "{{cpu}}" requiired = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "cpu" value = "{{pc_info.cpu}}" requiired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            
+            {% ifequal pc_info.platform.name "ESXi" %}
+            <tr>
+                <td class = "right_position">CPU Left:</td>
+                <td>
+                    {% if cpu_left %}
+                        <input class = "input_width" type = "text" name = "cpu_left" value = "{{cpu_left}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "cpu_left" value = "{{pc_info.cpu_left}}" irequired = "required"/>
+                    {% endif%}
+                </td>
+            </tr>
+            {% endifequal %}
+            <tr>
+                <td class = "right_position">Hard Disk:</td>
+                <td>
+                    {% if hard_disk %}
+                        <input class = "input_width" type = "text" id = "hard_disk" name = "hard_disk" value = "{{hard_disk}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" id = "hard_disk" name = "hard_disk" value = "{{pc_info.hard_disk}}" reiquired = "required"/>
+                    {% endif %}
+                </td>
+            </tr>
+            {% ifequal pc_info.platform.name "ESXi" %}
+            <tr>
+                <td class = "right_position">Hard Disk Left:</td>
+                <td>
+                    {% if hard_disk_left %}
+                        <input class = "input_width" type = "text" name = "hard_disk_left" value = "{{hard_disk_left}}" requiired = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "hard_disk_left" value = "{{pc_info.hard_disk_left}}" requiired = "required"/>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endifequal %}
+            <tr>
+                <td class = "right_position">Username:</td>
+                <td>
+                    {% if username %}
+                        <input class = "input_width" type = "text" name = "username" value = "{{username}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "username" value = "{{pc_info.username}}" riequired = "required"/>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Password:</td>
+                <td>
+                    {% if password %}
+                        <input class = "input_width" type = "text" name = "password" value = "{{password}}" requireid = "required"/>
+                    {% else %}
+                        <input class = "input_width" type = "text" name = "password" value = "{{pc_info.password}}" reiquired = "required"/>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Is Virtual:</td>
+                <td>
+                    {% ifequal pc_info.is_virtual "yes" %}
+                        YES:<input type = "radio" name = "is_virtual" checked = "checked" value = "yes" requiired = "required"/>&nbsp;&nbsp;
+                        NO:<input type = "radio" name = "is_virtual" value = "no" requireid = "required"/>
+                    {% endifequal %}
+                    {% ifequal pc_info.is_virtual "no" %}
+                        YES:<input type = "radio" name = "is_virtual" value = "yes" requiired = "required"/>&nbsp;&nbsp;
+                        NO:<input type = "radio" name = "is_virtual" checked = "checked" value = "no" requiired = "required"/>
+                    {% endifequal %}
+                </td>
+            </tr>
+            <tr>
+                <td class = "right_position">Description:</td>
+                <td>
+                    {% if description %}
+                        <textarea class = "input_width" name = "description" rows = 8 requiredi = "required">{{description}}</textarea>
+                    {% else %}
+                        <textarea class = "input_width" name = "description" rows = 8 requiredi = "required">{{pc_info.description}}</textarea>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+        <div align = "center"><input type = "submit" value = "Submit" /></div>
+    </form>
+{% endblock %}
+
+
