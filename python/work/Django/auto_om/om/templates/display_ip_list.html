@@ -11,7 +11,7 @@
     {% block subtitle %}--Display IP List{% endblock %}
     {% block content %}
     <!--<body style = "background-color:#D1EEEE">-->
-    <body style = "background-color:#EAF6F7">
+    <body>
         <!--<h1 align = "center" style = "font-family:Arial, Verdana, Sans-serif">Management Page</h1>-->
         <div align = "center">
             <!--<form action = "." method = "GET" onsubmit = "return NotEmpty()" autocomplete="on">
@@ -28,8 +28,20 @@
                 <label>&nbsp;&nbsp;<img src = "/static/admin/img/icon_searchbox.png" alt = "Search">&nbsp;&nbsp;<input hidden = "hidden" type = "submit" value = "Submit"/></label> 
             </form>-->
         </div>
-
-        共计 <span style = "font-size:2.0em">{{total_ip}}</span> 个IP
+        <!--<input type = "submit" name = "submit"id = "submit" value = "Submit" onclick = "zhihui()"/>
+        <input type = "submit" id = "submit1" value = "Submit" onclick = "zhihui()"/>-->
+        共计 <span style = "font-size:2.0em">{{total_ip}}</span> 个IP <!--(已用<span style = "font-size:2.0em">{{used_ip}}</span>个IP)-->
+        <!--<span style = "float:right">
+        <form action = "/set_flag/" method = "POST">
+        全部置为:{% csrf_token %}
+            <select name = "flag">
+                <option value = 0>0</option>
+                <option value = 1>1</option>
+                <option value = 2>2</option>
+            </select>
+            <input type = "submit" value = "提交" />
+        </form>
+        </span>-->
         {% ifequal total_ip 0 %}
             <div align = "center" style = "font-size:2.0em"><b><i>Sorry, your search result does not exist!</i></b></div>
         {% else %}
@@ -50,7 +62,11 @@
                         <input type = "button" value = "删除" onClick = "del({{ip.id}})" />
                         <input type = "button" value = "修改" onClick = "window.open('{{ip.get_absolute_url}}','_self')"/></td>
                         <td>{{ip.name}}</td>
-                        <td>{% ifequal ip.flag "0" %}未占用{% else %}已占用{% endifequal %}</td>
+                        <td>
+                            {% ifequal ip.flag "0" %}未占用{% endifequal %}
+                            {% ifequal ip.flag "1" %}<span style = "color:#EE7942">使用中</span>{% endifequal %}
+                            {% ifequal ip.flag "2" %}<span style = "color:red">已占用</span>{% endifequal %}
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
@@ -71,6 +87,17 @@ function del(id){
         }
     }
 
-
+function zhihui(){
+    var obj = document.getElementsByName("submit");
+    for(i=0;i<obj.length;i++){
+      if(obj[i].disabled == false){
+        obj[i].value = "请稍等"
+        obj[i].disabled = true;
+      }else{
+        obj[i].value = "submit"
+        obj[i].disabled = false;
+      }
+    }
+}
 </script>
 {% endblock %}

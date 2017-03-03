@@ -14,6 +14,9 @@ from django.conf.global_settings import AUTHENTICATION_BACKENDS
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 print 11111  ,  BASE_DIR
 
+#邮件列表
+ADMIN_USER_EMAIL_LIST = ["dedong.xu@goland.cn"]
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -22,10 +25,10 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'auto_om',                      # Or path to database file if using sqlite3.
+        'USER': 'root',                      # Not used with sqlite3.
+        'PASSWORD': 'sjgldb',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }

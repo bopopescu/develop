@@ -1,0 +1,247 @@
+<html>
+    {% extends "navmenu.html" %}
+    {% block title %}
+        <title>Display Virtual List</title>
+        <style>
+            #blanks1
+            { 
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: #ccc;
+                z-index: 1000;
+                -moz-opacity:0.7;
+                opacity:0.7;
+                filter:alpha(opacity=50); 
+            }
+            .display_prompt1
+            { 
+                position:absolute; 
+                color: red;
+                font-size: 30px;
+                top:40%; 
+                left:50%; 
+                margin-left:-140px; 
+                display:none; 
+                z-index:1500; 
+            } 
+        </style>
+    {% endblock %}
+    
+    {% block subtitle %}--{{request.user.last_name}}{{request.user.first_name}}创建的虚拟机{% endblock %}
+    {% block content %}
+    <body>
+    <div id = "blanks"></div>
+    <!--<div class="display_prompt" id = "display_prompt">正在删除请稍等</div>  
+    -->    <div align = "center">
+            <form action = "." method = "GET" onsubmit = "return NotEmpty()" autocomplete="on">
+                <select name = "search_name">
+                    {% for each_record in search_list %}
+                        {% ifequal each_record search_name %}
+                            <option selected = "selected" value = "{{each_record}}">{{each_record}}</option>
+                        {% else %}
+                            <option value = "{{each_record}}">{{each_record}}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                </select>
+                <input type = "text" id = "record_value" name = "record_name" value = "{{record_name}}" required = "required">
+                <label>&nbsp;&nbsp;<img src = "/site_media/image/icon_searchbox.png" alt = "Search">&nbsp;&nbsp;<input hidden = "hidden" type = "submit" value = "Submit"/></label> 
+            </form>
+        </div>
+
+        {% ifequal total_pc_info 0 %}
+            <br /><br /><br /><div align = "center" style = "font-size:2.0em"><b><i>你现在还没有创建虚拟机!</i></b></div>
+        {% else %}
+            共计 <span style = "font-size:2.0em">{{total_pc_info}}</span> 台机器
+            <!--<span id = "export_excel" style = "float:right"><a id = "xdd" onmouseover = "get_title(this.id)" href = "/export_server_info_to_excel/">导出表格</a></span>
+            <br /><br />-->
+            <form action = "/shutdown_all/" method = "POST" onsubmit = "return shutdown_all()">
+                {% csrf_token %}
+                <table width = "100%" border style = "font-family:Arial, Verdana, Sans-serif; bacground-color:#7CFC00">
+                    <tr class = "common_cls" align = "center" style = "background-color:#5CACEE" height = "40px">
+                        <td>Operation</td>
+                        <td name = "color" onclick = "test()"><strong><a href = '?ziduan=platform&order={{order}}'>Platform</a></strong></td>
+                        <td name = "color"><strong><a href = '?ziduan=ip&order={{order}}'>IP</a></strong></td>
+                        <td name = "color"><strong><a href = '?ziduan=description&order={{order}}'>Description</a></strong></td>
+                        <td name = "color"><strong><a href = '?ziduan=memory&order={{order}}'>Memory</a></strong></td>
+                        {% if is_esxi %}<td><a href = '?ziduan=memory_left&order={{order}}'>Memory Left</a></strong></td>{% endif %}
+                        <td name = "color"><strong><a href = '?ziduan=cpu&order={{order}}'>CPU</a></strong></td>
+                        {% if is_esxi %}<td><a href = '?ziduan=cpu_left&order={{order}}'>CPU Left</a></strong></td>{% endif %}
+                        <td name = "color"><strong><a href = '?ziduan=hard_disk&order={{order}}'>Hard Disk</a></strong></td>
+                        {% if is_esxi %}<td><a href = '?ziduan=hard_disk_left&order={{order}}'>Hard Disk Left</a></strong></td>{% endif %}
+                        <td name = "color"><strong><a href = '?ziduan=username&order={{order}}'>Username</a></strong></td>
+                        <td name = "color"><strong><a href = '?ziduan=password&order={{order}}'>Password</a></strong></td>
+                    </tr>
+                    {% for pc_info in pc_info_list %}
+                        <tr align = "center" style = "background-color: {% cycle '#DC143CE' '#97FFFF'%}">
+                            <td><input type = "checkbox" name = "checkbox" value = "{{pc_info.id}}" />
+                            <input type = "hidden" id = "{{pc_info.id}}" value = "{{pc_info.ip}}" />
+                            <input type = "button" value = "删除" onClick = "del({{pc_info.id}})" />
+                            <input type = "button" value = "修改" onClick = "window.open('{{pc_info.get_personal_pc_url}}','_self')"/></td>
+                            <td>{{pc_info.platform.name}}</td>
+                            <td>{{pc_info.ip}}</td>
+                            <td>{{pc_info.description}}</td>
+                            <td>{{pc_info.memory}}</td>
+                            <td>{{pc_info.cpu}}</td>
+                            <td>{{pc_info.hard_disk}}</td>
+                            <td>{{pc_info.username}}</td>
+                            <td>{{pc_info.password}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <!--<div><label><input type = "checkbox" id = "select_all_id" onClick = "select_all()"/>全选/取消全选</label>
+                <input type = "submit" value = "关机" /></div>-->
+            </form>
+        {% endifequal %}
+{% for k in li %}
+<span name = "data">{{k}}</span>
+{%endfor%}
+    </body>
+    <input type = "hidden" id = "status" value = "{{OFFLINE}}" />
+{% endblock %}
+
+{% block footer %}
+<script>
+    function select_all(){
+        var obj = document.getElementById("select_all_id");
+        var all_list = document.getElementsByName("checkbox");
+        if (obj.checked){
+            for(i=0; i<all_list.length; i++){
+                all_list[i].checked = true;
+            }
+        }
+        else{
+            for(i=0; i<all_list.length; i++){
+                all_list[i].checked = false;
+            }
+        }
+    }
+
+    function shutdown(id){
+        var flag = confirm("  确定要关机吗?");
+        if(flag){
+            document.location.href = "/shutdown/"+id
+            }
+        else{
+            return false;
+            }
+    }
+
+    function shutdown_all(){
+        var all_list = document.getElementsByName("checkbox");
+        var flag = false;
+        for(i=0; i<all_list.length; i++){
+            if(all_list[i].checked){
+                flag = true;
+                break;
+            }
+        }
+        if (!flag){
+            alert("请选择要关机的主机！");
+            return false;
+        }
+        
+        var flag = confirm("  确定要关机吗?");
+        if(flag){
+            document.location.href = "/shutdown_all/"
+            }
+        else{
+            return false;
+            }
+    }
+
+    function del(id){
+        var obj = document.getElementById(id)
+        var blanks_obj = document.getElementById("blanks")
+        var display_prompt_obj = document.getElementById("display_prompt")
+        var flag = confirm("确定要删除 '" + obj.value + "' 吗? \n删除之前要确保虚拟机已关机！因为删除操作不仅删除该条记录，该虚拟机也将被删除！");
+        if(flag){
+            document.location.href = "/delete_virtual/"+id+"?url={{redirect_url}}"
+            }
+        else{
+            return false;
+            }
+        
+        blanks_obj.style.display = "block";
+        display_prompt_obj.style.display = "block";
+        setInterval("interval()", 1000);
+        }
+
+    m = 0    
+    function interval(){
+        if (m == 5){
+            m = 0;
+        }
+        increase(n++);
+    }
+
+    function increase(n){
+        var display_prompt_obj = document.getElementById("display_prompt")
+        var prompt = "正在删除请稍等"
+        while(n >= 0){
+          prompt += ".";
+          n--;
+        }
+        display_prompt_obj.innerHTML = prompt;
+        display_prompt_obj.style.display = "block";
+    
+    }
+
+    function delay(){
+        var obj = document.getElementsByName("offline");
+        var status_value = document.getElementById("status").value;
+        for(var i=0; i<obj.length; i++){
+            div_content = obj[i].textContent;
+            //alert(div_content)
+            if (div_content != status_value){
+                //document.write("offline");
+                obj[i].innerHTML = status_value;
+            }
+            else{
+                obj[i].innerHTML = "";
+            }
+        }
+    }
+    setInterval("delay()", 1000);
+
+    var obj = document.getElementsByName("data");
+    var n = 0;
+
+    function changecolor_size(ins, newcolor, newsize){
+        ins.style.color = newcolor;
+        ins.style.fontSize = newsize;
+    }
+
+    function change(n){
+        changecolor_size(obj[n], "red", "2.0em")
+        if (n == 0){
+            changecolor_size(obj[obj.length-1], "", "")
+        }
+        else{
+            changecolor_size(obj[n-1], "", "")
+        }
+    } 
+
+    function loop(){
+        if (n == obj.length){
+            n =0;
+        }
+        change(n++)
+    }
+    setInterval("loop()", 500);
+
+
+    function test(){
+        //var obj = document.getElementsByName("color");
+        //obj[0].style.backgroundColor = "red";
+    }
+
+    function get_title(the_id){
+      var obj = document.getElementById(the_id);
+      obj.title = "";
+    }
+</script>
+{% endblock %}

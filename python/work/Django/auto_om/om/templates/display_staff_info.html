@@ -11,7 +11,7 @@
     {% block subtitle %}--Display Staff Info{% endblock %}
     {% block content %}
     <!--<body style = "background-color:#D1EEEE">-->
-    <body style = "background-color:#EAF6F7">
+    <body>
         <!--<h1 align = "center" style = "font-family:Arial, Verdana, Sans-serif">Management Page</h1>-->
         <div align = "center">
             <form action = "." method = "GET" onsubmit = "return NotEmpty()" autocomplete="on">
@@ -87,6 +87,7 @@
                 {% for pc_info in pc_info_list %}
                     <tr align = "center" style = "background-color: {% cycle '#DC143CE' '#97FFFF'%}">
                         <td><!--<input type = "checkbox" name = "checkbox" value = "{{pc_info.id}}" />-->
+                        <input type = "hidden" id = "{{pc_info.id}}" value = "{{pc_info.asset_name}} {{pc_info.serial_num}}" />
                         <input type = "button" value = "删除" onClick = "del({{pc_info.id}})" />
                         <input type = "button" value = "修改" onClick = "window.open('{{pc_info.get_absolute_url}}','_self')"/></td>
                         <td>{{pc_info.asset_name}}</td>
@@ -123,7 +124,8 @@
 {% block footer %}
 <script>
 function del(id){
-    var flag = confirm("  确定要删除吗?");
+    var obj = document.getElementById(id)
+    var flag = confirm("  确定要删除 '" + obj.value + "' 吗?");
     if(flag){
         document.location.href = "/delete_staff_info/"+id
         }

@@ -34,14 +34,15 @@ import xlwt
 
 #local lib
 from models import Platform, PC_Info, Record, DepartMent, Staff_Info, IP
-from auto_om.settings import BASE_DIR
+from auto_om.settings import BASE_DIR, ADMIN_USER_EMAIL_LIST
+from local_settings import template_pc_info, vm_dict, select_dict, esxi_create_virtual_script_dict
 
 LOG_FILE = "auto_om.log"
 PING_COUNT = 2
 ONLINE = "online"
 OFFLINE = "offline"
 STATUS = []
-ADMIN_USER_EMAIL_LIST = ["dedong.xu@goland.cn"]#, "feng.yue@goland.cn"]
+
 
 
 def log(info):
@@ -68,6 +69,7 @@ def multi_send_mail(mail_list, sub, content):
     for mail_to_one in mail_list:
         t = threading.Thread(target = send_mail, args = (mail_to_one, sub, content))
         t.start()
+        t.join(60)
 
 
 def send_mail(to_one,sub,content):
@@ -89,11 +91,9 @@ def send_mail(to_one,sub,content):
         server.login(mail_user,mail_pass)  
         server.sendmail(me, to_one, msg.as_string())  
         server.close()
-        #log.info("send mail successfully!")
-        return True  
+        log("send mail successfully!")
     except Exception, e:  
-        #log.info("send mail failed: %s" % str(e)) 
-        return False
+        log("      send mail  exception    111111, %s" % str(e))
 
 
 
@@ -225,17 +225,13 @@ def search_result(pc_info_list, search_list, search_name, record_name):
         if each_record == search_name:
             if search_name.lower() == "platform":
                 try:
-                    #platform = Platform.objects.get(name__icontains = record_name)
-                    #pc_info_list = platform.platform_set.all()
                     pc_info_list = pc_info_list.filter(platform__name__icontains = record_name)
                 except Exception as e:
-                    log("search result platform exception, %s" % str(e))
                     pc_info_list = []
             elif search_name.lower() == "department":
                 try:
                     pc_info_list = pc_info_list.filter(department__name__icontains = record_name)
                 except Exception as e:
-                    log("search result description exception, %s" % str(e))
                     pc_info_list = []
             else:
                 search_str = "%s like '%%%%%s%%%%'" % (search_name, record_name)
@@ -269,7 +265,6 @@ def superuser_required1(user, login_url = None, raise_exception = False):
 def display_user_permission(request):
     redirect_url = request.GET.get("next", "").strip()
     return render_to_response("display_user_permission.html", locals())
-
 
 
 #@user_passes_test(lambda u: u.has_perm("om.can_vote"), login_url = "/add_pc/")
@@ -455,7 +450,6 @@ def new_ping(ip):
         get_result = 100
     if get_result == 0:
         STATUS.append(ONLINE)
-    print "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq", ip#, STATUS
 """
 
 
@@ -466,7 +460,7 @@ def ping(ip):
     try:
         os.system(ping_cmd)
     except Exception as e:
-        log("ping exception: current ip is: %s, exception :%s" % (ip, str(e)))
+        pass
     return ping_file
 
 
@@ -533,6 +527,7 @@ def add_pc(request):
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "").strip()
         is_virtual = request.POST.get("is_virtual", "").strip()
+        created_by = mother_machine = ""
         description = request.POST.get("description", "").strip()
         modify_date = join_date = time.strftime("%Y-%m-%d %H:%M:%S")
         platform_obj = Platform.objects.get(name = platform)
@@ -555,20 +550,32 @@ def add_pc(request):
                 status = "offline"
                 try:
                     with transaction.commit_on_success():
-                        pc_info = PC_Info(platform = platform_obj, ip = ip, memory = memory, memory_left = memory, cpu = cpu, cpu_left = cpu,\
+                        pc_info = PC_Info(platform = platform_obj,ip = ip, memory = memory, memory_left = memory, cpu = cpu, cpu_left = cpu,\
                         hard_disk = hard_disk, hard_disk_left = hard_disk, username = username, password = password,is_virtual = is_virtual,\
-                        join_date = join_date, modify_date = modify_date, status = status,description = description)
+                        join_date = join_date, modify_date = modify_date, status = status,created_by = created_by, \
+                        mother_machine = mother_machine, description = description)
                         pc_info.save()
+                        set_ip_flag(ip, 2)
+                        #ip_obj = IP.objects.filter(name = ip)
+                        #if ip_obj and int(ip_obj[0].flag) != 2:
+                        #    ip_obj[0].flag = 2
+                        #    ip_obj[0].save()
                         save_record("%s add new pc: %s" % (request.user, ip))
                         sub = "Add New PC"
                         content = "Hello, %s add new pc: %s, platform is: %s" % (request.user, ip, platform)
-                        mail_list = ADMIN_USER_EMAIL_LIST + [get_cur_user_email(request.session["username"], "@goland.cn")]
+                        mail_list = set(ADMIN_USER_EMAIL_LIST + [get_cur_user_email(request.session["username"], "@goland.cn")])
                         multi_send_mail(mail_list, sub, content)
                 except Exception, e:
                     log("add pc exception, %s" % str(e))
                 return HttpResponseRedirect("/")
     return render_to_response("add_pc.html", locals())
 
+def set_ip_flag(ip, flag):
+    ip_obj = IP.objects.filter(name = ip)
+    if ip_obj:# and int(ip_obj[0].flag) != 2:
+        ip_obj[0].flag = flag
+        ip_obj[0].save()
+    
 
 @login_required
 @user_passes_test(superuser_required, login_url = "/display_user_permission/")
@@ -603,13 +610,6 @@ def update(request, params = None):
         if pc_count >= 1:
             exist_prompt = "ip: %s already exists!" % ip
         elif all([ip]):
-        #elif all([platform, ip, memory, cpu, hard_disk, username, password, is_virtual, description, modify_date]):
-            #ip_pattern = r"\d{2}\.\d{2}\.\d{1}\.\d{1,3}" 
-            #if not re.search(ip_pattern, ip):
-            #    return HttpResponse("ip格式不正确，请重新填写！格式为xx.xx.x.x(x)(x)；括号里表示非必须")
-            #hard_disk_pattern = r"^(\d+)([MmGg])$"
-            #if not re.search(hard_disk_pattern, hard_disk):
-            #    return HttpResponse("hard disk 那一项输入不正确,格式应类似：100G。数字在前，单位为G或M，不区分大小写！")
             #status = analyze_ping_result(ping(ip))
             status = "offline"
             pc_info.platform = platform_obj
@@ -633,7 +633,7 @@ def update(request, params = None):
                     save_record("%s update pc: %s" % (request.user, ip))
                     sub = "Update PC"
                     content = "Hello, %s update pc: %s, platform is: %s" % (request.user, ip, platform)
-                    mail_list = ADMIN_USER_EMAIL_LIST + [get_cur_user_email(request.session["username"], "@goland.cn")]
+                    mail_list = set(ADMIN_USER_EMAIL_LIST + [get_cur_user_email(request.session["username"], "@goland.cn")])
                     multi_send_mail(mail_list, sub, content)
             except Exception, e:
                 log("update pc exception, %s" % str(e))
@@ -644,25 +644,48 @@ def update(request, params = None):
 @login_required
 @user_passes_test(superuser_required, login_url = "/display_user_permission/")
 @csrf_exempt
-def delete(request, model, url, params = None):
+def delete(request, model, params = None):
     """ delete pc info """
+    url = request.GET.get("url", "").strip()
     if params is None and request.method == "GET":
         params = request.GET.get("id", "").strip()
     if not params.isdigit():
         raise Http404
-   
     try:
-        with transaction.commit_on_success():
+        #with transaction.commit_on_success():
             model_info = model.objects.get(id = int(params))
+            mother_machine = model_info.mother_machine
+            ip = model_info.ip
+            if mother_machine:
+                platform = model_info.platform
+                created_by = model_info.created_by
+                join_date = model_info.join_date.split(" ")[0].replace("-", "")
+                vm_name = "%s_%s_%s_%s" % (created_by, platform, ip, join_date)
+                cur_path = esxi_create_virtual_script_dict[mother_machine]
+                delete_virtual_script = os.path.join(cur_path, esxi_create_virtual_script_dict["delete_script"])
+                cmd = "ansible %s -m shell -a 'python %s %s %s'" % (mother_machine, delete_virtual_script, cur_path, vm_name)
+                log("delete virtual cmd: %s" % cmd)
+                subprocess.call(cmd, shell = True)
+                #p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+                #out = p.stdout.read()
+                #err = p.stderr.read()
+                #log("delete out : %s" % out)
+                #log("delete err : %s" % err)
+                #rm_cmd = "ansible %s -m shell -a 'rm -fr /vmfs/volumes/datastore1/xdd/%s'" % (mother_machine, vm_name)
+                #p = subprocess.Popen(rm_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
             model_info.delete()
+            #ip_obj = IP.objects.filter(name = ip)
+            #if ip_obj and int(ip_obj[0].flag) == 2:
+            #    ip_obj[0].flag = 0
+            #    ip_obj[0].save()
+            set_ip_flag(ip, 0)
             save_record("%s delete pc: %s" % (request.user, model_info.ip))
             sub = "Delete PC"
             content = "Hello, %s delete pc: %s, platform is: %s" % (request.user, model_info.ip, model_info.platform.name)
-            mail_list = ADMIN_USER_EMAIL_LIST + [get_cur_user_email(request.session["username"], "@goland.cn")]
-            multi_send_mail(mail_list, sub, content)
+            mail_list = set(ADMIN_USER_EMAIL_LIST + [get_cur_user_email(request.session["username"], "@goland.cn")])
+            #multi_send_mail(mail_list, sub, content)
     except Exception, e:
-        pass
-        #log("delete exception, %s" % str(e))
+        log("delete exception, %s" % str(e))
     return HttpResponseRedirect(url)
 
 #@user_passes_test(lambda u: u.has_perm("om.can_vote"), login_url = "/add_pc/")
@@ -687,7 +710,6 @@ def display_staff_info(request, template, model, search_list, record_list, total
     search_name = request.GET.get("search_name", "").strip()
     record_name = request.GET.get("record_name", "").strip()
     pc_info_list = search_result(pc_info_list, search_list, search_name, record_name)
-    #pc_info_list =     
     ziduan = request.GET.get("ziduan", "")
     order = request.GET.get("order", "1")
     pc_info_list, order = order_list(pc_info_list, record_list, ziduan, order)
@@ -948,17 +970,31 @@ def get_hard_disk(platform):
     
 
 def get_ip():
+    """ 获取到可用的IP """
     ip_list = IP.objects.filter(flag = 0)
     if ip_list:
         return ip_list[0].name
     else:
         return ""
 
+def lock_ip(ip):
+    """ 在创建虚拟机之前先将使用的IP锁住 """
+    ip_obj = IP.objects.get(name = ip)
+    ip_obj.flag = 1
+    ip_obj.save()
+    return ip_obj
 
-def run_create_virtual_cmd(esxi_ip):
+
+def run_create_virtual_cmd(esxi_ip, platform, version, ip, username, cpu, memory, hard_disk):
     """ 执行创建虚拟机的命令 """
-    pass
-
+    cur_time = time.strftime("%Y%m%d")
+    vmx_path = vm_dict["vmx"][platform.lower()][version.lower()]
+    vmdk_path = vm_dict["vmdk"][platform.lower()][version.lower()]
+    virtual_path = virtual_name = "%s_%s_%s_%s_%s" % (username, platform, version, ip, cur_time)
+    create_virtual_script = os.path.join(esxi_create_virtual_script_dict[esxi_ip], esxi_create_virtual_script_dict["create_script"])
+    cur_path = os.path.dirname(create_virtual_script)
+    create_cmd = "ansible %s -m shell -a 'python %s %s %s %s %s %s %s %s %s'" % (esxi_ip, create_virtual_script, cur_path, vmx_path, vmdk_path, virtual_path, virtual_name, cpu, memory, hard_disk)
+    subprocess.call(create_cmd, shell = True)
 
 def get_digit_str(s):
     """ 分别获取字符串中的数字与字符串 """
@@ -1003,33 +1039,117 @@ def get_cur_user_email(username, mail_postfix):
         username += mail_postfix
     return username
 
+def get_group():
+    return select_dict
+
+
+def modify_ip(cur_pc_info, platform, new_ip):
+    """ 修改IP地址 """
+    old_ip = cur_pc_info["ip"]
+    password = cur_pc_info["password"]
+    if platform.lower() == "win":
+        minion_id = "%s_%s" % ("win", old_ip)
+        cmd = 'echo "%s" | sudo -S salt "%s" cmd.run "python C:/modify_ip.py %s"' % (password, minion_id, new_ip)
+    elif platform.lower() == "mac":
+        subnetmask = cur_pc_info["subnetmask"]
+        gateway = cur_pc_info["gateway"]
+        modify_ip_cmd = 'networksetup -setmanual "Ethernet" %s %s %s %s' % (new_ip, subnetmask, gateway, password)
+        #cmd = "ansible %s -m shell -a 'python /Users/goland/Desktop/modify_ip.py %s %s %s'" % (old_ip, new_ip, subnetmask, gateway)
+        cmd = "ansible %s -m shell -a 'python ~/Desktop/modify_ip.py %s %s %s'" % (old_ip, new_ip, subnetmask, gateway)
+    elif platform.lower() == "ubu":
+        #cmd = "ansible %s -m shell -a 'python /home/vidon/modify_ip.py %s %s'" % (old_ip, old_ip, new_ip)
+        cmd = "ansible %s -m shell -a 'python ~/modify_ip.py %s %s %s'" % (old_ip, old_ip, new_ip, password)
+    p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+    log("modify ip: stdout: %s" % p.stdout.read())
+    log("modify ip: stderr: %s" % p.stderr.read())
+    log("modify_ip: platform is: %s, old ip is : %s, new ip is : %s\n cmd is: %s" % (platform, old_ip, new_ip, cmd))
+
+
+def check_pc_by_ping(ip):
+    """ ping pc ip """
+    ping_cmd = "ping %s -c 1" % (ip)
+    p = subprocess.Popen(ping_cmd, stdout = subprocess.PIPE, shell = True)
+    all_lines = p.stdout.readlines()
+    analyze_line = ""
+    for line in all_lines:
+        if line.find("packet") != -1 and line.find("loss") != -1 and line.find("%") != -1:
+            analyze_line = line
+            break
+    pattern = r"(\d+)(\%)"
+    search_result = re.search(pattern, analyze_line)
+    if search_result:
+        result_code = int(search_result.group(1))
+    else:
+        result_code = 100
+    return result_code
+
+def test_salt(platform, ip, password):
+    """ test salt """
+    minion_id = "%s_%s" % (platform, ip)
+    cmd = 'echo "%s" | sudo -S salt "%s" test.ping' % (password, minion_id)
+    log("test salt cmd is :%s" % cmd)
+    process = subprocess.Popen(cmd, stdout = subprocess.PIPE, shell = True) 
+    result_content = process.stdout.read()
+    log("result content is %s"%result_content)
+    if "True" in result_content:
+        return True
+    return False
+
+def wait_ping_result(ip):
+    """ 等待ping的结果，如果ping通机器，则跳出循环。否则最多ping10次 """
+    for i in xrange(10):
+        result_code = check_pc_by_ping(ip)
+        log("loop %d, wait_ping_result: %d, ip is :%s, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" % (i, result_code, ip))
+        if result_code == 0:
+            break
+        time.sleep(1)
+
+
+def wait_test_salt(platform, ip, password): 
+    """ 等待salt的结果，如果通信OK，则跳出循环，否则最多循环20次 """
+    for i in xrange(30):
+        result = test_salt(platform, ip, password)
+        log("loop: %d, wait_test_salt_result: platform is %s, ip is :%s , 11111111111111111111" % (i, platform, ip))
+        if result:
+            break
+        time.sleep(1)
+
+def use_time(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        log("begin to execute function %s, current time is: %s" % (func.__name__, time.strftime("%Y-%m-%d %H:%M:%S")))
+        result = func(*args, **kwargs)
+        func(*args, **kwargs)
+        log("end to execute function %s, current time is: %s" % (func.__name__, time.strftime("%Y-%m-%d %H:%M:%S")))
+        end = time.time()
+        total_time = end - start
+        log("function: %s use time: %s" % (func.__name__, total_time))
+        return result
+    return wrapper
+
 
 @login_required
 @csrf_exempt
+#@use_time
 def create_virtual(request):
     """ create virtual """
     redirect_url = request.get_full_path()
     platform_list = Platform.objects.all()
     platform_list = [""] + [i.name for i in platform_list][:-2]
-    memory_list = ["2", "4", "6", "8"]
-    cpu_list = [2, 4, 6, 8]
+    select_dict = get_group()
     if request.method == "POST":
         platform = request.POST.get("platform", "").strip()
+        version = request.POST.get("version", "").strip()
+        select = request.POST.get("select", "").strip()
         ip = get_ip()
         if not ip:
-            not_available_ip = "Sorry, but there is no available ip!"
+            not_available_ip = "对不起，没有多余的IP可以申请了, 请联系管理员!"
         else:
-            #ip = request.POST.get("ip", "").strip()
-            #memory = request.POST.get("memory", "").strip()
-            memory = get_memory(platform)
-            #cpu = request.POST.get("cpu", "").strip()
-            cpu = get_cpu(platform)
-            hard_disk = get_hard_disk(platform)
-            username = "vidon"
-            password = "1"
-            #hard_disk = request.POST.get("hard_disk", "").strip()
-            #username = request.POST.get("username", "").strip()
-            #password = request.POST.get("password", "").strip()
+            memory = select_dict[select]["memory"]#get_memory(platform)
+            cpu = select_dict[select]["cpu"]#get_cpu(platform)
+            hard_disk = select_dict[select]["hard_disk"]#get_hard_disk(platform)
+            created_by = request.user.username.replace("@goland.cn", "")
+            created_by = request.user.last_name + request.user.first_name
             description = request.POST.get("description", "").strip()
             modify_date = join_date = time.strftime("%Y-%m-%d %H:%M:%S")
             platform_obj = Platform.objects.get(name = platform)
@@ -1038,48 +1158,57 @@ def create_virtual(request):
                 PC_Info.objects.get(ip = ip)
                 exist_prompt = "ip: %s already exists!" % ip
             except Exception:
-                if all([platform, ip, memory, cpu, hard_disk, username, password, description, join_date, modify_date]):
-                    ip_pattern = r"\d{2}\.\d{2}\.\d{1}\.\d{1,3}" 
-                    if not re.search(ip_pattern, ip):
-                        return HttpResponse("ip格式不正确，请重新填写！格式为xx.xx.x.x(x)(x)；括号里表示非必须")
-                    hard_disk_pattern = r"^(\d+)([MmGg]?)$"
-                    if not re.search(hard_disk_pattern, hard_disk):
-                        return HttpResponse("hard disk 那一项输入格式不正确,可以只填写数字，不写单位的话默认为G，不区分大小写！")
-                        #return HttpResponse("hard disk 那一项输入不正确,格式应类似：100G。数字在前，单位为G或M，不区分大小写！")
-                    if hard_disk and hard_disk[-1].isdigit():
-                        hard_disk += "G"
+                if all([platform, ip, memory, cpu, hard_disk, description, join_date, modify_date]):
                     esxi = get_esxi(memory, cpu, hard_disk)
                     if not esxi:
-                        no_suitable_esxi_prompt = "没有符合要求的机器，请联系管理员!"
-                        return render_to_response("create_virtual.html", locals())
-                    esxi_ip = esxi.ip
-                    #run_create_virtual_cmd(esxi_ip)
-                    new_memory_left, new_cpu_left, new_hard_disk_left = get_left_memory_cpu_hard_disk(esxi, memory, cpu, hard_disk)
-                    try:
-                        with transaction.commit_on_success():
-                            pc_info = PC_Info(platform = platform_obj, ip = ip, memory = memory, memory_left = memory, cpu = cpu, cpu_left = cpu,\
-                            hard_disk = hard_disk, hard_disk_left = hard_disk, username = username, password = password, is_virtual = is_virtual,\
-                            join_date = join_date, modify_date = modify_date, description = description)
-                            pc_info.save()
-                            esxi.memory_left = new_memory_left
-                            esxi.cpu_left = new_cpu_left
-                            esxi.hard_disk_left = new_hard_disk_left
-                            esxi.save()
-                            save_record("%s create virtual: %s" % (request.user, ip))
-                            sub = "Create Virtual"
-                            content = "Hello, %s create virtual pc: %s, platform is: %s" % (request.user, ip, platform)
-                            mail_list = ADMIN_USER_EMAIL_LIST + [get_cur_user_email(request.session["username"], "@goland.cn")]
-                            multi_send_mail(mail_list, sub, content)
-                    except Exception, e:
-                        log("create virtual exception, %s" % str(e))
-                    return HttpResponseRedirect("/")
+                        no_suitable_esxi_prompt = "没有符合要求的ESXI服务器，请联系管理员!"
+                    else:
+                        esxi_ip = esxi.ip
+                        #esxi_ip = "10.10.3.23"
+                        cur_pc_info = template_pc_info[esxi_ip][platform.lower()][version.lower()]
+                        username = cur_pc_info["username"]
+                        password = cur_pc_info["password"]
+                        mother_machine = esxi_ip
+                        ip_obj = lock_ip(ip)
+                        run_create_virtual_cmd(esxi_ip, platform, version, ip, created_by, cpu, int(memory)*1024, hard_disk)
+                        new_memory_left, new_cpu_left, new_hard_disk_left = get_left_memory_cpu_hard_disk(esxi, memory, cpu, hard_disk)
+                        wait_ping_result(cur_pc_info["ip"])
+                        if platform.lower() in ["win"]:
+                            log("I am here: platform is %s" % platform.lower())
+                            wait_test_salt(platform.lower(), cur_pc_info["ip"], "123456")
+                        else:
+                            time.sleep(5)
+                        modify_ip(cur_pc_info, platform, ip)
+                        wait_ping_result(ip)
+                        try:
+                            with transaction.commit_on_success():
+                                pc_info = PC_Info(platform = platform_obj, ip = ip, memory = memory, memory_left = memory, cpu = cpu,\
+                                cpu_left = cpu, hard_disk = hard_disk,hard_disk_left = hard_disk,username = username,password = password,\
+                                is_virtual =is_virtual, join_date = join_date, modify_date = modify_date, created_by = created_by,\
+                                mother_machine = mother_machine, description = description)
+                                pc_info.save()
+                                esxi.memory_left = new_memory_left
+                                esxi.cpu_left = new_cpu_left
+                                esxi.hard_disk_left = new_hard_disk_left
+                                esxi.save()
+                                ip_obj.flag = 2
+                                ip_obj.save()
+                                save_record("%s create virtual: %s" % (request.user, ip))
+                        except Exception, e:
+                            log("create virtual exception, %s" % str(e))
+                        sub = "Create Virtual"
+                        content = "Hello, %s:\n\n  You create virtual pc,\n  IP : %s,\n  Platform : %s,\n  Username : %s,\n  Password : %s,\n  Memory : %s,\n  CPU : %s,\n  Hard Disk : %s,\n  Mother Machine : %s " % (request.user, ip, platform, username, password, memory, cpu, hard_disk, mother_machine)
+                        mail_list = set(ADMIN_USER_EMAIL_LIST + [get_cur_user_email(request.session["username"], "@goland.cn")])
+                        multi_send_mail(mail_list, sub, content)
+                        log("Game Over!!!!!!!!!!!!!!!")
+                        return render_to_response("success.html", locals())
     return render_to_response("create_virtual.html", locals())
 
 
 @login_required
 @user_passes_test(superuser_required, login_url = "/display_user_permission/")
 @csrf_exempt
-def add_ip(request):
+def add_ip_old(request):
     """ 将IP添加到ip表里 """
     redirect_url = request.get_full_path()
     if request.method == "POST":
@@ -1093,14 +1222,36 @@ def add_ip(request):
             return HttpResponseRedirect("/display_ip_list/")
     return render_to_response("add_ip.html", locals())
 
+@login_required
+@user_passes_test(superuser_required, login_url = "/display_user_permission/")
+@csrf_exempt
+def add_ip(request):
+    if request.method == "POST":
+        all_ip_list = set([i for i in xrange(2, 255)])
+        used_ip_list = set([])
+        segment = request.POST.get("segment", "2").strip()
+        pc_info_list = PC_Info.objects.all().values("ip")
+        for pc_info in pc_info_list:
+            if pc_info["ip"].split(".")[-2] == segment:
+                used_ip_list.add(int(pc_info["ip"].split(".")[-1]))
+        tmp_no_used_ip_list = sorted(list(all_ip_list.difference(used_ip_list)))
+        no_used_ip_list = ["10.10.%s.%d" % (segment, i) for i in tmp_no_used_ip_list]
+        for each_ip in no_used_ip_list:
+            if not IP.objects.filter(name = each_ip):
+                ip_obj = IP(name = each_ip, flag = 0)
+                ip_obj.save()
+        return HttpResponseRedirect("/display_ip_list/")
+    return render_to_response("add_ip.html", locals())
 
 @login_required
 @user_passes_test(superuser_required, login_url = "/display_user_permission/")
 def display_ip_list(request):
     """ 展示ip列表 """
     redirect_url = request.get_full_path()
-    ip_list = IP.objects.all()
+    ip_list = IP.objects.exclude(flag = 2)
+    ip_list = IP.objects.filter(flag = 0)
     total_ip = len(ip_list)
+    #used_ip = ip_list.filter(flag = "2").count()
     return render_to_response("display_ip_list.html", locals())
 
 
@@ -1118,11 +1269,13 @@ def update_ip(request, params = None):
     ip_obj = IP.objects.get(id = params)
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
+        flag = request.POST.get("flag", "").strip()
         ip_count = IP.objects.filter(name = name).exclude(id = params).count()
         if ip_count >= 1:
             exist_prompt = "ip: %s already exists!" % name
-        elif all([name]):
+        elif all([name, flag]):
             ip_obj.name = name
+            ip_obj.flag = flag
             try:
                 with transaction.commit_on_success():
                     ip_obj.save()
@@ -1262,5 +1415,125 @@ def export_excel(request):
     #response["Content-Length"] = os.path.getsize(excel_file)
     return response
 
+
+@login_required
+@csrf_exempt
+def xdd(request):
+    return render_to_response("success.html")
+
+@login_required
+#@user_passes_test(superuser_required, login_url = "/display_user_permission/")
+def display_virtual_list(request, template, model, search_list, record_list):
+    """ 展示虚拟机列表 """
+    redirect_url = request.get_full_path()
+    pc_info_list = model.objects.filter(created_by = request.user.username.replace("@goland.cn", ""))
+    pc_info_list = model.objects.filter(created_by = (request.user.last_name + request.user.first_name))
+    search_name = request.GET.get("search_name", "").strip()
+    record_name = request.GET.get("record_name", "").strip()
+    pc_info_list = search_result(pc_info_list, search_list, search_name, record_name)
+    ziduan = request.GET.get("ziduan", "")
+    order = request.GET.get("order", "1")
+    pc_info_list, order = order_list(pc_info_list, record_list, ziduan, order)
+    total_pc_info = len(pc_info_list)
+    return render_to_response(template, locals())
+
+
+@login_required
+#@user_passes_test(superuser_required, login_url = "/display_user_permission/")
+@csrf_exempt
+def update_personal_pc(request, params = None):
+    """ update pc info """
+    redirect_url = request.get_full_path()
+    if params is None and request.method == "GET":
+        params = request.GET.get("id", "").strip()
+    if not params.isdigit():
+        raise Http404
+    
+    platform_list = Platform.objects.all()
+    pc_info = PC_Info.objects.select_related().get(id = params)
+    cur_platform = pc_info.platform.name
+    if request.method == "POST":
+        platform = request.POST.get("platform", "").strip()
+        ip = request.POST.get("ip", "").strip()
+        memory = request.POST.get("memory", "").strip()
+        memory_left = request.POST.get("memory_left", "").strip()
+        cpu = request.POST.get("cpu", "").strip()
+        cpu_left = request.POST.get("cpu_left", "").strip()
+        hard_disk = request.POST.get("hard_disk", "").strip()
+        hard_disk_left = request.POST.get("hard_disk_left", "").strip()
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "").strip()
+        is_virtual = request.POST.get("is_virtual", "").strip()
+        description = request.POST.get("description", "").strip()
+        modify_date = time.strftime("%Y-%m-%d %H:%M:%S")
+        platform_obj = Platform.objects.get(name = platform)
+        pc_count = PC_Info.objects.filter(ip = ip).exclude(id = params).count()
+        if pc_count >= 1:
+            exist_prompt = "ip: %s already exists!" % ip
+        elif all([ip]):
+            #status = analyze_ping_result(ping(ip))
+            status = "offline"
+            pc_info.platform = platform_obj
+            pc_info.ip = ip
+            pc_info.memory = memory
+            pc_info.cpu = cpu
+            pc_info.hard_disk = hard_disk
+            pc_info.username = username
+            pc_info.password = password
+            pc_info.is_virtual = is_virtual
+            pc_info.description = description
+            pc_info.modify_date = modify_date
+            pc_info.status = status
+            if platform.upper() == "ESXI":
+                pc_info.memory_left = memory_left
+                pc_info.cpu_left = cpu_left
+                pc_info.hard_disk_left = hard_disk_left
+            try:
+                with transaction.commit_on_success():
+                    pc_info.save()
+                    save_record("%s update pc: %s" % (request.user, ip))
+                    sub = "Update PC"
+                    content = "Hello, %s update pc: %s, platform is: %s" % (request.user, ip, platform)
+                    mail_list = set(ADMIN_USER_EMAIL_LIST + [get_cur_user_email(request.session["username"], "@goland.cn")])
+                    multi_send_mail(mail_list, sub, content)
+            except Exception, e:
+                log("update pc exception, %s" % str(e))
+            return HttpResponseRedirect("/display_virtual_list/")
+    return render_to_response("update.html", locals())
+
+
+@csrf_exempt
+def set_flag(request):
+    flag = request.POST.get("flag","").strip()
+    ip_list = IP.objects.all()
+    for ip in ip_list:
+        ip.flag = flag
+        ip.save()
+    return HttpResponseRedirect("/display_ip_list/")
+
+
+@login_required
+@user_passes_test(superuser_required, login_url = "/display_user_permission/")
+@csrf_exempt
+def view_no_used_ip(request):
+    total_pc_info = 0
+    if request.method == "POST":
+        all_ip_list = set([i for i in xrange(2, 255)])
+        used_ip_list = set([])
+        segment = request.POST.get("segment", "2").strip()
+        pc_info_list = PC_Info.objects.all().values("ip")
+        for pc_info in pc_info_list:
+            if pc_info["ip"].split(".")[-2] == segment:
+                used_ip_list.add(int(pc_info["ip"].split(".")[-1]))
+        tmp_no_used_ip_list = sorted(list(all_ip_list.difference(used_ip_list)))
+        no_used_ip_list = ["10.10.%s.%d" % (segment, i) for i in tmp_no_used_ip_list]
+        total_pc_info = len(no_used_ip_list)
+        #ip_list = IP.objects.all().values("name")
+        #ip_list_in_table = [str(i["name"]) for i in ip_list]
+        #for each_ip in no_used_ip_list:
+        #    if not IP.objects.filter(name = each_ip):
+        #        ip_obj = IP(name = each_ip, flag = 0)
+        #        ip_obj.save()
+    return render_to_response("view_no_used_ip.html", locals())
 
 

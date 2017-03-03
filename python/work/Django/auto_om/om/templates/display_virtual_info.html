@@ -1,0 +1,28 @@
+﻿{% extends "navmenu.html" %}
+{% block content %}
+<head>
+    <title>success</title>
+</head>
+<body>
+    <h1>创建成功</h1>
+    <h4 id = 'redirect'>
+    <a href = "/display_virtual_list/">3秒钟之后,将自动跳转到指定页面...</a>
+    <br /><br />
+    </h4>
+</body>
+<script>
+var t = 2
+function delay(){
+    var ob = document.getElementById('redirect');
+    ob.innerHTML = '<a href = "/display_virtual_list/">'+t+'秒钟之后,将自动跳转到指定页面...</a>';
+    if (t == 0){
+        ob.innerHTML = '';
+        //clearInterval(b);
+    }
+    t--;
+}
+
+setTimeout("javascript:location.href='/display_virtual_list/'", 3000); 
+b=setInterval('delay()',1000);
+</script>
+{% endblock %}

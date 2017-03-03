@@ -14,6 +14,8 @@ record_list = ["platform", "ip", "memory", "cpu", "hard_disk", "username", "pass
 staff_search_list = ["platform", "department", "staff_name", "ip"]
 staff_record_list = ["platform", "department", "staff_name", "ip", "asset_name", "serial_num", "asset_address", "memory", "cpu", "hard_disk", "status", "description"]
 
+virtual_search_list = ["platform", "ip", "username"]
+virtual_record_list = ["platform", "ip", "memory", "cpu", "hard_disk", "username", "password", "join_date", "modify_date", "description"]
 
 urlpatterns = patterns('om.views',
     #url(r'^static/(?P<name>.*)$', 'django.views.static.serve',{'document_root':os.path.join(os.path.dirname(os.path.realpath(admin.__file__)), 'static')}),
@@ -30,11 +32,12 @@ urlpatterns = patterns('om.views',
     url(r"^accounts/logout/$", "logout"),
     url(r"^index/$", "index"),
     url(r"^add_pc/$", "add_pc"),
-    url(r"^update/$", "update"),
+    #url(r"^update/$", "update"),
     url(r"^update/(?P<params>\d+)/$", "update"),
-    #url(r"^update/(\d+)/$", "update"),
+    url(r"^update_personal_pc/(?P<params>\d+)/$", "update_personal_pc"),
     url(r"^delete/$", "delete"),
-    url(r"^delete/(?P<params>\d+)/$", "delete", {"model": models.PC_Info, "url": "/"}),
+    url(r"^delete/(?P<params>\d+)/$", "delete", {"model": models.PC_Info}),
+    url(r"^delete_virtual/(?P<params>\d+)/$", "delete", {"model": models.PC_Info}),
     #url(r"^shutdown/(?P<params>\d+)/$", "shutdown"),
     url(r"^shutdown_all/$", "shutdown_all"),
     url(r"^display_operation_record/$", "display_operation_record"),
@@ -54,6 +57,10 @@ urlpatterns = patterns('om.views',
     
     url(r"^export_excel/$", "export_excel"),
     url(r"^export_server_info_to_excel/$", "export_server_info_to_excel"),
+    url(r"^xdd/$", "xdd"),
+    url(r"^display_virtual_list/$", "display_virtual_list", {"template": "display_virtual_list.html", "model": models.PC_Info, "search_list": virtual_search_list, "record_list": virtual_record_list}),
+    url(r"^set_flag/$", "set_flag"),
+    url(r"^view_no_used_ip/$", "view_no_used_ip"),
 
     # Examples:
     # url(r'^$', 'auto_om.views.home', name='home'),

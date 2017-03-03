@@ -42,8 +42,9 @@
 
 		</style>
         <link rel="stylesheet" href="/site_media/css/bootstrap.css1">
+        <link rel = "shortcut icon" type = "image/x-icon" href = "/site_media/image/BluFabInstall.ico" />
 	</head>
-	<body>
+	<body style = "background-color:#EAF6F7">
         {% block login %}
             <span style = "float:right">
                 {% if request.user.is_authenticated %}
@@ -65,9 +66,12 @@
             <div id="menu">
                 {% if request.user.is_superuser %}
                         <a href = "/" onmouseover = "display_image('management_page', 'logo.png')" onmouseout = "hide_image('management_page')">管理页面</a>
+
+                        <a href = "/view_no_used_ip/">查看未用IP</a>
                         <a href = "/add_pc/" onmouseover = "display_image('add_page', 'VidOn Server.png')" onmouseout = "hide_image('add_page')">添加</a>
-                        <a href = "/add_ip/">添加IP</a>
+                        {% ifnotequal request.session.username "idedong.xu" %}<a href = "/add_ip/">添加IP</a>
                         <a href = "/display_ip_list/">展示IP</a>
+                        {% endifnotequal %}
                         <a href = "/display_operation_record/" onmouseover = "display_image('display_record_page', 'logo.png')" onmouseout = "hide_image('display_record_page')">操作记录</a>
                 {% endif %}            
                 {% if request.user.is_staff %}            
@@ -80,15 +84,16 @@
                     <input type = "submit" value = "添加" onClick = "window.open('/add_pc','_self')"/>
                 </p>-->
                 <a href = "/create_virtual/" onmouseover = "display_image('create_virtual', 'vidon.png')" onmouseout = "hide_image('create_virtual')">创建虚拟机</a>
+                <a href = "/display_virtual_list/" onmouseover = "display_image('create_virtual', 'vidon.png')" onmouseout = "hide_image('create_virtual')">你的虚拟机</a>
                 <span id = "management_page"></span><span id = "esxi_page"></span><span id = "add_page"></span><span id = "create_virtual"></span><span id = "display_record_page"></span>
             </div>		
         {% endif %}
-
+        <br /><br />
         {% block content%}
         {% endblock %}
         <br /><br />
         <hr />
-        <div style = "font-size:0.9em; color:gray" align = "center">北京世纪高蓝科技有限公司2003-2016@CopyRight</div>
+        <div style = "font-size:0.9em; color:gray" align = "center">北京世纪高蓝科技有限公司2003-2017@CopyRight</div>
     </body>
 </html>
 {% block footer %}

@@ -1,16 +1,14 @@
-<meta http-equiv="refresh" content="60; url='http://10.10.2.64:9004/">
+<meta http-equiv="refresh" content="60">
 <html>
     {% extends "navmenu.html" %}
     {% block title %}
-    <head>
-        <!--<link href="/site_media/css/bootstrap.min.css" rel="stylesheet">-->
         <title>Auto OM Platform</title>
-    </head>
     {% endblock %}
+    
     {% block subtitle %}--Management Page{% endblock %}
     {% block content %}
     <!--<body style = "background-color:#D1EEEE">-->
-    <body style = "background-color:#EAF6F7">
+    <body>
         <!--<h1 align = "center" style = "font-family:Arial, Verdana, Sans-serif">Management Page</h1>-->
         <div align = "center">
             <form action = "." method = "GET" onsubmit = "return NotEmpty()" autocomplete="on">
@@ -24,19 +22,19 @@
                     {% endfor %}
                 </select>
                 <input type = "text" id = "record_value" name = "record_name" value = "{{record_name}}" required = "required">
-                <label>&nbsp;&nbsp;<img src = "/static/admin/img/icon_searchbox.png" alt = "Search">&nbsp;&nbsp;<input hidden = "hidden" type = "submit" value = "Submit"/></label> 
+                <label>&nbsp;&nbsp;<img src = "/site_media/image/icon_searchbox.png" alt = "Search">&nbsp;&nbsp;<input hidden = "hidden" type = "submit" value = "Submit"/></label> 
             </form>
         </div>
 
         <!--<div><input type = "submit" value = "操作记录" onClick = "window.open('/display_operation_record','_self')"/></div>
         <div><input type = "submit" value = "添加" onClick = "window.open('/add_pc','_self')"/></div>-->
         <!--<div id = "time">{{cur_time}}</div>-->
-        共计 <span style = "font-size:2.0em">{{total_pc}}</span> 台机器,
-        (在运行机器<span style = "font-size:2.0em"> {{total_running_pc}} </span>台)
         {% ifequal total_pc 0 %}
             <div align = "center" style = "font-size:2.0em"><b><i>Sorry, your search result does not exist!</i></b></div>
         {% else %}
-            <span id = "export_excel" style = "float:right"><a href = "/export_server_info_to_excel/">导出表格</a></span>
+            共计 <span style = "font-size:2.0em">{{total_pc}}</span> 台机器,
+            (在运行机器<span style = "font-size:2.0em"> {{total_running_pc}} </span>台)
+            <span id = "export_excel" style = "float:right"><a id = "xdd" onmouseover = "get_title(this.id)" href = "/export_server_info_to_excel/">导出表格</a></span>
             <br /><br />
             <form action = "/shutdown_all/" method = "POST" onsubmit = "return shutdown_all()">
                 {% csrf_token %}
@@ -64,6 +62,7 @@
                         <!--<tr align = "center" style = "background-color: {% cycle '#98FB98' '#97FFFF'%}">-->
                         <tr align = "center" style = "background-color: {% cycle '#DC143CE' '#97FFFF'%}">
                             <td><input type = "checkbox" name = "checkbox" value = "{{pc_info.id}}" />
+                            <input type = "hidden" id = "{{pc_info.id}}" value = "{{pc_info.ip}}" />
                             <!--<input type = "hidden" value ="{{pc_info.id}}" onClick = "shutdown({{pc_info.id}})" />-->
                             <input type = "button" value = "删除" onClick = "del({{pc_info.id}})" />
                             <!--<input type = "button" value = "修改" onClick = "window.open('/update/{{pc_info.id}}','_self')"/>-->
@@ -168,9 +167,10 @@ function shutdown_all(){
 }
 
 function del(id){
-    var flag = confirm("  确定要删除吗?");
+    var obj = document.getElementById(id)
+    var flag = confirm("  确定要删除 '" + obj.value + "' 吗?");
     if(flag){
-        document.location.href = "/delete/"+id
+        document.location.href = "/delete/"+id + "?url={{redirect_url}}"
         }
     else{
         return false;
@@ -224,6 +224,11 @@ setInterval("loop()", 500);
 function test(){
     //var obj = document.getElementsByName("color");
     //obj[0].style.backgroundColor = "red";
+}
+
+function get_title(the_id){
+  var obj = document.getElementById(the_id);
+  obj.title = "";
 }
 </script>
 {% endblock %}

@@ -17,11 +17,13 @@
 
     {%block subtitle%}--Update PC{% endblock%}
     {% block content %}
-    <body style = "background-color:#EAF6F7">
+    <br />
     <div style = "color: red" align="center"><strong>{{exist_prompt}}</strong></div>
     <form action = "." method = "POST" onsubmit = "return NotEmpty()">
         {% csrf_token %}
-        <div align = "center">IP:<input type = "text" id = "name" name = "name" value = "{{ip_obj.name}}" required = "required"/>
+        <div align = "center">
+        IP:<input type = "text" id = "name" name = "name" value = "{{ip_obj.name}}" required = "required"/>
+        Flag:<input type = "text" id = "flag" name = "flag" value = "{{ip_obj.flag}}" required = "required"/>
         <input type = "submit" value = "Update IP" /></div>
     </form>
 {% endblock %}

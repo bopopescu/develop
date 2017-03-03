@@ -1,7 +1,6 @@
 ﻿<html>
     {% extends "navmenu.html" %}
     {% block title %}
-    <head>
         <style>
             .input_width {
                 width: 70%;
@@ -12,20 +11,31 @@
             }
         </style>
         <title>Create Virtual</title>
-    </head>
     {% endblock %}
 
     {%block subtitle%}--Add IP{% endblock%}
     {% block content %}
     
-    <body style = "background-color:#EAF6F7">
-    <br />
+    <body>
     <div style = "color: red" align="center"><strong>{{exist_prompt}}</strong></div>
-    <form action = "." method = "POST" onsubmit = "return NotEmpty1()">
+    <!--<form action = "." method = "POST" onsubmit = "return NotEmpty1()">
         {% csrf_token %}
         <div align = "center">IP:<input type = "text" id = "ip" name = "name" value = "{{name}}" required = "required"/>
         <input type = "submit" value = "Add IP" /></div>
-    </form>
+    </form>-->
+   <div align = "center">
+        <form action = "." method = "POST" onsubmit = "return NeedDigital()" autocomplete="on">
+            请选择要添加的网段: 
+            <select name = "segment" style = "width:100px">
+                <option value = "2">2</option>
+                <option value = "4">4</option>
+                <option value = "6">6</option>
+                <option value = "7">7</option>
+                <option value = "10">10</option>
+            </select>                    
+            <label><input type = "submit" value = "添加"/></label> 
+        </form>
+    </div>
     <script>
         function NotEmpty1(){
             var ip_obj = document.getElementById("ip")

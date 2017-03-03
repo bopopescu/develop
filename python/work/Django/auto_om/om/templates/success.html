@@ -1,0 +1,29 @@
+﻿{% extends "navmenu.html" %}
+{% block content %}
+<head>
+    <style>
+        .right_positioin{
+            text-align: right;
+            font-size: 100px;;
+        }
+    </style>
+    <title>Virtual Info</title>
+</head>
+<body>
+    <h1>创建成功, 详细信息见下方</h1>
+    <table>
+        <tr><td class = "right_position"><strong>IP:</strong></td><td><strong>{{ip}}</strong></td></tr>
+        <tr><td class = "right_position"><strong>Platform:</strong></td><td><strong>{{platform}}</strong></td></tr>
+        <tr><td class = "right_position"><strong>Username:</strong></td><td><strong>{{username}}</strong></td></tr>
+        <tr><td class = "right_position"><strong>Password:</strong></td><td><strong>{{password}}</strong></td></tr>
+        <tr><td class = "right_position"><strong>Memory:</strong></td><td><strong>{{memory}}</strong></td></tr>
+        <tr><td class = "right_position"><strong>CPU:</strong></td><td><strong>{{cpu}}</strong></td></tr>
+        <tr><td class = "right_position"><strong>Hard Disk:</strong></td><td><strong>{{hard_disk}}</strong></td></tr>
+    </table>
+    
+    <h4>
+    <a href = "/display_virtual_list/">点击可查看你所创建的所有的虚拟机...</a>
+    <br /><br />
+    </h4>
+</body>
+{% endblock %}

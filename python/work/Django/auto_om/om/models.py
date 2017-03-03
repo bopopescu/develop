@@ -64,6 +64,8 @@ class PC_Info(models.Model):
     join_date = models.CharField(max_length = 50, blank = True, null = True)
     modify_date = models.CharField(max_length = 50, blank = True, null = True)
     status = models.CharField(max_length = 10, blank = True, null = True)
+    created_by = models.CharField(max_length = 50, blank = True, null = True)
+    mother_machine = models.CharField(max_length = 50, blank = True, null = True)
     description = models.TextField()
     objects = SubManager()    
 
@@ -82,6 +84,9 @@ class PC_Info(models.Model):
         return "/update/%d/" % self.id
         return ("update", (), {"params": "1"})
         return ('update', ["1"])
+    
+    def get_personal_pc_url(self):
+        return "/update_personal_pc/%d/" % self.id
         
     class Meta:
         ordering = ["-status", "ip"]
@@ -148,4 +153,7 @@ class IP(models.Model):
 
     def get_absolute_url(self):
         return "/update_ip/%d/" % self.id
+
+    #class Meta:
+    #    ordering = ["name"]
 
