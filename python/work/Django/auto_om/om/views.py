@@ -1344,17 +1344,13 @@ def set_style(height, name, bold = True, underline = True, italic = True):
     style.font = fnt
     return style 
 
-
-def export_server_info_to_excel(request):
+def export_excel(request, excel_file, title_list, info_list):
     """ 将数据导出到excel表格 """
-    excel_file = "服务器信息.xls"
     cell_width = 5555         #单元格的宽度
     response = HttpResponse(mimetype='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename = %s' % excel_file
     wb = xlwt.Workbook(encoding = 'utf-8')
     sheet = wb.add_sheet(u'Sheet1')
-    title_list = ["操作系统", "IP", "虚拟机", "用户名", "密码", "内存", "CPU", "硬盘", "描述"]
-    pc_info_list = PC_Info.objects.all()
     set_style = Set_Excel_Style(300, u"华文楷体")
     sheet.row(0).set_style(set_style.style)
     """写入标题行"""
@@ -1364,44 +1360,7 @@ def export_server_info_to_excel(request):
     
     row = 1
     """写入每一行内容"""
-    for s in pc_info_list:
-        value_list = [s.platform.name, s.ip, s.is_virtual, s.username, s.password, s.memory, s.cpu, s.hard_disk, s.description]
-        for index in xrange(len(value_list)):
-            sheet.col(index).width = cell_width
-            sheet.write(row, index, value_list[index])
-        sheet.row(row).set_style(set_style.style)
-        row=row + 1
-
-    output = StringIO.StringIO()
-    wb.save(output)
-    output.seek(0)
-    response.write(output.getvalue())
-    #response["Content-Length"] = os.path.getsize(excel_file)
-    return response
-
-
-def export_excel(request):
-    """ 将数据导出到excel表格 """
-    excel_file = "资产信息.xls"
-    cell_width = 5555         #单元格的宽度
-    response = HttpResponse(mimetype='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename = %s' % excel_file
-    wb = xlwt.Workbook(encoding = 'utf-8')
-    sheet = wb.add_sheet(u'Sheet1')
-    title_list = ["资产名称","资产编号","资产地址", "操作系统", "IP", "部门", "员工姓名", "内存", "CPU", "硬盘", "描述"]
-    staff_info_list = Staff_Info.objects.all()
-    #style = set_style(300, "Times New Roman") 
-    set_style = Set_Excel_Style(300, u"华文楷体")
-    sheet.row(0).set_style(set_style.style)
-    """写入标题行"""
-    for title_index in xrange(len(title_list)):
-        sheet.col(title_index).width = cell_width
-        sheet.write(0,title_index, title_list[title_index])
-    
-    row = 1
-    """写入每一行内容"""
-    for s in staff_info_list:
-        value_list = [s.asset_name, s.serial_num, s.asset_address, s.platform.name, s.ip, s.department.name, s.staff_name, s.memory, s.cpu, s.hard_disk, s.description]
+    for value_list in info_list:
         for index in xrange(len(value_list)):
             sheet.col(index).width = cell_width
             sheet.write(row, index, value_list[index])

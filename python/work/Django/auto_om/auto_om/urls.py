@@ -1,3 +1,5 @@
+#-*- encoding:utf-8 -*-
+
 from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
@@ -7,6 +9,29 @@ import os
 
 from om import models
 #import settings
+server_excel_file = "服务器信息.xls"
+server_title_list = ["操作系统", "IP", "虚拟机", "用户名", "密码", "内存", "CPU", "硬盘", "描述"]
+staff_excel_file = "资产信息.xls"
+staff_title_list = ["资产名称","资产编号","资产地址", "操作系统", "IP", "部门", "员工姓名", "内存", "CPU", "硬盘", "描述"]
+
+def get_server_value_list(model):
+    """ 获取服务器信息 """
+    all_list = []
+    staff_info_list = model.objects.all()
+    for s in staff_info_list:
+        value_list = [s.platform.name, s.ip, s.is_virtual, s.username, s.password, s.memory, s.cpu, s.hard_disk, s.description]
+        all_list.append(value_list)
+    return all_list
+
+def get_staff_value_list(model):
+    """ 获取资产信息 """
+    all_list = []
+    staff_info_list = model.objects.all()
+    for s in staff_info_list:
+        value_list = [s.asset_name, s.serial_num, s.asset_address, s.platform.name, s.ip, s.department.name, s.staff_name, s.memory, s.cpu, s.hard_disk, s.description]
+        all_list.append(value_list)
+    return all_list
+
 
 search_list = ["platform", "ip", "username", "is_virtual"]
 record_list = ["platform", "ip", "memory", "cpu", "hard_disk", "username", "password", "is_virtual", "join_date", "modify_date", "status", "description"]
@@ -55,8 +80,10 @@ urlpatterns = patterns('om.views',
     url(r"^delete_staff_info/(?P<params>\d+)/$", "delete_staff_info", {"model": models.Staff_Info, "url": "/display_staff_info"}),
     url(r"^display_user_permission/$", "display_user_permission"),
     
-    url(r"^export_excel/$", "export_excel"),
-    url(r"^export_server_info_to_excel/$", "export_server_info_to_excel"),
+    url(r"^export_excel/$", "export_excel", {"excel_file": staff_excel_file, "title_list": staff_title_list, "info_list": get_staff_value_list(models.Staff_Info)}),
+    url(r"^export_server_info_to_excel/$", "export_excel", {"excel_file": server_excel_file, "title_list": server_title_list, "info_list": get_server_value_list(models.PC_Info)}),
+    #url(r"^export_excel/$", "export_excel"),
+    #url(r"^export_server_info_to_excel/$", "export_server_info_to_excel"),
     url(r"^xdd/$", "xdd"),
     url(r"^display_virtual_list/$", "display_virtual_list", {"template": "display_virtual_list.html", "model": models.PC_Info, "search_list": virtual_search_list, "record_list": virtual_record_list}),
     url(r"^set_flag/$", "set_flag"),
