@@ -11,31 +11,31 @@
 
 #待创建的操作系统的模板信息
 template_pc_info = {"10.10.3.23": 
-                    {"win": {"win7": {"ip": "10.10.3.251", "username": "vidon", "password": "123456"},
-                            "win8": {"ip": "10.10.3.251", "username": "vidon", "password": "123456"},
-                            "win10":{"ip": "10.10.3.251", "username": "vidon", "password": "123456"}
+                    {"win": {"win7": {"ip": "ip", "username": "1", "password": "1"},
+                            "win8": {"ip": "ip", "username": "1", "password": "1"},
+                            "win10":{"ip": "ip", "username": "1", "password": "1"}
                            }, 
-                    "mac": {"10.8": {"ip":"10.10.3.248","username":"vidon","password":"1","subnetmask":"255.255.255.0","gateway":"10.10.3.1"},
-                            "10.9": {"ip":"10.10.3.248","username":"vidon","password":"1","subnetmask":"255.255.255.0","gateway":"10.10.3.1"},
-                            "10.10": {"ip":"10.10.3.248","username":"vidon","password":"1","subnetmask":"255.255.255.0","gateway":"10.10.3.1"},
-                            "10.11": {"ip":"10.10.3.248","username":"vidon","password":"1","subnetmask":"255.255.255.0","gateway":"10.10.3.1"}
+                    "mac": {"10.8": {"ip":"ip","username":"1","password":"1","subnetmask":"1","gateway":"1"},
+                            "10.9": {"ip":"ip","username":"1","password":"1","subnetmask":"1","gateway":"1"},
+                            "10.10": {"ip":"ip","username":"1","password":"1","subnetmask":"1","gateway":"1"},
+                            "10.11": {"ip":"ip","username":"1","password":"1","subnetmask":"1","gateway":"1"}
                            },
-                    "ubu": {"u12": {"ip": "10.10.3.28", "username": "vidon","password": "1"},
-                            "u14": {"ip": "10.10.3.243", "username": "vidon","password": "123"}
+                    "ubu": {"u12": {"ip": "ip", "username": "1","password": "1"},
+                            "u14": {"ip": "ip", "username": "1","password": "1"}
                            }
                    },
                    "10.10.2.41":
-                    {"win": {"win7": {"ip": "10.10.2.247", "username": "goland", "password": "1"},
-                            "win8": {"ip": "10.10.2.xxx", "username": "goland", "password": "1"},
-                            "win10":{"ip": "10.10.2.249", "username": "goland", "password": "1"}
+                    {"win": {"win7": {"ip": "ip", "username": "1", "password": "1"},
+                            "win8": {"ip": "ip", "username": "1", "password": "1"},
+                            "win10":{"ip": "ip", "username": "1", "password": "1"}
                            }, 
-                    "mac":{"10.8":{"ip":"10.10.2.xxx","username":"goland","password":"1","subnetmask":"255.255.255.0","gateway":"10.10.2.1"},
-                           "10.9":{"ip":"10.10.2.xxx","username":"goland","password":"1","subnetmask":"255.255.255.0","gateway":"10.10.2.1"},
-                           "10.10":{"ip":"10.10.2.120","username":"goland","password":"1","subnetmask":"255.255.255.0","gateway":"10.10.2.1"},
-                           "10.11":{"ip":"10.10.2.121","username":"goland","password":"1","subnetmask":"255.255.255.0","gateway":"10.10.2.1"}
+                    "mac":{"10.8":{"ip":"ip","username":"1","password":"1","subnetmask":"1","gateway":"1"},
+                           "10.9":{"ip":"ip","username":"1","password":"1","subnetmask":"1","gateway":"1"},
+                           "10.10":{"ip":"ip","username":"1","password":"1","subnetmask":"1","gateway":"1"},
+                           "10.11":{"ip":"ip","username":"1","password":"1","subnetmask":"1","gateway":"1"}
                            },
-                    "ubu": {"u12": {"ip": "10.10.2.254", "username": "goland","password": "1"},
-                            "u14": {"ip": "10.10.2.252", "username": "goland","password": "1"}
+                    "ubu": {"u12": {"ip": "ip", "username": "1","password": "1"},
+                            "u14": {"ip": "ip", "username": "1","password": "1"}
                             #"u14": {"ip": "10.10.2.45", "username": "goland","password": "docker1"}
                            }
                     },
@@ -65,8 +65,8 @@ select_dict = {"select1": list1, "select2": list2, "select3": list3, "select4": 
 #                                   "10.10.2.41": "/vmfs/volumes/datastore123/create_start_virtual.py"
 #                                  }
 
-esxi_create_virtual_script_dict = {"10.10.3.23": "/vmfs/volumes/datastore1/xdd",
-                                   "10.10.2.41": "/vmfs/volumes/datastore123", 
+esxi_create_virtual_script_dict = {"ip": "/vmfs/volumes/datastore1/xdd",
+                                   "ip": "/vmfs/volumes/datastore123", 
                                    "create_script": "create_start_virtual.py", 
                                    "delete_script": "delete_virtual.py"
                                   }
