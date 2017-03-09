@@ -1,0 +1,12 @@
+<setup>
+	<info app_folder="DVD" file_folder="../package_data/DVD/runtime/" output_filename="DVD" setup_app="SetupDemoEx.exe" setup_icon="" uninstall_icon_=""/>
+	<config xdd="123">
+		<item data="DVD" key="app_name"><span>213213</span></item>
+		<item data="DVD" key="brand"/>
+		<item data="Fe" key="copyright"/>
+		<item data="2021-05-26" key="date"/>
+		<item data="http://www" key="link"/>
+		<item data="78.9.6.3" key="version"/>
+		<item data="official" key="version2"/>
+	</config>
+</setup>
