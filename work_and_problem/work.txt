@@ -2049,3 +2049,17 @@ source test_env/bin/activate  或者  . test_env/bin/activate
 
 退出虚拟环境
 deactivate
+
+
+134:Django  ALLOWED_HOSTS
+ALLOWED_HOSTS 是为了限定请求中的host值,以防止黑客构造包来发送请求.只有在列表中的host才能访问.
+强烈建议不要使用 * 通配符去配置,另外当 DEBUG 设置为False 的时候必须配置这个配置.否则会抛出异常.配置模板如下:
+ALLOWED_HOSTS = [
+    '.example.com',  # Allow domain and subdomains
+    '.example.com.',  # Also allow FQDN and subdomains
+]
+
+
+135：python  获取对象的属性
+getattr(object, name[, default])
+这样name就可以以变量的形式传进来了，如果给定default，在name属性不存在时，会使用默认值作为返回值。
