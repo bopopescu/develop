@@ -1,6 +1,6 @@
 1：按钮悬浮在页面上，不随页面的滚动而动
 <div id = "login" style = "position:fixed; top:50px;">
-       <a href="//login">登录</a>
+       <a href="/login/">登录</a>
 </div>
 <script>
     $(document).ready(function(){
@@ -10,3 +10,10 @@
     })
 </script>
 这里用到了jQuery，也可以使用js实现。
+
+js实现方法
+
+var obj = document.getElementById("login");
+obj.style.bottom = 0;
+obj.style.right = 0;
+obj.style.position = "fixed";
