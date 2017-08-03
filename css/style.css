@@ -1,0 +1,11 @@
+﻿/* 斑马条纹 */
+
+/*偶数行的颜色*/
+table tr:nth-child(odd){
+    background-color: #EEE9E9;
+}
+
+/*奇数行的颜色*/
+table tr:nth-child(even){
+    background-color: #dcddc0;
+}
