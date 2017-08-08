@@ -6,6 +6,8 @@ $.ajax({
 	data: {"changelog": changelog},
 	success: function(data){alert("success")},
 	error: function(data){alert(data)},
+	done: function(){window.location.reload(); alert("重新加载完成")},
+	complete: function(){alert("complete")},
 	dataType: "html"
 });
 
@@ -16,5 +18,7 @@ $.ajax({
 	data: {"changelog": changelog},
 	success: function(data){alert("success")},
 	error: function(data){alert(data)},
+	done: function(){window.location.reload(); alert("重新加载完成")},
+	complete: function(){alert("complete")},
 	dataType: "html"
 });
