@@ -1,0 +1,33 @@
+
+基本的nginx的虚拟主机的配置
+
+server{
+        listen 8802;
+        server_name 10.10.2.64;
+
+        location / {
+            include uwsgi_params;
+            uwsgi_pass 10.10.2.64:8801;
+        }
+
+        location /media {
+            alias /home/goland/develop/goland_gitstats/gitstats/templates/media/;
+        }
+
+    }
+
+
+nginx反向代理配置
+#zabbix nginx conf content
+upstream zabbix {
+        server ip:8000;    #ip代表的真实主机的ip
+    }
+
+server{
+        listen 80;
+        server_name www.zabbix.com;   #这个是待访问的域名
+
+        location / {
+            proxy_pass http://zabbix/;
+        }
+}
