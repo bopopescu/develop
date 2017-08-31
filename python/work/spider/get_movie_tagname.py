@@ -174,7 +174,7 @@ class SpiderMain(object):
                 n += 1                
             else:
                 break
-            break
+            
          
         
     
