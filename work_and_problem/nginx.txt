@@ -31,3 +31,21 @@ server{
             proxy_pass http://zabbix/;
         }
 }
+
+
+https urlµƒ≈‰÷√
+upstream gitlabs {
+        server ip:8000;
+    }
+
+server{
+        listen 443;
+        server_name gitlab.dvdfab.cn;
+        ssl on;
+        ssl_certificate /etc/nginx/key/file.crt;
+        ssl_certificate_key /etc/nginx/key/file.key;
+
+        location / {
+            proxy_pass http://gitlabs/;
+        }
+}
