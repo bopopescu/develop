@@ -13,7 +13,7 @@ import zipfile
 import boto3
 
 BASE_DIR = "."
-bucket = "log-dvdfab-secure.dvdfab.cn"
+bucket = ""
 
 class DownloadFileFromAws(object):
     """ 使用python的第三方模块boto3从亚马逊云上下载文件 """
