@@ -70,12 +70,13 @@ class MySql(object):
         """ 执行sql语句 """
         self.cursor.execute(sql_cmd)
         
-    def commit_or_rollback(self):
-        """ 提交或者回滚 """
-        try:
-            self.conn.commit()
-        except:
-            self.conn.rollback()
+    def commit(self):
+        """ 提交操作 """
+        self.conn.commit()
+		
+    def rollback(self):
+        """ 回滚操作 """
+        self.conn.rollback()
     
     def close_db(self):
         """ 关闭数据库  """
