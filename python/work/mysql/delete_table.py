@@ -55,9 +55,10 @@ class MySql(object):
             search_str = "%s" % like_str
         else:
             raise ValueError("Invalid arg value; must be 0 or 1 or 2 or 3")
-        #sql_cmd = "Select CONCAT('drop table if exists ', '%s.', table_name, ';') FROM information_schema.tables Where table_name LIKE '%s';" % (self.db, search_str)
+        sql_cmd = "Select CONCAT('drop table if exists ', '%s.', table_name, ';') FROM information_schema.tables Where table_name LIKE '%s';" % (self.db, search_str)
         #下面这条命令可以一次性列出所有待删除的表名。最后返回的列表就会只有一个元素。返回值的类型暂不更改。
-		sql_cmd = "Select CONCAT('drop table if exists ', GROUP_CONCAT('%s.', table_name), ';') FROM information_schema.tables Where table_name LIKE '%s';" % (self.db, search_str)
+		#下面这条命令有些问题，like_str为空时有问题，而且感觉删除命令有长度限制。
+		#sql_cmd = "Select CONCAT('drop table if exists ', GROUP_CONCAT('%s.', table_name), ';') FROM information_schema.tables Where table_name LIKE '%s';" % (self.db, search_str)
 		self.cursor.execute(sql_cmd)
         res = self.cursor.fetchall()
         if not res:
