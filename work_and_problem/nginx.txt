@@ -1,5 +1,5 @@
 
-基本的nginx的虚拟主机的配置
+1：基本的nginx的虚拟主机的配置
 
 server{
         listen 8802;
@@ -17,7 +17,7 @@ server{
     }
 
 
-nginx反向代理配置
+2：nginx反向代理配置
 #zabbix nginx conf content
 upstream zabbix {
         server ip:8000;    #ip代表的真实主机的ip
@@ -33,7 +33,7 @@ server{
 }
 
 
-https url的配置
+3：https url的配置
 upstream gitlabs {
         server ip:8000;
     }
@@ -49,3 +49,65 @@ server{
             proxy_pass http://gitlabs/;
         }
 }
+
+
+
+4：####################nginx + Django + uwsgi的配置#########################
+1）：安装nginx   
+apt-get install nginx
+2）：安装uwsgi
+pip install uwsgi
+
+其中uwsgi一定要使用源码编译安装或者pip install uwsgi来安装，这样一般不会出问题并且不需要在uwsgi中额外指定plugins。
+如果使用apt-get install uwsgi来安装，还需要进一步安装uwsgi-plugin-python，并且在uwsgi的配置文件中指定“plugins = python”。
+否则会出现-- unavailable modifier requested: 0 --错误。
+
+3）：安装Django
+pip install Django
+
+
+4）：nginx配置
+
+server{
+            listen 9000;
+            server_name 10.10.2.88;
+            index index.html;
+
+            location / {
+                include uwsgi_params;
+                uwsgi_pass 10.10.2.88:9001;
+                uwsgi_param UWSGI_CHDIR /home/goland/develop/code_publish;
+                uwsgi_param UWSGI_SCRIPT django_wsgi;
+            }
+
+            location /static {
+                alias /home/goland/develop/code_publish/publish/templates;
+            }
+       }
+
+5）：uwsgi配置
+
+[uwsgi]
+# Django-related settings
+
+socket = :9001
+
+protocol = uwsgi
+
+harakiri = 9000
+
+# the base directory (full path)
+chdir  = /home/goland/develop/code_publish
+
+# Django s wsgi file
+module          = django_wsgi
+
+# process-related settings
+master          = true
+
+# maximum number of worker processes
+processes       = 4
+
+# clear environment on exit
+vacuum          = true
+
