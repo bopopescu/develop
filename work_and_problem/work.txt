@@ -2063,3 +2063,13 @@ ALLOWED_HOSTS = [
 135：python  获取对象的属性
 getattr(object, name[, default])
 这样name就可以以变量的形式传进来了，如果给定default，在name属性不存在时，会使用默认值作为返回值。
+
+136：对一个二维列表，按照子列表的首元素进行排序
+li = [[8, 2, 5], [9, 6, 1], [1, 3, 5], [3, 1, 2], [10, 5, 3], [2, 4, 7]]
+li.sort(key = lambda x: x[0])
+
+或者
+sorted(li, key = lambda x: x[0])
+或者
+import operator
+li.sort(key=operator.itemgetter(0))
