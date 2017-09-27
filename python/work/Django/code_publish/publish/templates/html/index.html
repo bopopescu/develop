@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% load custom_filter %}
+
+{% block title %}首页{% endblock %}
+
+{% block subtitle %}首页{% endblock %}
+
+{% block content %}
+    <div class="mask" id = "mask" onlcick = "close_dialog()"></div>
+    <div class="pop" id = "pop">
+        <em onclick = "close_dialog()" id = "em"><button class = "close_btn">×关闭</button></em>
+        <ul>
+            <li>
+                <textarea placeholder = "请输入changelog" rows = "10" cols  = "45" id = "log" name = "log"></textarea>
+            </li>
+            <li>
+                <input class = "btn" type = "submit" value = "提交" onclick = "do_publish_revert()">
+            </li>
+        </ul>
+    </div>
+
+    <a href = "{% url add_product_management_name %}"></a>
+    <form action = "." method = "POST" onsubmit = "return MustSelectOne()">
+        {% csrf_token %}
+        <div align = "center">
+            产品:
+            <select name = "product" id = "product">
+                <option value = ""></option>
+                {% for product in product_list %}
+                    <option value = "{{product}}">{{product}}</option>
+                {% endfor %}
+            </select>
+            <input class = "btn" type = "submit" name = "update" id = "update" value = "外网测试"/>
+        </div>
+        <!--<input type = "submit" name = "publish" value = "发布"/>-->
+    </form>
+    <table border style = "solid border 3px" align = "center">
+        <tr>
+            <th>记录编号</th>
+            <th>产品名</th>
+            <th>发布人</th>
+            <th>pre镜像</th>
+            <th>master镜像</th>
+            <th>发布时间</th>
+            <th>发布进程</th>
+            <th>发布标志</th>
+            <th>日志</th>
+            <th>测试结果</th>
+            {% for name in inner_failed_user_list %}
+                {% ifequal pub_user name %}
+                    <th>内部失败<br />(仅我可见)</th>
+                {% endifequal %}
+            {% endfor %}
+            <!--<th>失败原因</th>-->
+            <th>操作</th>
+            <th>历史记录</th>
+        </tr>
+        {% for res in publish_list %}
+            <tr>
+                <td>{{res.id}}</td>
+                <td>{{res.product.name}}</td>
+                <td>{{res.pub_user}}</td>
+                <td id = "{{res.id}}">
+                    {% ifnotequal res.pub_status "0" %}
+                        {{res.pre_imagename|cut_str:"-"}}
+                    {% endifnotequal %}
+                </td>
+                <td>
+                    {% ifnotequal res.pub_status "0" %}
+                        {{res.master_imagename|cut_str:"-"}}
+                    {% endifnotequal %}
+                </td>
+                <td>{% ifnotequal res.pub_status "0" %}{{res.pub_date}}{% endifnotequal %}</td>
+                <td>
+                    {% ifequal res.pub_status "0" %}
+                        <span class = "updating"><strong>更新中</strong></span>
+                    {% endifequal %}
+                    {% ifequal res.pub_status "1" %}
+                        <span class = "updated_not_publish"><strong>未发布</strong></span>
+                    {% endifequal %}
+                    {% ifequal res.pub_status "2" %}
+                        <span class = "publishing"><strong>发布中</strong></span>
+                    {% endifequal %}
+                    {% ifequal res.pub_status "3" %}
+                        <span class = "publish"><strong>已发布</strong></span>
+                    {% endifequal %}
+                    {% ifequal res.pub_status "4" %}
+                        <span class = "pubfail"><strong>发布失败</strong></span>
+                    {% endifequal %}
+                </td>
+                <td>
+                    {% ifequal res.pub_flag "2" %}
+                        <span class = "publish"><strong>当前为发布版本</strong></span>
+                    {% endifequal %}
+                </td>
+                <td>{{res.changelog}}</td>
+                <td>
+                    <span class = "publish"><strong>{% ifequal res.test_flag "0"%}测试成功{% endifequal %}</strong></span>
+                    <span class = "pubfail">
+                        <strong>
+                            {% ifequal res.test_flag "1"%}预配置失败{% endifequal %}
+                            {% ifequal res.test_flag "2"%}测试失败{% endifequal %}
+                        </strong>
+                    </span>
+
+                </td>
+                {% for name in inner_failed_user_list %}
+                    {% ifequal pub_user name %}
+                        <td>{{res.inner_failed}}</td>
+                    {% endifequal %}
+                {% endfor %}
+                <!--<td>{{res.outer_failed}}</td>-->
+                <td>
+                    {% ifequal res.pub_status "1" %}
+                        {% ifequal res.test_flag "0" %}
+                            {% ifnotequal res.master_imagename "" %}
+                                <input class="btn" type="submit" id = "{{res.id}}publish_revert" onclick = "publish_revert({{res.id}}, '确定要发布吗?')" value = "发布"/>
+                            {% endifnotequal %}
+                        {% endifequal %}
+                    {% endifequal %}
+
+                    {% ifequal res.pub_status "3" %}
+                        <input class="btn" type="button" id="{{res.id}}publish_revert" onclick = "publish_revert({{res.id}}, '确定要回滚吗?')" value = "回滚"/>
+                    {% endifequal %}
+                </td>
+                <td>
+                    <input class = "btn" type = "submit" onclick = "window.open('/show_history/?product={{res.product.name}}', '_self')" value = "查看"/>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <script>
+    // 创建一个Socket实例
+    var socket = new WebSocket('ws://10.10.2.64:8080'); 
+
+    // 打开Socket 
+    socket.onopen = function(event) { 
+
+      // 发送一个初始化消息
+        socket.send('I am the client and I\'m listening!'); 
+
+          // 监听消息
+            socket.onmessage = function(event) { 
+                console.log('Client received a message',event); 
+                  }; 
+
+                    // 监听Socket的关闭
+                      socket.onclose = function(event) { 
+                          console.log('Client notified socket has closed',event); 
+                            }; 
+
+                              // 关闭Socket.... 
+                                //socket.close() 
+                                };
+     </script>
+{% endblock %}

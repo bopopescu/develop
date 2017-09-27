@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}展示列表{% endblock %}
+
+{% block subtitle %}展示列表{% endblock %}
+
+{% block content %}
+    <br />
+    <table align = "center"  width ="100%">
+        <tr>
+            <th>操作</th>
+            <th>产品名称</th>
+            <th>测试地址</th>
+            <th>发布地址</th>
+        </tr>
+        {% for res in product_list %}
+            <tr>
+                <td width="10%">
+                    <input class = "btn" type = "button" id = "delete" value = "删除" onClick = "delete_product({{res.id}})" />
+                    <input class = "btn" type = "button" id = "edit" value = "编辑" onClick = "window.open('{{res.get_update_url}}','_self')"/></td>
+                </td>
+                <td width = "10%">{{res.name}}</td>
+                <td width = "40%">{{res.jenkins_test_url}}</td>
+                <td width = "40%">{{res.jenkins_publish_url}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -1,0 +1,147 @@
+<!--<meta http-equiv="refresh" content="60">-->
+<html>
+    <head>
+        <script type = "text/javascript" src="/static/js/jquery-1.2.1.js"></script>
+        <!--<script type = "text/javascript" src="/static/js/jquery-3.2.1.js"></script>
+        <script type = "text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>-->
+        <script type = "text/javascript" src="/static/js/myjquery.js"></script>
+        <script type = "text/javascript" src="/static/js/form_validate.js"></script>
+        <script type = "text/javascript" src="/static/js/confirm.js"></script>
+        <script type = "text/javascript" src="/static/js/login.js"></script>
+        <link rel = "stylesheet" type = "text/css" href = "/static/css/style.css">
+        <!--<link rel = "stylesheet" type = "text/css" href = "/static/css/ball.css">-->
+        <link rel = "stylesheet" type = "text/css" href = "/static/css/css.css">
+        <!--{% block style %}
+        {% endblock %}-->
+        <title>代码发布系统-{% block title %}{% endblock %}</title>
+    </head>
+    <body style = "background-color:#BFEFFF">
+        <div class = "main">
+        {% block login %}
+            <div style = "float:right">
+                <strong>
+                    {% if request.user.last_name and request.user.first_name %}
+                        {{request.user.last_name}}{{request.user.first_name}}
+                    {% else %}
+                        {{request.user}}
+                    {% endif %}
+                    |  <a href = "/logout/">注销</a>
+                </strong>
+            </div>
+        {% endblock %}
+        <h1 align = "center">代码发布系统-{% block subtitle %}{% endblock %}</h1>
+        {% block navmenu%}
+            <div id = "menu">
+                <a href = "/">首页</a>
+                {% if request.user.is_superuser %}
+                    <!--<a href = "/add_product_management/">添加对应关系</a>-->
+                    <a href = {% url add_product_name %}>添加产品</a>
+                    <a href = {% url show_product %}>展示产品</a>
+                    <a href = {% url add_product_management_name %}>添加对应关系</a>
+                {% endif %}
+                <a href = "/search_product_management/">查询对应关系</a>
+            </div>
+        {% endblock %}
+        <!--{% block form %}
+            <form action = "/add_friend/" method = "POST" onsubmit = "return NotEmpty()">
+                {% csrf_token %}
+                <input type = "text" name = "friend" id = "friend"/>
+                <input type = "submit" id = "add_friend" value = "+好友">
+                <input type = "hidden" name = "path" id = "path" value = "{{request.path}}"/>
+            </form>
+        {% endblock %}-->
+        <div>
+            <!--<ul id = "menu">
+                <li><a href = "/">首页</a></li>
+                <li><a href = "/add_product_management/">添加对应关系</a></li>
+                <li><a href = "/search_product_management/">查询对应关系</a></li>
+            </ul>-->
+            {% block content %}{% endblock %}
+        </div>
+    <div class = "frame">
+        <div class = "center">
+            <div class = "ball-big">
+                <div class = "plane plane-1"></div>
+                <div class = "plane plane-2"></div>
+                <div class = "plane plane-3"></div>
+                <div class = "plane plane-4"></div>
+                <div class = "plane plane-5"></div>
+                <div class = "plane plane-6"></div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </body>
+
+        <!--<scripti>
+            function MustSelectOne(id){
+                var obj = document.getElementById(id);
+                if(!obj.value){
+                    alert("请选择产品");
+                    return false;
+                }
+            }
+            
+            function MustSelectAll(){
+                var user_obj = document.getElementById("user");
+                var product_obj = document.getElementById("product");
+                if(!(user_obj.value && product_obj.value)){
+                    alert("请选择");
+                    return false;
+                }
+            }
+            
+            function NotEmpty(id){
+                var obj = document.getElementById(id);
+                if(!obj.value){
+                    alert("不能为空");
+                    return false;
+                }
+            }
+            
+            function confirm_operate(id, _prompt, url){
+                var obj = document.getElementById(id);
+                var flag = confirm(_prompt);
+                if(flag){
+                    document.location.href = "/" + url + "/" + id;
+                }
+                else{
+                    return false;
+                }
+            }
+
+            function delete_friend(id){
+                var obj = document.getElementById(id);
+                var flag = confirm(" 确定要删除该好友吗? 删除之后，您和好友将互相看不到对方的信息");
+                if(flag){
+                    document.location.href = "/delete_friend/" + id;
+                }
+                else{
+                    return false;
+                }
+            }
+            
+            function publish(id){
+                var obj = document.getElementById(id);
+                var flag = confirm(" 确定要发布吗? ");
+                if(flag){
+                    document.location.href = "/publish/" + id;
+                }
+                else{
+                    return false;
+                }
+            }
+            
+            function revert(id){
+                alert(id);
+                var obj = document.getElementById(id);
+                var flag = confirm(" 确定要回滚吗? ");
+                if(flag){
+                    document.location.href = "/revert/" + id;
+                }
+                else{
+                    return false;
+                }
+            }
+        </scripti>-->
+</html>

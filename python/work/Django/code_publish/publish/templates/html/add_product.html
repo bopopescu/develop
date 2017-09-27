@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}添加产品{% endblock %}
+
+{% block subtitle %}添加产品{% endblock %}
+
+{% block content %}
+    <form action = "." method = "POST" onsubmit = "return MustSelectAll()">
+        {% csrf_token %}
+        <div align = "center" class = "add_product">
+            <br /><br />
+            <p style = "color:red">{{prompt}}</p>
+            <p><strong>产品名称:</strong><input required type = "text" name = "product" value = "{{product}}"/></p>
+            <p><strong>测试地址:</strong><input onblur = "fill_input('test_url', 'jenkins test url')" onfocus = "clear_input('test_url')" id = "test_url" placeholder = "jenkins test url" required type = "text" name = "jenkins_test_url" value = "{{jenkins_test_url}}"/></p>
+            <p><strong>发布地址:</strong><input onblur = "fill_input('publish_url', 'jenkins publish url')" onfocus = "clear_input('publish_url')" id = "publish_url" placeholder = "jenkins publish url" required type = "text" name = "jenkins_publish_url" value = "{{jenkins_publish_url}}"/></p>
+            <input type = "submit" onclick = "add_success()" class = "btn" id = "add" value = "添加"/>
+        </div>
+    </form>
+<script>
+function fill_input(id, content){
+    var obj = document.getElementById(id);
+    obj.placeholder = content;
+}
+
+function clear_input(id){
+    var obj = document.getElementById(id);
+    obj.placeholder = "";
+}
+function add_success(){
+    document.onreadystatechange = function(){
+        if (document.readyState == "complete"){
+            alert("添加成功")
+        }
+    }
+}
+
+</script>
+
+{% endblock %}

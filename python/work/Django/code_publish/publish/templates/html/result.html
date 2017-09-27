@@ -1,0 +1,27 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}返回结果{% endblock %}
+
+{% block subtitle %}返回结果{% endblock %}
+{% block form %}{% endblock %}
+{% block content %}
+    <h4 id = 'time1'>
+        <p>{{prompt}}</p>
+        <a href = "{{previous_address}}">3秒钟之后,将自动跳转到上一页面...</a>
+        <br /><br />
+    </h4>
+    <script>
+        var t=2
+        function delay(){
+            var ob=document.getElementById('time1');
+            ob.innerHTML = '<p>{{prompt}}</p><a href = "{{previous_address}}">'+t+'秒钟之后,将自动跳转到上一页面...</a>';
+            t--;
+            if (t==-1){
+                ob.innerHTML='';
+                clearInterval(b);
+            }
+        }
+        setTimeout("javascript:location.href='{{previous_address}}'", 3000); 
+        b=setInterval('delay()',1000);
+    </script>
+{% endblock %}

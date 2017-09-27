@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}添加产品{% endblock %}
+
+{% block subtitle %}添加产品{% endblock %}
+
+{% block content %}
+    <form action = "." method = "POST" onsubmit = "return MustSelectAll()">
+        {% csrf_token %}
+        <div align = "center" class = "add_product">
+            <br /><br />
+            <p style = "color:red">{{prompt}}</p>
+            <!--<p><strong>产品名称:</strong><input class = "forbidden" required readonly type = "text" name = "product" value = "{{pro_obj.name}}"/></p>-->
+            <p><strong>产品名称:</strong><input required type = "text" name = "product" value = "{{pro_obj.name}}"/></p>
+            <p><strong>测试地址:</strong><input required type = "text" name = "jenkins_test_url" value = "{{pro_obj.jenkins_test_url}}"/></p>
+            <p><strong>发布地址:</strong><input required type = "text" name = "jenkins_publish_url" value = "{{pro_obj.jenkins_publish_url}}"/></p>
+            <input type = "submit" class = "btn" id = "add" value = "保存"/>
+        </div>
+    </form>
+<!--<script>
+document.onreadystatechange = function(){
+    if (document.readyState == "complete"){
+        alert("添加成功")
+    }
+}
+</script>
+-->
+{% endblock %}

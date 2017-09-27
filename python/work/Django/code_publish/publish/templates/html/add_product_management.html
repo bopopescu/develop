@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}添加{% endblock %}
+
+{% block subtitle %}添加{% endblock %}
+
+{% block content %}
+    <form action = "." method = "POST" onsubmit = "return MustSelectAll()">
+        {% csrf_token %}
+        <div align = "center">
+            名字:
+            <select name = "user" id = "user">
+                <option value = ""></option>
+                {% for user in user_list %}
+                    <option value = "{{user}}">{{user}}</option>
+                {% endfor %}
+            </select>
+            产品:
+            <select name = "product" id = "product">
+                <option value = ""></option>
+                {% for product in product_list %}
+                    <option value = "{{product}}">{{product}}</option>
+                {% endfor %}
+            </select>
+            <input type = "submit" class = "btn" id = "add_product_management" value = "添加" />
+        </div>
+    </form>
+<!--<script>
+document.onreadystatechange = function(){
+    if (document.readyState == "complete"){
+        alert("添加成功")
+    }
+}
+</script>
+-->
+{% endblock %}

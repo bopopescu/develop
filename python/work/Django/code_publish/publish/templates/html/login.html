@@ -1,0 +1,76 @@
+﻿    {% extends "base.html" %}
+    
+    {% block title %}登录{% endblock %}
+    {% block subtitle %}登录{% endblock %}
+    {% block login %}{% endblock %}
+    {% block navmenu %}{% endblock %}
+    {% block form %}{% endblock %}
+    {% block content %}
+    <!--<body id = "first_body">-->
+    换肤:
+    <select onchange = "getColor(this.options[this.options.selectedIndex].value)">
+        <option>默认</option>
+        <option value = "red">Red</option>
+        <option value = "green">Green</option>
+        <option value = "silver">Silver</option>
+        <option value = "grey">Grey</option>
+        <option value = "gold">Gold</option>
+        <option value = "pink">Pink</option>
+        <option value = "orange">Orange</option>
+        <option value = "blue">Blue</option>
+    </select>
+	<div class = "juzhong" id = "first_div">
+        <form action = "./?next={{redirect_url}}" method = "POST">
+            {% csrf_token %}
+                <div align = "center" style = "font-size:1.2em; color:red"><strong>{{failed_prompt}}</strong></div>
+                <div class = "inner_class">
+                    <br /><br />
+                    <div class = "in"><label><strong>用户名: </strong></label><input type = "text" id = "username" name = "username" value = "{{username}}" required = "required"/></div>
+                    <div class = "in"><label><strong>密&nbsp;&nbsp;&nbsp;&nbsp;码: </strong></label><input type = "password" id = "password" name = "password" value = "{{password}}" required = "required"/></div>
+                    <br /><br /><span class = "in" onclick = "login()"><button class = "btn" id = "login" type = "submit" />登录</button></span>
+                </div>
+        </form>
+    </div>
+    <div class = "frame">
+        <div class = "center">
+            <div class = "ball-big">
+                <div class = "plane plane-1"></div>
+                <div class = "plane plane-2"></div>
+                <div class = "plane plane-3"></div>
+                <div class = "plane plane-4"></div>
+                <div class = "plane plane-5"></div>
+                <div class = "plane plane-6"></div>
+            </div>
+        </div>
+    </div>
+    <!--<strong>换肤:</strong><span onclick = "getColor('#AFEEEE')"><strong>默认</strong></span>|<span onclick = "getColor('silver')"><strong>Silver</strong></span>|
+	<span onclick = "getColor('pink')"><strong>Pink</strong></span>|<span onclick = "getColor('green')"><strong>Green</strong></span>|
+	<span onclick = "getColor('grey')"><strong>Grey</strong></span>|<span onclick = "getColor('orange')"><strong>Orange</strong></span>|
+	<span onclick = "getColor('gold')"><strong>Gold</strong></span>|<span onclick = "getColor('blue')"><strong>Blue</strong></span>
+-->
+
+<script>
+/*function getColor(color){
+    var obj = document.getElementById("first_div");
+    obj.setAttribute("style", "background-color:"+color);
+    //obj.style = "background-color:"+color;
+}
+
+function login(){
+    var username_obj = document.getElementById("username");
+    var password_obj = document.getElementById("password");
+    if (!username_obj.value){
+        alert("请输入用户名");
+        return false;
+    }
+    if (!password_obj.value){
+        alert("请输入密码");
+        return false;
+    }
+
+    var login_obj = document.getElementById("login");
+    login_obj.innerHTML = 'Loading<img src = "/static/image/loading.gif">'
+}
+*/
+</script>
+{%  endblock%}

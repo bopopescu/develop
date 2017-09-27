@@ -1,0 +1,7 @@
+<uwsgi>
+    <socket>10.10.2.88:9001</socket>
+        <chdir>/home/goland/develop/code_publish</chdir>
+        <module>django_wsgi</module>
+        <process>4</process> <!--process number-->
+    <daemonize>uwsgi.log</daemonize>
+</uwsgi>

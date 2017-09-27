@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}查询{% endblock %}
+
+{% block subtitle %}查询{% endblock %}
+
+{% block content %}
+    <form action = "." method = "POST" onsubmit = "return MustSelectAll()">
+        {% csrf_token %}
+        <div align = "center">
+            名字:
+            <select name = "user" id = "user">
+                <option value = ""></option>
+                {% for user in user_list %}
+                    {% ifequal user search_user %}
+                        <option selected style = "font-size:2.0em; background:green" value = "{{user}}">{{user}}</option>
+                    {% else %}
+                        <option value = "{{user}}">{{user}}</option>
+                    {% endifequal %}
+                {% endfor %}
+            </select>
+            <input type = "submit" class = "btn" id = "Search" value = "查询"/>
+        </div>
+    </form>
+    {% if product_list %}
+        <table border style = "border solid 3px" align = "center">
+            <tr>
+                {% if request.user.is_superuser %} 
+                <th>操作</th>
+                {% endif %}
+                <th>产品编号</th>
+                <th>产品名</th>
+            </tr>
+            {% for product in product_list %}
+                
+                <tr>
+                    {% if request.user.is_superuser %}                                         
+                    <td><input class = "btn" id = "delete" type = "button" value = "删除" onClick = "delete_product_management('{{product}}', '{{search_user}}')" /></td>
+                    {% endif %} 
+                    <td>{{forloop.counter}}</td>
+                    <td>{{product}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}
+<script>
+    function delete_product_management(product){
+        alert(product)
+    }
+</script>

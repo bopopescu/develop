@@ -1,0 +1,160 @@
+/*
+Generic CSS File.
+Author By Zhuo.Jia
+QQ:9885805
+*/
+
+body {
+        background: #2f373a;
+        font-family: Arial,Helvetica,sans-serif;
+        font-size: 100%;
+        line-height: 1em;
+        color:#4e4e4e;
+        min-width: 100%;
+        border-top: 20px solid #BFEFFF
+      }
+
+
+table {
+	font-family: verdana,arial,sans-serif;
+	font-size: 11px;
+	color: #333333;
+        width: 100%;
+	border-width: 1px;
+	border-color: #999999;
+	border-collapse: collapse;
+        table-layout: fixed;
+}
+
+table tr:nth-child(even){
+    background-color: #dcddc0;
+}
+
+table tr:nth-child(odd){
+    background-color: #FFF8DC;
+}
+
+table th {
+	background: #b5cfd2 url('cell-blue.jpg');
+        font-size: 1.5em;
+	border-width: 1px;
+	padding: 28px;
+	border-style: solid;
+	border-color: #999999;
+}
+table td {
+	/*background: #dcddc0 url('cell-grey.jpg');*/
+    	font-size: 1.3em;
+	border-width: 1px;
+	padding: 1px;
+        height:60px;
+        text-align: center;
+	border-style: solid;
+	border-color: #999999;
+    	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	word-break: break-all; word-wrap:break-word;
+	white-space:normal;
+}	 
+
+
+.main {width:100%; 
+       height:100%; 
+       min-height:100%;
+       position:absolute;
+       margin:0 auto; 
+       top:0;
+       background-color:#efefef; 
+       padding: 20px 10px;
+      }
+
+
+.main input {width:200px;
+             height:40px;
+             padding-left:6px; 
+             margin-left:5px;
+            }
+
+.main .btn {width:100px;
+            height:40px;
+            padding-left:6px; 
+            margin-left:5px;
+            border: 2px solid #F4F4F4;
+           }
+
+
+.main select {width:200px;
+              height:30px;
+              padding-left:6px;
+             }
+
+.main p {font:}
+
+.main table input{width:50px; 
+                  padding:5px; 
+                  height:40px;
+                 }
+
+.add_product p input{width:700px; 
+                     padding:5px; 
+                     height:40px;
+                    }
+
+
+.code {background-color:#222222; 
+       font-size:13px; 
+       color:#ffffff; 
+       padding: 15px;
+      }
+
+.main h5{
+         line-height:20px; 
+         font-size:12px; 
+         padding:0; 
+         margin:0; 
+         color:#555555; 
+        }
+
+.ppd {display: block;
+      width:100%; 
+      margin-top:20px; 
+      border-top: 1px solid #a8a7a7; 
+      border-bottom: 1px solid #a8a7a7;  
+     }
+
+
+.pp {width:22%; 
+     height: 100px; 
+     background-repeat:no-repeat; 
+     background-position: 10px 20px; 
+     background-size: 80px; 
+     padding-left: 110px; 
+     padding-top:10px; 
+     padding-bottom:10px; 
+     float:left;
+    }
+
+.pp .ppt{font-size:20px;}
+
+.ppa {height:20px; 
+      padding:0; 
+      margin:0;
+     }
+
+.ppa a {font-size:14px; 
+        color:#333333; 
+        text-decoration:none;
+       }
+
+.ppa a:hover{text-decoration:underline;
+             color:#811c22;
+             }
+
+.clear {clear:both;}
+
+.add{border-bottom:1px solid #a8a7a7; 
+     padding-bottom:10px;
+    }
+
+

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}--好友列表{% endblock %}
+
+{% block subtitle %}--好友列表{% endblock %}
+
+{% block content %}
+    {% if friend_list %}
+        <table border style = "solid border 3px"  align = "center" width = "30%">
+            <tr style = "background-color:grey; font-size:1.5em" align = "center">
+                <td>好友列表</td>
+                <td>操作</td>
+            </tr>
+            {% for fname, fid in friend_list %}
+                <tr align = "center">
+                    <td>{{fname}}</td>
+                    <td><input type = "button" id = "publish" onclick = "confirm_operate({{fid}}, '确定要删除该好友吗? 删除之后，您和好友将互相看不到对方的信息', 'delete_friend')" value = "删除"/></td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p style = "font-size:2.0em" align = "center"><i>您暂时还没有好友！！！</i></p>
+    {% endif %}
+{% endblock %}
