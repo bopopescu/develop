@@ -1,0 +1,4 @@
+1：github中git push origin master出错：error: failed to push some refs to的解决方法
+
+git pull --rebase origin master
+git push origin master
