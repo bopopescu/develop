@@ -2090,4 +2090,6 @@ li.sort(key=operator.itemgetter(0))
           return value.split(flag, 1)[-1]
 
 
-
+138：Django 模板 super的使用
+如果需要获取父模板中的block 的内容，可以使用{{ block.super }} 变量。如果你想要在父block 中新增内容而不是完全覆盖它，它将非常有用。
+使用{{ block.super }} 插入的数据不会被自动转义（参见下一节），因为父模板中的内容已经被转义
