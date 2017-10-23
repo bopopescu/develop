@@ -5,3 +5,8 @@ w命令可查询登录当前系统的用户信息，以及这些用户目前正在做什么操作，这些信息对于L
 
 2：查看文件的函数
 cat filename | wc -l
+
+3：Linux创建删除用户名
+删除用户  userdel username  &&再删除home目录下的用户名目录。
+创建用户名  useradd -m username   && passwd username 回车输入password即可
+
