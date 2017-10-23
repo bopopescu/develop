@@ -1,4 +1,4 @@
-db.Column 中其余的参数指定属性的配置选项。
+1：db.Column 中其余的参数指定属性的配置选项。
 
 
 
@@ -15,3 +15,23 @@ nullable	如果设为 True,这列允许使用空值;如果设为 False,这列不允许使用空值
 
 default	        为这列定义默认值
 
+
+
+
+2：flask自定义模板过滤器
+1) 带参数
+@app.template_filter("test")
+def test(s, a):
+    """ 自定义的过滤器，带有参数 """
+    return "this is template" + a
+
+模板：{{var|test("variable")}}
+
+
+2) 不带参数
+@app.template_filter("test")
+def test(s):
+    """ 自定义的过滤器，不带参数 """
+    return "this is template"
+
+模板：{{var|test}}
