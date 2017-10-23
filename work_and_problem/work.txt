@@ -2073,3 +2073,21 @@ sorted(li, key = lambda x: x[0])
 或者
 import operator
 li.sort(key=operator.itemgetter(0))
+
+
+137：自定义Django模板过滤器
+      1)：在views同级目录下创建templatetags目录，目录里先创建一个空的文件__init__.py，表明他是一个python包，然后就可以创建自定义的过滤器文件了。
+      2)：模板里需要load 过滤器文件名    {% load  过滤器文件名 %}   
+      3)：然后就可以像使用标准的过滤器来使用自定义的过滤器了。例如：{{var|cur_str:"3"}}
+
+      过滤器文件里举例如下
+      from django import template
+
+      register = template.Library()
+
+      @register.filter(name = "cut_str")
+      def cut_str(value, flag):
+          return value.split(flag, 1)[-1]
+
+
+
