@@ -1,4 +1,10 @@
-samba目录共享配置如下
+samba配置如下：
+
+1）：需要为samba创建用户名密码
+sudo touch /etc/samba/smbpasswd
+sudo smbpasswd -a goland
+
+2）：打开/etc/samba/smb.conf文件添加以下内容
 security = user
 [VidonBusiness]
 comment = Public stuff
@@ -9,6 +15,7 @@ browseable = yes
 guest ok = no
 valid users = goland
 
-需要为samba创建用户名密码
-sudo touch /etc/samba/smbpasswd
-sudo smbpasswd -a goland
+3）：重启samba服务
+sudo service samba restart
+
+注释：goland为samba的用户名
