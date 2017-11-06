@@ -1,0 +1,14 @@
+samba目录共享配置如下
+security = user
+[VidonBusiness]
+comment = Public stuff
+path = /home/goland/vidonbusiness
+public = no
+writeable = yes
+browseable = yes
+guest ok = no
+valid users = goland
+
+需要为samba创建用户名密码
+sudo touch /etc/samba/smbpasswd
+sudo smbpasswd -a goland
