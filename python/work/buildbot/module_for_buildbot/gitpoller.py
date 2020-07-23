@@ -1,12 +1,12 @@
 from buildbot.changes.gitpoller import GitPoller
 cs_gitpoller_list = []
                       
-cs_gitpoller_package_WinServer_MovieBar_Master = GitPoller(repourl="git@10.10.2.31:vidon/buildtriggers.git",
-branches = ['moviebar-master' , 'moviebar-pre' , 'moviebar-dev' , 'moviebar-nologo-pre' , 'moviebar-nologo-pre'],
+cs_gitpoller_package_WinServer_MovieBar_Main = GitPoller(repourl="git@10.10.2.31:vidon/buildtriggers.git",
+branches = ['moviebar-main' , 'moviebar-pre' , 'moviebar-dev' , 'moviebar-nologo-pre' , 'moviebar-nologo-pre'],
 pollInterval = 60,
 gitbin = "/usr/bin/git")
 
-cs_gitpoller_list.append(cs_gitpoller_package_WinServer_MovieBar_Master)
+cs_gitpoller_list.append(cs_gitpoller_package_WinServer_MovieBar_Main)
 cs_gitpoller_android_vidontv_dbstar_moviebar = GitPoller(repourl="git_project_path_android_vidontv_dbstar_moviebar",
 branches = ['branches'],                          
 pollInterval = 60,
@@ -21,12 +21,12 @@ gitbin = "/usr/bin/git")
 
 cs_gitpoller_list.append(cs_gitpoller_plcore_win_dev_debug)
 
-cs_gitpoller_plcore_win_master_release = GitPoller(repourl="git_project_path_plcore_win_master_release",
+cs_gitpoller_plcore_win_main_release = GitPoller(repourl="git_project_path_plcore_win_main_release",
 branches = ['branches'],                          
 pollInterval = 60,
 gitbin = "/usr/bin/git")
 
-cs_gitpoller_list.append(cs_gitpoller_plcore_win_master_release)
+cs_gitpoller_list.append(cs_gitpoller_plcore_win_main_release)
 
 cs_gitpoller_plcore_win_dev_release = GitPoller(repourl="git_project_path_plcore_win_dev_release",
 branches = ['branches'],                          
@@ -49,12 +49,12 @@ gitbin = "/usr/bin/git")
 
 cs_gitpoller_list.append(cs_gitpoller_plcore_win_kodi_dev_debug)
 
-cs_gitpoller_plcore_win_kodi_master_Release = GitPoller(repourl="git_project_path_plcore_win_kodi_master_Release",
+cs_gitpoller_plcore_win_kodi_main_Release = GitPoller(repourl="git_project_path_plcore_win_kodi_main_Release",
 branches = ['branches'],                          
 pollInterval = 60,
 gitbin = "/usr/bin/git")
 
-cs_gitpoller_list.append(cs_gitpoller_plcore_win_kodi_master_Release)
+cs_gitpoller_list.append(cs_gitpoller_plcore_win_kodi_main_Release)
 
 cs_gitpoller_plcore_win_kodi_PrePublish_debug = GitPoller(repourl="git_project_path_plcore_win_kodi_PrePublish_debug",
 branches = ['branches'],                          
@@ -112,12 +112,12 @@ gitbin = "/usr/bin/git")
 
 cs_gitpoller_list.append(cs_gitpoller_vidonplayer_android_kodi_prepublishdev_release)
 
-cs_gitpoller_vidonplayer_android_master_release = GitPoller(repourl="git_project_path_vidonplayer_android_master_release",
+cs_gitpoller_vidonplayer_android_main_release = GitPoller(repourl="git_project_path_vidonplayer_android_main_release",
 branches = ['branches'],                          
 pollInterval = 60,
 gitbin = "/usr/bin/git")
 
-cs_gitpoller_list.append(cs_gitpoller_vidonplayer_android_master_release)
+cs_gitpoller_list.append(cs_gitpoller_vidonplayer_android_main_release)
 
 cs_gitpoller_vidonplayer_android_kodi_dev_debug = GitPoller(repourl="git_project_path_vidonplayer_android_kodi_dev_debug",
 branches = ['branches'],                          
@@ -190,7 +190,7 @@ gitbin = "/usr/bin/git")
 cs_gitpoller_list.append(cs_gitpoller_vidonme_cn)
 
 cs_gitpoller_vidonme_cn = GitPoller(repourl="git@10.10.2.31:website/vidonme_cn.git",
-branches = ['master'],                          
+branches = ['main'],                          
 pollInterval = 60,
 gitbin = "/usr/bin/git")
 
@@ -295,7 +295,7 @@ gitbin = "/usr/bin/git")
 cs_gitpoller_list.append(cs_gitpoller_mis_bms_build)
 
 cs_gitpoller_auto_build_test = GitPoller(repourl="git@10.10.2.31:autobuild/auto_build.git",
-branches = ['master'],                          
+branches = ['main'],                          
 pollInterval = 10,
 gitbin = "/usr/bin/git")
 

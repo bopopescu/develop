@@ -8,7 +8,7 @@ import logging
 import subprocess
 
 
-slavename_file = r"D:\develop\auto_create_build\slavename.txt"
+subordinatename_file = r"D:\develop\auto_create_build\subordinatename.txt"
 buildername_file = r"D:\develop\auto_create_build\buildername.txt"
 
 log = logging.getLogger("django")
@@ -50,26 +50,26 @@ def read_file_lines(filename):
     return all_lines
 
 
-def create_slave(slave_path,slaveip,slavename):
+def create_subordinate(subordinate_path,subordinateip,subordinatename):
     try:
-        create_slave_cmd = "buildslave create-slave " + slave_path + " " + slaveip + ":9989 " + slavename + " 123456"
-        os.system(create_slave_cmd)
-        log.info("create slave: %s successfully!" % slavename)
+        create_subordinate_cmd = "buildsubordinate create-subordinate " + subordinate_path + " " + subordinateip + ":9989 " + subordinatename + " 123456"
+        os.system(create_subordinate_cmd)
+        log.info("create subordinate: %s successfully!" % subordinatename)
     except Exception, e:
         log.info(str(e))    
 
 
-def create_start_slave_script(slave_platform, slave_source_path,slavename):
-    if slave_platform == "Win":
+def create_start_subordinate_script(subordinate_platform, subordinate_source_path,subordinatename):
+    if subordinate_platform == "Win":
         extend_name = ".bat"
     else:
         extend_name = ""
-    script_file = os.path.join(slave_source_path, "start_slave_" + slavename + extend_name)
-    write_file(script_file, "buildslave start ./" + slavename)
+    script_file = os.path.join(subordinate_source_path, "start_subordinate_" + subordinatename + extend_name)
+    write_file(script_file, "buildsubordinate start ./" + subordinatename)
     return script_file
 
 
-def start_slave_script(script_file):
+def start_subordinate_script(script_file):
     try:
         os.system(script_file)
         log.info("start %s successfully!" % script_file)
@@ -77,34 +77,34 @@ def start_slave_script(script_file):
         log.info(str(e))
 
 
-def create_new_master(master_template,buildername,slavename,new_master):
-    content = read_file(master_template)
-    new_content = content.replace("buildername", buildername).replace("Slave_Name", slavename)
-    write_file(new_master, new_content)
-    log.info("create new master config file: %s successfully!" % new_master)
+def create_new_main(main_template,buildername,subordinatename,new_main):
+    content = read_file(main_template)
+    new_content = content.replace("buildername", buildername).replace("Subordinate_Name", subordinatename)
+    write_file(new_main, new_content)
+    log.info("create new main config file: %s successfully!" % new_main)
 
 
-def import_new_master(old_master,buildername):
+def import_new_main(old_main,buildername):
     new_list = []
-    all_lines = read_file_lines(old_master)
+    all_lines = read_file_lines(old_main)
     for each_line in all_lines:
-        if each_line.startswith("c = BuildmasterConfig = {}"):
-            each_line += "\nimport master_" + buildername
+        if each_line.startswith("c = BuildmainConfig = {}"):
+            each_line += "\nimport main_" + buildername
         elif each_line.strip().startswith("builderNames=[") and 'name="all"' in all_lines[all_lines.index(each_line)-1]:
             each_line = each_line.replace("builderNames=[", "builderNames=['" + buildername + "',")
         new_list.append(each_line)
-    new_list.append("c = master_" + buildername + ".update_params_dict(c)\n")
+    new_list.append("c = main_" + buildername + ".update_params_dict(c)\n")
         
-    fp = open(old_master, "w")
+    fp = open(old_main, "w")
     for each_line in new_list:
         fp.write(each_line)
     fp.close()
 
 
-def create_new_factory(slave_platform,scripts_path,factory_template,new_factory,script_contents1,work_dir1,description1,script_contents2,work_dir2,description2,script_contents3,work_dir3,description3):
+def create_new_factory(subordinate_platform,scripts_path,factory_template,new_factory,script_contents1,work_dir1,description1,script_contents2,work_dir2,description2,script_contents3,work_dir3,description3):
     if not os.path.exists(scripts_path):
         os.makedirs(scripts_path)
-    if slave_platform == "Win":
+    if subordinate_platform == "Win":
         prepare_compile_file = "prepare_compile.bat"
         compile_file = "compile.bat"
         after_compile_file = "after_compile.bat"
@@ -126,30 +126,30 @@ def create_new_factory(slave_platform,scripts_path,factory_template,new_factory,
     write_file(script3, script_contents3)
 
 
-def restart_master(masterip):
-    if masterip == "10.10.2.201":
-        restart_master_cmd = ""
-        current_path = r"D:\buildbot_DVDFab\master"
-    elif masterip == "10.10.2.170":
-        restart_master_cmd = "buildbot restart DVDFab9_developer"
-        current_path = "/Buildbot_DVDFab/master"
-    elif  masterip == "10.10.2.141":
-        restart_master_cmd = "buildbot restart VDMC_android"
+def restart_main(mainip):
+    if mainip == "10.10.2.201":
+        restart_main_cmd = ""
+        current_path = r"D:\buildbot_DVDFab\main"
+    elif mainip == "10.10.2.170":
+        restart_main_cmd = "buildbot restart DVDFab9_developer"
+        current_path = "/Buildbot_DVDFab/main"
+    elif  mainip == "10.10.2.141":
+        restart_main_cmd = "buildbot restart VDMC_android"
         current_path = "/home/goland/buildbot"
-    subprocess.Popen(restart_master_cmd, cwd = current_path, shell = True)
+    subprocess.Popen(restart_main_cmd, cwd = current_path, shell = True)
 
     
 @csrf_exempt
 def create_new_build(request):
-    masterip = request.POST.get("masterip", "").strip()
-    slaveip = request.POST.get("slaveip", "").strip()
-    slave_platform = request.POST.get("slave_platform", "").strip()
-    slavename = request.POST.get("slavename", "").strip()
+    mainip = request.POST.get("mainip", "").strip()
+    subordinateip = request.POST.get("subordinateip", "").strip()
+    subordinate_platform = request.POST.get("subordinate_platform", "").strip()
+    subordinatename = request.POST.get("subordinatename", "").strip()
     buildername = request.POST.get("buildername", "").strip()
     start_method = request.POST.get("start_method", "").strip()
     #if not start_method:
     #    return HttpResponse("ok")
-    #return HttpResponse(masterip)
+    #return HttpResponse(mainip)
     script_contents1 = request.POST.get("script_contents1", "").strip()
     work_dir1 = request.POST.get("work_dir1", "").strip()
     description1 = request.POST.get("description1", "").strip()
@@ -162,20 +162,20 @@ def create_new_build(request):
     work_dir3 = request.POST.get("work_dir3", "").strip()
     description3 = request.POST.get("description3", "").strip()
 
-    if not (slavename and slaveip and slave_platform and buildername and start_method and script_contents1 and work_dir1 and description1 and script_contents2 and work_dir2 and description2 and script_contents3 and work_dir3 and description3):
+    if not (subordinatename and subordinateip and subordinate_platform and buildername and start_method and script_contents1 and work_dir1 and description1 and script_contents2 and work_dir2 and description2 and script_contents3 and work_dir3 and description3):
         return render_to_response("error.html")
     
     log.info("\n")
     log.info("-----------------------------begin----------------------------------")
-    log.info("master ip is:%s" % masterip)
-    log.info("slave ip is:%s" % slaveip)
-    log.info("slave platform is:%s" % slave_platform)
-    log.info("slavename is:%s" % slavename)
+    log.info("main ip is:%s" % mainip)
+    log.info("subordinate ip is:%s" % subordinateip)
+    log.info("subordinate platform is:%s" % subordinate_platform)
+    log.info("subordinatename is:%s" % subordinatename)
     log.info("buildername is:%s" % buildername)
 
-    slave_count = Build_Info.objects.filter(slavename = slavename).count()
-    if slave_count >= 1:
-        var_name = "slave"
+    subordinate_count = Build_Info.objects.filter(subordinatename = subordinatename).count()
+    if subordinate_count >= 1:
+        var_name = "subordinate"
         context = {"request":request,
                    "var_name":var_name}
         return render_to_response("duplicate.html",context)
@@ -191,8 +191,8 @@ def create_new_build(request):
     """
     try:
         #get only one record
-        Build_Info.objects.get(slavename = slavename)
-        var_name = "slave"
+        Build_Info.objects.get(subordinatename = subordinatename)
+        var_name = "subordinate"
         context = {"request":request,
                    "var_name":var_name}
         return render_to_response("duplicate.html",context)
@@ -211,13 +211,13 @@ def create_new_build(request):
         
    
     """
-    all_slaves = read_file_lines(slavename_file)
-    if slavename and slavename + "\n" in all_slaves:
-        var_name = "slave"
+    all_subordinates = read_file_lines(subordinatename_file)
+    if subordinatename and subordinatename + "\n" in all_subordinates:
+        var_name = "subordinate"
         context = {"request":request,
                    "var_name":var_name}
         return render_to_response("duplicate.html",context)
-    increase_file(slavename_file,slavename)
+    increase_file(subordinatename_file,subordinatename)
     
     all_builders = read_file_lines(buildername_file)
     if buildername and buildername + "\n" in all_builders:
@@ -228,49 +228,49 @@ def create_new_build(request):
     increase_file(buildername_file,buildername)
     """
     
-    if masterip == "10.10.2.201":
-        old_master = r"\\10.10.2.201\DVDFab_dev\master.cfg"
-        master_template = r"\\10.10.2.72\nas\other\users\xudedong\master_template.cfg"
-        new_master = r"\\10.10.2.201\DVDFab_dev\master_" + buildername + ".py"
+    if mainip == "10.10.2.201":
+        old_main = r"\\10.10.2.201\DVDFab_dev\main.cfg"
+        main_template = r"\\10.10.2.72\nas\other\users\xudedong\main_template.cfg"
+        new_main = r"\\10.10.2.201\DVDFab_dev\main_" + buildername + ".py"
         factory_template = r"\\10.10.2.72\nas\other\users\xudedong\factory_template.py"
         new_factory = r"\\10.10.2.201\DVDFab_dev\dvdfab_factory_" + buildername + ".py"
-        scripts_path = "d:/Buildbot_DVDFab/tool/" + slavename
-        slave_source_path = "X:/"
+        scripts_path = "d:/Buildbot_DVDFab/tool/" + subordinatename
+        subordinate_source_path = "X:/"
         
-    elif masterip == "10.10.2.170":
-        old_master = r"\\10.10.2.170\DVDFab9_Developer\master.cfg"
-        master_template = r"\\10.10.2.170\DVDFab9_Developer\master_template.cfg"
-        new_master = r"\\10.10.2.170\DVDFab9_Developer\master_" + buildername + ".py"
+    elif mainip == "10.10.2.170":
+        old_main = r"\\10.10.2.170\DVDFab9_Developer\main.cfg"
+        main_template = r"\\10.10.2.170\DVDFab9_Developer\main_template.cfg"
+        new_main = r"\\10.10.2.170\DVDFab9_Developer\main_" + buildername + ".py"
         factory_template = r"\\10.10.2.170\DVDFab9_Developer\factory_template.py"
         new_factory = r"\\10.10.2.170\DVDFab9_Developer\dvdfab_factory_" + buildername + ".py"
-        scripts_path = "/Volumes/DATA/Buildbot_DVDFab/tool/" + slavename
-        slave_source_path = "/Volumes/X/"
+        scripts_path = "/Volumes/DATA/Buildbot_DVDFab/tool/" + subordinatename
+        subordinate_source_path = "/Volumes/X/"
         
-    elif masterip == "10.10.2.141":
-        old_master = r"\\10.10.2.141\VDMC_android\master.cfg"
-        master_template = r"\\10.10.2.141\VDMC_android\master_template.cfg"
-        new_master = r"\\10.10.2.141\VDMC_android\master_" + buildername + ".py"
+    elif mainip == "10.10.2.141":
+        old_main = r"\\10.10.2.141\VDMC_android\main.cfg"
+        main_template = r"\\10.10.2.141\VDMC_android\main_template.cfg"
+        new_main = r"\\10.10.2.141\VDMC_android\main_" + buildername + ".py"
         factory_template = r"\\10.10.2.141\VDMC_android\factory_template.py"
         new_factory = r"\\10.10.2.141\VDMC_android\dvdfab_factory_" + buildername + ".py"
-        scripts_path = "/home/goland/buildbot/scripts/" + slavename
-        slave_source_path = "/home/goland/buildbot"
+        scripts_path = "/home/goland/buildbot/scripts/" + subordinatename
+        subordinate_source_path = "/home/goland/buildbot"
 
-    build_info = Build_Info(masterip = masterip, slaveip = slaveip, slave_platform = slave_platform, slavename = slavename, buildername = buildername,start_method = start_method,\
+    build_info = Build_Info(mainip = mainip, subordinateip = subordinateip, subordinate_platform = subordinate_platform, subordinatename = subordinatename, buildername = buildername,start_method = start_method,\
                             script_contents1 = script_contents1, work_dir1 = work_dir1, description1 = description1,script_contents2 = script_contents2,\
                             work_dir2 = work_dir2, description2 = description2,script_contents3 = script_contents3, work_dir3 = work_dir3, description3 = description3,\
-                            new_master = new_master, new_factory = new_factory,scripts_path = scripts_path)
+                            new_main = new_main, new_factory = new_factory,scripts_path = scripts_path)
     build_info.save()
 
         
-    slave_path = os.path.join(slave_source_path, slavename)
-    create_slave(slave_path,slaveip,slavename)
-    create_new_master(master_template,buildername,slavename,new_master)
-    import_new_master(old_master,buildername)
-    create_new_factory(slave_platform,scripts_path,factory_template,new_factory,script_contents1,work_dir1,description1,script_contents2,work_dir2,description2,script_contents3,work_dir3,description3)
-    #TODO: restart master
-    restart_master(masterip)
-    script_file = create_start_slave_script(slave_platform,slave_source_path,slavename)
-    start_slave_script(script_file)
+    subordinate_path = os.path.join(subordinate_source_path, subordinatename)
+    create_subordinate(subordinate_path,subordinateip,subordinatename)
+    create_new_main(main_template,buildername,subordinatename,new_main)
+    import_new_main(old_main,buildername)
+    create_new_factory(subordinate_platform,scripts_path,factory_template,new_factory,script_contents1,work_dir1,description1,script_contents2,work_dir2,description2,script_contents3,work_dir3,description3)
+    #TODO: restart main
+    restart_main(mainip)
+    script_file = create_start_subordinate_script(subordinate_platform,subordinate_source_path,subordinatename)
+    start_subordinate_script(script_file)
     
     return render_to_response("success.html")
 
@@ -312,8 +312,8 @@ def search_info(request):
     search_name = request.POST.get("search_name", "").strip()
     record_name = request.POST.get("record_name", "").strip()
 
-    if search_name == "slavename" and record_name:
-        build_info = Build_Info.objects.extra(where = ["slavename like'%%" + str(record_name) + "%%'"])
+    if search_name == "subordinatename" and record_name:
+        build_info = Build_Info.objects.extra(where = ["subordinatename like'%%" + str(record_name) + "%%'"])
         if not build_info:
             return HttpResponseRedirect("/empty/")
         
@@ -335,10 +335,10 @@ def update_info_page(request, params):
 @csrf_exempt
 def update_info(request,params):
     build_info = Build_Info.objects.filter(id=params)
-    masterip = request.POST.get("masterip", "").strip()
-    slaveip = request.POST.get("slaveip", "").strip()
-    slave_platform = request.POST.get("slave_platform", "").strip()
-    slavename = request.POST.get("slavename", "").strip()
+    mainip = request.POST.get("mainip", "").strip()
+    subordinateip = request.POST.get("subordinateip", "").strip()
+    subordinate_platform = request.POST.get("subordinate_platform", "").strip()
+    subordinatename = request.POST.get("subordinatename", "").strip()
     buildername = request.POST.get("buildername", "").strip()
     
     start_method = request.POST.get("start_method", "").strip()
@@ -354,34 +354,34 @@ def update_info(request,params):
     work_dir3 = request.POST.get("work_dir3", "").strip()
     description3 = request.POST.get("description3", "").strip()
 
-    new_master = request.POST.get("new_master","").strip()
+    new_main = request.POST.get("new_main","").strip()
     new_factory = request.POST.get("new_factory","").strip()
     scripts_path = request.POST.get("scripts_path","").strip()
-    if not (slavename and slaveip and slave_platform and buildername and start_method and script_contents1 and work_dir1 and description1 and script_contents2 and work_dir2 and description2 and script_contents3 and work_dir3 and description3):
+    if not (subordinatename and subordinateip and subordinate_platform and buildername and start_method and script_contents1 and work_dir1 and description1 and script_contents2 and work_dir2 and description2 and script_contents3 and work_dir3 and description3):
         return render_to_response("error.html")
 
     #update database
-    build_info.update(masterip = masterip, slaveip = slaveip, slave_platform = slave_platform, slavename = slavename,\
+    build_info.update(mainip = mainip, subordinateip = subordinateip, subordinate_platform = subordinate_platform, subordinatename = subordinatename,\
                       buildername = buildername, start_method = start_method, script_contents1 = script_contents1,\
                       work_dir1 = work_dir1, description1 = description1, script_contents2 = script_contents2, work_dir2 = work_dir2,\
                       description2 = description2, script_contents3 = script_contents3, work_dir3 = work_dir3, description3 = description3,\
-                      new_master = new_master, new_factory = new_factory, scripts_path = scripts_path)
+                      new_main = new_main, new_factory = new_factory, scripts_path = scripts_path)
 
     #update conf file
     #TODO
     
     #factory file
-    if masterip == "10.10.2.201":
+    if mainip == "10.10.2.201":
         factory_template = r"\\10.10.2.72\nas\other\users\xudedong\factory_template.py"
 
-    elif masterip == "10.10.2.170":
+    elif mainip == "10.10.2.170":
         factory_template = r"\\10.10.2.170\DVDFab9_Developer\factory_template.py"
    
-    elif masterip == "10.10.2.141":
+    elif mainip == "10.10.2.141":
         factory_template = r"\\10.10.2.141\VDMC_android\factory_template.py"
 
-    create_new_factory(slave_platform,scripts_path,factory_template,new_factory,script_contents1,work_dir1,description1,script_contents2,work_dir2,description2,script_contents3,work_dir3,description3)
-    restart_master(masterip)
+    create_new_factory(subordinate_platform,scripts_path,factory_template,new_factory,script_contents1,work_dir1,description1,script_contents2,work_dir2,description2,script_contents3,work_dir3,description3)
+    restart_main(mainip)
 
     return HttpResponseRedirect("/display_all_records/")
 

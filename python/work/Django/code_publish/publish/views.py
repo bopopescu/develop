@@ -59,18 +59,18 @@ class RestfulApi(object):
             return ""
         return res[0]
 
-    def get_master_imagename(self, product_id):
-        """ 回滚时获得master_imagename字段 """
-        sql = "select master_imagename from %s where product_id = '%s' and pub_flag = '%s'" % ("publish_publish", product_id, "1") 
+    def get_main_imagename(self, product_id):
+        """ 回滚时获得main_imagename字段 """
+        sql = "select main_imagename from %s where product_id = '%s' and pub_flag = '%s'" % ("publish_publish", product_id, "1") 
         self.cursor.execute(sql)
         res = self.cursor.fetchone()
         if not res:
             return ""
         return res[0]
 
-    def update_master_imagename(self, master_imagename, product_id):
-        """ 更新master_imagename字段 """
-        sql = "update %s set master_imagename = '%s' where master_imagename = '' and product_id = '%s' and pub_status = '1' order by id DESC limit 1" % ("publish_publish", master_imagename, product_id) 
+    def update_main_imagename(self, main_imagename, product_id):
+        """ 更新main_imagename字段 """
+        sql = "update %s set main_imagename = '%s' where main_imagename = '' and product_id = '%s' and pub_status = '1' order by id DESC limit 1" % ("publish_publish", main_imagename, product_id) 
         self.cursor.execute(sql)
 
     def update_pub_flag(self, pub_flag, pub_status, product_id):
@@ -160,16 +160,16 @@ def update_pub_flag(request):
     return HttpResponse("request method must be POST; Your method is %s" % request.method)
 
 @csrf_exempt
-def update_master_imagename(request):
+def update_main_imagename(request):
     if request.method == "POST":
         params = json.loads(request.POST.keys()[0])
-        ret = check_params(["master_imagename", "product_name"], params.keys())
+        ret = check_params(["main_imagename", "product_name"], params.keys())
         rfa = RestfulApi(DB_HOST, DB_USER, DB_PASSWD, DB_NAME)
         rfa.connect_db()
         if not ret:
             ret = {"season": "params are not right"}
         else:
-            ret = update_db(rfa, rfa.update_master_imagename,  params, *(params["master_imagename"],))
+            ret = update_db(rfa, rfa.update_main_imagename,  params, *(params["main_imagename"],))
         rfa.close_db()
         return HttpResponse(json.dumps(ret))
     return HttpResponse("request method must be POST; Your method is %s" % request.method)
@@ -226,10 +226,10 @@ def update_pub_flag_old(request):
     return HttpResponse("request method must be POST; Your method is %s" % request.method)
 
 @csrf_exempt
-def update_master_imagename_old(request):
+def update_main_imagename_old(request):
     if request.method == "POST":
         params = json.loads(request.POST.keys()[0])
-        ret = check_params(["master_imagename", "product_name"], params.keys())
+        ret = check_params(["main_imagename", "product_name"], params.keys())
         if not ret:
             ret = {"season": "params are not right"}
         else:
@@ -238,7 +238,7 @@ def update_master_imagename_old(request):
             product_id = rfa.get_product_id(params["product_name"])
             if product_id:
                 try:
-                    rfa.update_master_imagename(params["master_imagename"], product_id)
+                    rfa.update_main_imagename(params["main_imagename"], product_id)
                     rfa.commit()
                     ret = {"result": "success"}
                 except Exception, e:
@@ -252,7 +252,7 @@ def update_master_imagename_old(request):
 """
 
 @csrf_exempt
-def get_master_imagename(request):
+def get_main_imagename(request):
     if request.method == "POST":
         params = json.loads(request.POST.keys()[0])
         ret = check_params(["product_name"], params.keys())
@@ -263,8 +263,8 @@ def get_master_imagename(request):
             rfa.connect_db()
             product_id = rfa.get_product_id(params["product_name"])
             if product_id:
-                master_imagename = rfa.get_master_imagename(product_id)
-                ret = {"master_imagename": master_imagename}
+                main_imagename = rfa.get_main_imagename(product_id)
+                ret = {"main_imagename": main_imagename}
             else:
                 ret = {"season": "can not find the given product in table"}
             rfa.close_db()

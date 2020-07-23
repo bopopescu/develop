@@ -152,31 +152,31 @@ def read_file_lines(filename):
     return all_lines
 
 
-def create_slave(masterip,slave_path,slaveip,slave_platform,slavename):
+def create_subordinate(mainip,subordinate_path,subordinateip,subordinate_platform,subordinatename):
     try:
-        create_slave_cmd = "buildslave create-slave " + slave_path + " " + masterip + ":9989 " + slavename + " 123456"
-        salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + create_slave_cmd + '"'
-        #os.system(create_slave_cmd)
+        create_subordinate_cmd = "buildsubordinate create-subordinate " + subordinate_path + " " + mainip + ":9989 " + subordinatename + " 123456"
+        salt_cmd = 'echo "123456"|sudo -S salt "' + subordinate_platform.lower() + "_" + subordinateip + '" cmd.run "' + create_subordinate_cmd + '"'
+        #os.system(create_subordinate_cmd)
         os.system(salt_cmd)
-        log.info("create slave: %s successfully!" % slavename)
+        log.info("create subordinate: %s successfully!" % subordinatename)
     except Exception, e:
         log.info(str(e))    
 
 
-def create_start_slave_script(slave_platform, slave_source_path,slavename):
-    if slave_platform == "Win":
+def create_start_subordinate_script(subordinate_platform, subordinate_source_path,subordinatename):
+    if subordinate_platform == "Win":
         extend_name = ".bat"
     else:
         extend_name = ""
-    script_file = os.path.join(slave_source_path, "start_slave_" + slavename + extend_name)
+    script_file = os.path.join(subordinate_source_path, "start_subordinate_" + subordinatename + extend_name)
     ########how to use salt################
-    write_file(script_file, "buildslave start ./" + slavename)
+    write_file(script_file, "buildsubordinate start ./" + subordinatename)
     return script_file
 
 
-def start_slave_script(slaveip,slave_platform,script_file):
+def start_subordinate_script(subordinateip,subordinate_platform,script_file):
     try:
-        salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + script_file + '"'
+        salt_cmd = 'echo "123456"|sudo -S salt "' + subordinate_platform.lower() + "_" + subordinateip + '" cmd.run "' + script_file + '"'
         os.system(salt_cmd)
         #os.system(script_file)
         log.info("start %s successfully!" % script_file)
@@ -184,35 +184,35 @@ def start_slave_script(slaveip,slave_platform,script_file):
         log.info(str(e))
 
 
-def create_new_master(master_template,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list,git_project_path_flag = False):
-    content = read_file(master_template)
-    new_content = content.replace("buildername", buildername).replace("Slave_Name", slavename).replace("git_url", git_project_path).replace("branches_list", str(branches_list))\
+def create_new_main(main_template,buildername,subordinatename,git_project_path,branches_list,monitor_file_path,hour,minute,new_main,send_mail_list,git_project_path_flag = False):
+    content = read_file(main_template)
+    new_content = content.replace("buildername", buildername).replace("Subordinate_Name", subordinatename).replace("git_url", git_project_path).replace("branches_list", str(branches_list))\
                   .replace("monitor_file_path", monitor_file_path).replace("start_hour",hour).replace("start_minute",minute).replace("send_mail_list",str(send_mail_list))
     if git_project_path_flag:
         new_content = new_content.replace("c['change_source'].append(cs_gitpoller)","#c['change_source'].append(cs_gitpoller)")
     ########how to use salt################
-    write_file(new_master, new_content)
-    log.info("create new master config file: %s successfully!" % new_master)
+    write_file(new_main, new_content)
+    log.info("create new main config file: %s successfully!" % new_main)
 
 
 
-def import_new_master(old_master,buildername):
+def import_new_main(old_main,buildername):
     new_list = []
-    all_lines = read_file_lines(old_master)
+    all_lines = read_file_lines(old_main)
     for each_line in all_lines:
-        if each_line.startswith("c = BuildmasterConfig = {}"):
-            each_line += "\nimport master_" + buildername
+        if each_line.startswith("c = BuildmainConfig = {}"):
+            each_line += "\nimport main_" + buildername
         new_list.append(each_line)
-    new_list.append("c = master_" + buildername + ".update_params_dict(c)\n")
+    new_list.append("c = main_" + buildername + ".update_params_dict(c)\n")
     ########################how to use salt ####################
     try:    
-        fp = open(old_master, "w")
+        fp = open(old_main, "w")
         for each_line in new_list:
             fp.write(each_line)
         fp.close()
-        log.info("import new master config file: master_%s to main conf file successfully!" % buildername)
+        log.info("import new main config file: main_%s to main conf file successfully!" % buildername)
     except Exception,e:
-        log.info("import new master error: " + str(e))
+        log.info("import new main error: " + str(e))
 
 def create_new_factory(build_info_id,factory_template,new_factory):
     content = read_file(factory_template)
@@ -221,20 +221,20 @@ def create_new_factory(build_info_id,factory_template,new_factory):
     write_file(new_factory, new_content)
 
 
-def restart_master(masterip,slave_platform):
-    if masterip == "10.10.2.201":
-        restart_master_cmd = ""
-        current_path = r"D:\buildbot_DVDFab\master"
-    elif masterip == "10.10.2.170":
-        restart_master_cmd = "buildbot sighup DVDFab9_developer"
-        current_path = "/Buildbot_DVDFab/master"
-    elif  masterip == "10.10.2.141":
-        restart_master_cmd = "buildbot sighup VDMC_android"
+def restart_main(mainip,subordinate_platform):
+    if mainip == "10.10.2.201":
+        restart_main_cmd = ""
+        current_path = r"D:\buildbot_DVDFab\main"
+    elif mainip == "10.10.2.170":
+        restart_main_cmd = "buildbot sighup DVDFab9_developer"
+        current_path = "/Buildbot_DVDFab/main"
+    elif  mainip == "10.10.2.141":
+        restart_main_cmd = "buildbot sighup VDMC_android"
         current_path = "/home/goland/buildbot"
     #############################################need to use salt to run cmd############################
-    salt_cmd = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + restart_master_cmd + '"'
+    salt_cmd = 'echo "123456"|sudo -S salt "' + subordinate_platform.lower() + "_" + subordinateip + '" cmd.run "' + restart_main_cmd + '"'
     subprocess.Popen(salt_cmd, cwd = current_path, shell = True)
-    #subprocess.Popen(restart_master_cmd, cwd = current_path, shell = True)
+    #subprocess.Popen(restart_main_cmd, cwd = current_path, shell = True)
 
 
 def deal_with_data(input_data):
@@ -246,91 +246,91 @@ def deal_with_data(input_data):
     return data_list
 
 
-def get_params(masterip,slave_platform,slavename,buildername):
-    if masterip == "10.10.2.201":
-        old_master = r"d:\buildbot_DVDFab\master\DVDFab_dev\master.cfg"
-        master_template = r"d:\buildbot_DVDFab\master\DVDFab_dev\master_template.cfg"
-        new_master = r"d:\buildbot_DVDFab\master\DVDFab_dev\master_" + buildername + ".py"
-        factory_template = r"d:\buildbot_DVDFab\master\DVDFab_dev\factory_template.py"
-        new_factory = r"d:\buildbot_DVDFab\master\DVDFab_dev\dvdfab_factory_" + buildername + ".py"
-        if slave_platform.upper() == "WIN":
+def get_params(mainip,subordinate_platform,subordinatename,buildername):
+    if mainip == "10.10.2.201":
+        old_main = r"d:\buildbot_DVDFab\main\DVDFab_dev\main.cfg"
+        main_template = r"d:\buildbot_DVDFab\main\DVDFab_dev\main_template.cfg"
+        new_main = r"d:\buildbot_DVDFab\main\DVDFab_dev\main_" + buildername + ".py"
+        factory_template = r"d:\buildbot_DVDFab\main\DVDFab_dev\factory_template.py"
+        new_factory = r"d:\buildbot_DVDFab\main\DVDFab_dev\dvdfab_factory_" + buildername + ".py"
+        if subordinate_platform.upper() == "WIN":
             src_scripts_path = "d:/Buildbot_DVDFab/tool"
-            slave_source_path = "X:/"
-        elif slave_platform.upper() == "MAC":
+            subordinate_source_path = "X:/"
+        elif subordinate_platform.upper() == "MAC":
             src_scripts_path = "/Volumes/DATA/Buildbot_DVDFab/tool"
-            slave_source_path = "/Volumes/X/"
-        elif slave_platform.upper() == "UBUNTU":
+            subordinate_source_path = "/Volumes/X/"
+        elif subordinate_platform.upper() == "UBUNTU":
             src_scripts_path = "/home/goland/buildbot/scripts"
-            slave_source_path = "/home/goland/buildbot"
-        scripts_path = os.path.join(src_scripts_path,slavename)
+            subordinate_source_path = "/home/goland/buildbot"
+        scripts_path = os.path.join(src_scripts_path,subordinatename)
         builder_waterfall_address = "http://10.10.2.201:8010/waterfall?show=" + buildername
         
-    elif masterip == "10.10.2.170":
-        old_master = "/Buildbot_DVDFab/master/DVDFab9_Developer/master.cfg"
-        master_template = "/Buildbot_DVDFab/master/DVDFab9_Developer/master_template.cfg"
-        new_master = "/Buildbot_DVDFab/master/DVDFab9_Developer/master_" + buildername + ".py"
-        factory_template = "/Buildbot_DVDFab/master/DVDFab9_Developer/factory_template.py"
-        new_factory = "/Buildbot_DVDFab/master/DVDFab9_Developer/dvdfab_factory_" + buildername + ".py"
-        if slave_platform.upper() == "WIN":
+    elif mainip == "10.10.2.170":
+        old_main = "/Buildbot_DVDFab/main/DVDFab9_Developer/main.cfg"
+        main_template = "/Buildbot_DVDFab/main/DVDFab9_Developer/main_template.cfg"
+        new_main = "/Buildbot_DVDFab/main/DVDFab9_Developer/main_" + buildername + ".py"
+        factory_template = "/Buildbot_DVDFab/main/DVDFab9_Developer/factory_template.py"
+        new_factory = "/Buildbot_DVDFab/main/DVDFab9_Developer/dvdfab_factory_" + buildername + ".py"
+        if subordinate_platform.upper() == "WIN":
             src_scripts_path = "d:/Buildbot_DVDFab/tool"
-            slave_source_path = "X:/"
-        elif slave_platform.upper() == "MAC":
+            subordinate_source_path = "X:/"
+        elif subordinate_platform.upper() == "MAC":
             src_scripts_path = "/Volumes/DATA/Buildbot_DVDFab/tool"
-            slave_source_path = "/Volumes/X/"
-        elif slave_platform.upper() == "UBUNTU":
+            subordinate_source_path = "/Volumes/X/"
+        elif subordinate_platform.upper() == "UBUNTU":
             src_scripts_path = "/home/goland/buildbot/scripts"
-            slave_source_path = "/home/goland/buildbot"
-        scripts_path = os.path.join(src_scripts_path,slavename)
+            subordinate_source_path = "/home/goland/buildbot"
+        scripts_path = os.path.join(src_scripts_path,subordinatename)
         builder_waterfall_address = "http://10.10.2.170:8010/waterfall?show=" + buildername
         
-    elif masterip == "10.10.2.141":
-        old_master = "/home/goland/buildbot/VDMC_android/master.cfg"
-        master_template = "/home/goland/buildbot/VDMC_android/master_template.cfg"
-        new_master = "/home/goland/buildbot/VDMC_android/master_" + buildername + ".py"
+    elif mainip == "10.10.2.141":
+        old_main = "/home/goland/buildbot/VDMC_android/main.cfg"
+        main_template = "/home/goland/buildbot/VDMC_android/main_template.cfg"
+        new_main = "/home/goland/buildbot/VDMC_android/main_" + buildername + ".py"
         factory_template = "/home/goland/buildbot/VDMC_android/factory_template.py"
         new_factory = "/home/goland/buildbot/VDMC_android/dvdfab_factory_" + buildername + ".py"
-        if slave_platform.upper() == "WIN":
+        if subordinate_platform.upper() == "WIN":
             src_scripts_path = "d:/Buildbot_DVDFab/tool"
-            slave_source_path = "X:/"
-        elif slave_platform.upper() == "MAC":
+            subordinate_source_path = "X:/"
+        elif subordinate_platform.upper() == "MAC":
             src_scripts_path = "/Volumes/DATA/Buildbot_DVDFab/tool"
-            slave_source_path = "/Volumes/X/"
-        elif slave_platform.upper() == "UBUNTU":
+            subordinate_source_path = "/Volumes/X/"
+        elif subordinate_platform.upper() == "UBUNTU":
             src_scripts_path = "/home/goland/buildbot/scripts"
-            slave_source_path = "/home/goland/buildbot"
-        scripts_path = os.path.join(src_scripts_path,slavename)
+            subordinate_source_path = "/home/goland/buildbot"
+        scripts_path = os.path.join(src_scripts_path,subordinatename)
         builder_waterfall_address = "http://10.10.2.141:8010/waterfall?show=" + buildername
-    return old_master,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,builder_waterfall_address
+    return old_main,main_template,new_main,factory_template,new_factory,src_scripts_path,scripts_path,subordinate_source_path,builder_waterfall_address
 
 
-def git_first_commit(src_scripts_path,scripts_path,slavename,slaveip,slave_platform):
+def git_first_commit(src_scripts_path,scripts_path,subordinatename,subordinateip,subordinate_platform):
     git_add_cmd = "git add " + scripts_path    
-    salt_cmd_git_add = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + git_add_cmd + '"'
+    salt_cmd_git_add = 'echo "123456"|sudo -S salt "' + subordinate_platform.lower() + "_" + subordinateip + '" cmd.run "' + git_add_cmd + '"'
     subprocess.call(salt_cmd_git_add, cwd = src_scripts_path, shell = True)
     
-    git_commit_cmd = "git commit %s -m 'new add for %s'" % (scripts_path, slavename)
-    salt_cmd_git_commit = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + git_commit_cmd + '"'
+    git_commit_cmd = "git commit %s -m 'new add for %s'" % (scripts_path, subordinatename)
+    salt_cmd_git_commit = 'echo "123456"|sudo -S salt "' + subordinate_platform.lower() + "_" + subordinateip + '" cmd.run "' + git_commit_cmd + '"'
     subprocess.call(salt_cmd_git_commit, cwd = src_scripts_path, shell = True)
     
-    git_push_origin = "git push origin master"
-    salt_cmd_git_push_origin = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + git_push_origin + '"'
+    git_push_origin = "git push origin main"
+    salt_cmd_git_push_origin = 'echo "123456"|sudo -S salt "' + subordinate_platform.lower() + "_" + subordinateip + '" cmd.run "' + git_push_origin + '"'
     subprocess.call(salt_cmd_git_push_origin, cwd = src_scripts_path, shell = True)
     log.info("first git push success!")
 
 
-def git_commit(src_scripts_path, scripts_path, slavename,slaveip,slave_platform):
-    git_commit_cmd = "git commit %s -m 'update for %s'" % (scripts_path, slavename)
-    salt_cmd_git_commit = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + git_commit_cmd + '"'
+def git_commit(src_scripts_path, scripts_path, subordinatename,subordinateip,subordinate_platform):
+    git_commit_cmd = "git commit %s -m 'update for %s'" % (scripts_path, subordinatename)
+    salt_cmd_git_commit = 'echo "123456"|sudo -S salt "' + subordinate_platform.lower() + "_" + subordinateip + '" cmd.run "' + git_commit_cmd + '"'
     subprocess.call(salt_cmd_git_commit, cwd = src_scripts_path, shell = True)
-    git_push_origin = "git push origin master"
-    salt_cmd_git_push_origin = 'echo "123456"|sudo -S salt "' + slave_platform.lower() + "_" + slaveip + '" cmd.run "' + git_push_origin + '"'
+    git_push_origin = "git push origin main"
+    salt_cmd_git_push_origin = 'echo "123456"|sudo -S salt "' + subordinate_platform.lower() + "_" + subordinateip + '" cmd.run "' + git_push_origin + '"'
     subprocess.call(salt_cmd_git_push_origin, cwd = src_scripts_path, shell = True)
     log.info("git push success!")
 
     
 @csrf_exempt
 def create_new_build(request):
-    #cmd = 'echo "123456"|sudo -S salt "win_10.10.2.30" cmd.run "buildslave create-slave X:/TEST 10.10.2.170:9989 TEST 123456"'
+    #cmd = 'echo "123456"|sudo -S salt "win_10.10.2.30" cmd.run "buildsubordinate create-subordinate X:/TEST 10.10.2.170:9989 TEST 123456"'
     #cmd = 'echo "123456"|sudo -S salt "win_10.10.2.30" state.sls test'
     #p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
     #out = p.stdout.read()
@@ -340,10 +340,10 @@ def create_new_build(request):
     #fp.write("err: " + err)
     #fp.close()
 
-    masterip = request.POST.get("masterip", "").strip()
-    slaveip = request.POST.get("slaveip", "").strip()
-    slave_platform = request.POST.get("slave_platform", "").strip()
-    slavename = request.POST.get("slavename", "").strip()
+    mainip = request.POST.get("mainip", "").strip()
+    subordinateip = request.POST.get("subordinateip", "").strip()
+    subordinate_platform = request.POST.get("subordinate_platform", "").strip()
+    subordinatename = request.POST.get("subordinatename", "").strip()
     buildername = request.POST.get("buildername", "").strip()
     start_method = request.POST.get("start_method", "").strip()
     username = request.session["username"]
@@ -365,14 +365,14 @@ def create_new_build(request):
             return render_to_response("error.html")
     log.info("\n")
     log.info("-----------------------------begin----------------------------------")
-    log.info("master ip is:%s" % masterip)
-    log.info("slave ip is:%s" % slaveip)
-    log.info("slave platform is:%s" % slave_platform)
-    log.info("slavename is:%s" % slavename)
+    log.info("main ip is:%s" % mainip)
+    log.info("subordinate ip is:%s" % subordinateip)
+    log.info("subordinate platform is:%s" % subordinate_platform)
+    log.info("subordinatename is:%s" % subordinatename)
     log.info("buildername is:%s" % buildername)
-    slave_count = Build_Info.objects.filter(slavename = slavename).count()
-    if slave_count >= 1:
-        var_name = "slave"
+    subordinate_count = Build_Info.objects.filter(subordinatename = subordinatename).count()
+    if subordinate_count >= 1:
+        var_name = "subordinate"
         context = {"request":request,
                    "var_name":var_name}
         return render_to_response("duplicate.html",context)
@@ -390,10 +390,10 @@ def create_new_build(request):
     else:
         git_project_path_flag = False
     
-    old_master,master_template,new_master,factory_template,new_factory,src_scripts_path,scripts_path,slave_source_path,builder_waterfall_address = get_params(masterip,slave_platform,slavename,buildername)
-    build_info = Build_Info(masterip = masterip, slaveip = slaveip, slave_platform = slave_platform, slavename = slavename, buildername = buildername,start_method = start_method,\
+    old_main,main_template,new_main,factory_template,new_factory,src_scripts_path,scripts_path,subordinate_source_path,builder_waterfall_address = get_params(mainip,subordinate_platform,subordinatename,buildername)
+    build_info = Build_Info(mainip = mainip, subordinateip = subordinateip, subordinate_platform = subordinate_platform, subordinatename = subordinatename, buildername = buildername,start_method = start_method,\
                             username = username, hour = hour,minute = minute,git_project_path = git_project_path,branches = branches,monitor_file_path = monitor_file_path,\
-                            send_mail = send_mail, flag = 1, new_master = new_master, new_factory = new_factory,scripts_path = scripts_path)
+                            send_mail = send_mail, flag = 1, new_main = new_main, new_factory = new_factory,scripts_path = scripts_path)
     build_info.save()
     obj = Build_Info.objects.all()[0]
     if obj:
@@ -414,7 +414,7 @@ def create_new_build(request):
                 ###############################     the line below need to use saltstack     ###################################
                 #salt "ip" cmd.run "mkdir"
                 os.makedirs(scripts_path)
-            if slave_platform == "Win":
+            if subordinate_platform == "Win":
                 filename = "script" + str(each_num) + ".bat"    
             else:
                 filename = "script" + str(each_num) + ".sh"
@@ -426,26 +426,26 @@ def create_new_build(request):
             build_steps.save()
     #commit build step scripts to git
     ###############################     the line below need to use saltstack     ###################################
-    git_first_commit(src_scripts_path,scripts_path,slavename,slaveip, slave_platform)
+    git_first_commit(src_scripts_path,scripts_path,subordinatename,subordinateip, subordinate_platform)
     branches_list = deal_with_data(branches)
     send_mail_list = deal_with_data(send_mail)
     log.info(send_mail_list)
-    slave_path = os.path.join(slave_source_path, slavename)
+    subordinate_path = os.path.join(subordinate_source_path, subordinatename)
     ###############################     the line below need to use saltstack     ###################################
-    create_slave(masterip,slave_path,slaveip,slave_platform,slavename)
+    create_subordinate(mainip,subordinate_path,subordinateip,subordinate_platform,subordinatename)
     ###############################     the line below need to use saltstack     ###################################
-    create_new_master(master_template,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list,git_project_path_flag)
+    create_new_main(main_template,buildername,subordinatename,git_project_path,branches_list,monitor_file_path,hour,minute,new_main,send_mail_list,git_project_path_flag)
     ###############################     the line below need to use saltstack     ###################################
-    import_new_master(old_master,buildername)
+    import_new_main(old_main,buildername)
     ###############################     the line below need to use saltstack     ###################################
     create_new_factory(build_info_id,factory_template,new_factory)
-    #TODO: restart master
+    #TODO: restart main
     ###############################     the line below need to use saltstack     ###################################
-    restart_master(masterip,slave_platform)
+    restart_main(mainip,subordinate_platform)
     ###############################     the line below need to use saltstack     ###################################
-    script_file = create_start_slave_script(slave_platform,slave_source_path,slavename)
+    script_file = create_start_subordinate_script(subordinate_platform,subordinate_source_path,subordinatename)
     ###############################     the line below need to use saltstack     ###################################
-    start_slave_script(slaveip,slave_platform,script_file)
+    start_subordinate_script(subordinateip,subordinate_platform,script_file)
     
     return render_to_response("success.html",{"builder_waterfall_address":builder_waterfall_address})
 
@@ -506,8 +506,8 @@ def search_info(request):
     if not record_name:
         flag = 1
 
-    if search_name == "slavename" and record_name:
-        temp_build_info = Build_Info.objects.extra(where = ["slavename like'%%" + str(record_name) + "%%'"])
+    if search_name == "subordinatename" and record_name:
+        temp_build_info = Build_Info.objects.extra(where = ["subordinatename like'%%" + str(record_name) + "%%'"])
         build_info = temp_build_info.filter(flag = 1)
         if not build_info:
             return HttpResponseRedirect("/empty/")
@@ -517,8 +517,8 @@ def search_info(request):
         build_info = temp_build_info.filter(flag = 1)
         if not build_info:
             return HttpResponseRedirect("/empty/")
-    elif search_name == "slave_platform" and record_name:
-        temp_build_info = Build_Info.objects.extra(where = ["slave_platform like'%%" + str(record_name) + "%%'"])
+    elif search_name == "subordinate_platform" and record_name:
+        temp_build_info = Build_Info.objects.extra(where = ["subordinate_platform like'%%" + str(record_name) + "%%'"])
         build_info = temp_build_info.filter(flag = 1)
         if not build_info:
             return HttpResponseRedirect("/empty/")
@@ -560,10 +560,10 @@ def update_info_page(request, params):
 def update_info(request,params):
     build_info = Build_Info.objects.filter(id=params)
     build_steps = Build_Steps.objects.filter(build_info_id=params)
-    masterip = request.POST.get("masterip", "").strip()
-    slaveip = request.POST.get("slaveip", "").strip()
-    slave_platform = request.POST.get("slave_platform", "").strip()
-    slavename = request.POST.get("slavename", "").strip()
+    mainip = request.POST.get("mainip", "").strip()
+    subordinateip = request.POST.get("subordinateip", "").strip()
+    subordinate_platform = request.POST.get("subordinate_platform", "").strip()
+    subordinatename = request.POST.get("subordinatename", "").strip()
     buildername = request.POST.get("buildername", "").strip()
     start_method = request.POST.get("start_method", "").strip()
     username = request.POST.get("username", "").strip()
@@ -576,33 +576,33 @@ def update_info(request,params):
     monitor_file_path = request.POST.get("monitor_file_path", "monitor_file_path").strip()
     send_mail = request.POST.get("send_mail", "").strip()
    
-    new_master = request.POST.get("new_master","").strip()
+    new_main = request.POST.get("new_main","").strip()
     new_factory = request.POST.get("new_factory","").strip()
     scripts_path = request.POST.get("scripts_path","").strip()
     for each_value in request.POST.values():
         if not each_value.strip():
             return render_to_response("update_error.html", locals())
 
-    git_project_path_master_conf = Build_Info.objects.filter(git_project_path = git_project_path)
-    git_project_path_master_conf_list = []
+    git_project_path_main_conf = Build_Info.objects.filter(git_project_path = git_project_path)
+    git_project_path_main_conf_list = []
     git_project_path_flag = False
-    if len(git_project_path_master_conf) >= 1:
-        for each_record in git_project_path_master_conf:
-            git_project_path_master_conf_list.append(each_record.new_master)
-            all_lines = read_file_lines(each_record.new_master)
+    if len(git_project_path_main_conf) >= 1:
+        for each_record in git_project_path_main_conf:
+            git_project_path_main_conf_list.append(each_record.new_main)
+            all_lines = read_file_lines(each_record.new_main)
             for each_line in all_lines:
                 if each_line.strip().startswith("c['change_source'].append(cs_gitpoller)"):
                     git_project_path_flag = True
                     break
 
-    build_info.update(masterip = masterip, slaveip = slaveip, slave_platform = slave_platform, slavename = slavename,buildername = buildername,\
+    build_info.update(mainip = mainip, subordinateip = subordinateip, subordinate_platform = subordinate_platform, subordinatename = subordinatename,buildername = buildername,\
                       start_method = start_method,username = username, hour = hour,minute = minute,git_project_path = git_project_path,branches = branches,\
-                      monitor_file_path = monitor_file_path,send_mail = send_mail, flag = 1,new_master = new_master,new_factory = new_factory,scripts_path = scripts_path)
+                      monitor_file_path = monitor_file_path,send_mail = send_mail, flag = 1,new_main = new_main,new_factory = new_factory,scripts_path = scripts_path)
 
     all_count = build_steps.count()
     if all_count > 0:
         for each_num in xrange(1,all_count+1):
-            if slave_platform == "Win":
+            if subordinate_platform == "Win":
                 filename = "script" + str(each_num) + ".bat"    
             else:
                 filename = "script" + str(each_num) + ".sh"
@@ -617,35 +617,35 @@ def update_info(request,params):
     branches_list = deal_with_data(branches)
     send_mail_list = deal_with_data(send_mail)
     #update conf file
-    if masterip == "10.10.2.201":
+    if mainip == "10.10.2.201":
         factory_template = r"\\10.10.2.201\DVDFab_dev\factory_template.py"
-        master_template = r"\\10.10.2.201\DVDFab_dev\master_template.cfg"
+        main_template = r"\\10.10.2.201\DVDFab_dev\main_template.cfg"
         builder_waterfall_address = "http://10.10.2.201:8010/waterfall?show=" + buildername
         #src_scripts_path = "d:/Buildbot_DVDFab/tool"
 
-    elif masterip == "10.10.2.170":
+    elif mainip == "10.10.2.170":
         factory_template = r"\\10.10.2.170\DVDFab9_Developer\factory_template.py"
-        master_template = r"\\10.10.2.170\DVDFab9_Developer\master_template.cfg"
+        main_template = r"\\10.10.2.170\DVDFab9_Developer\main_template.cfg"
         builder_waterfall_address = "http://10.10.2.170:8010/waterfall?show=" + buildername
         #src_scripts_path = "/Volumes/DATA/Buildbot_DVDFab/tool"
    
-    elif masterip == "10.10.2.141":
+    elif mainip == "10.10.2.141":
         factory_template = r"\\10.10.2.141\VDMC_android\factory_template.py"
-        master_template = r"\\10.10.2.141\VDMC_android\master_template.cfg"
+        main_template = r"\\10.10.2.141\VDMC_android\main_template.cfg"
         builder_waterfall_address = "http://10.10.2.141:8010/waterfall?show=" + buildername
         #src_scripts_path = "/home/goland/buildbot/scripts"
-    #old_master,master_template,new_master,factory_template,new_factory,scripts_path,slave_source_path,builder_waterfall_address = get_params(masterip,slave_platform,slavename,buildername)
+    #old_main,main_template,new_main,factory_template,new_factory,scripts_path,subordinate_source_path,builder_waterfall_address = get_params(mainip,subordinate_platform,subordinatename,buildername)
     ###############################     the line below need to use saltstack     ###################################
-    create_new_master(master_template,buildername,slavename,git_project_path,branches_list,monitor_file_path,hour,minute,new_master,send_mail_list,git_project_path_flag)
+    create_new_main(main_template,buildername,subordinatename,git_project_path,branches_list,monitor_file_path,hour,minute,new_main,send_mail_list,git_project_path_flag)
     ###############################     the line below need to use saltstack     ###################################
     create_new_factory(params,factory_template,new_factory)
     #TODO: git push scripts
     #commit updated build step scripts to git
     ###############################     the line below need to use saltstack     ###################################
-    #git_commit(src_scripts_path, scripts_path, slavename)
-    git_commit(os.path.dirname(scripts_path), scripts_path, slavename,slaveip,slave_platform)
+    #git_commit(src_scripts_path, scripts_path, subordinatename)
+    git_commit(os.path.dirname(scripts_path), scripts_path, subordinatename,subordinateip,subordinate_platform)
     ###############################     the line below need to use saltstack     ###################################
-    restart_master(masterip,slave_platform)
+    restart_main(mainip,subordinate_platform)
     return render_to_response("update_success.html",{"builder_waterfall_address":builder_waterfall_address})
 
 def delete_files(filename):
@@ -654,51 +654,51 @@ def delete_files(filename):
         log.info("delete %s!" % filename)
 
 
-def update_master(masterip,buildername):
-    if masterip == "10.10.2.201":
-        old_master = r"\\10.10.2.201\DVDFab_dev\master.cfg"        
-    elif masterip == "10.10.2.170":
-        old_master = r"\\10.10.2.170\DVDFab9_Developer\master.cfg"
-    elif masterip == "10.10.2.141":
-        old_master = r"\\10.10.2.141\VDMC_android\master.cfg"
+def update_main(mainip,buildername):
+    if mainip == "10.10.2.201":
+        old_main = r"\\10.10.2.201\DVDFab_dev\main.cfg"        
+    elif mainip == "10.10.2.170":
+        old_main = r"\\10.10.2.170\DVDFab9_Developer\main.cfg"
+    elif mainip == "10.10.2.141":
+        old_main = r"\\10.10.2.141\VDMC_android\main.cfg"
     ###############################     the line below need to use saltstack     ###################################
-    master_content_lines = read_file_lines(old_master)
+    main_content_lines = read_file_lines(old_main)
     new_line_list = []
     flag = 0
-    for each_line in master_content_lines:
-        if each_line.startswith("import master_" + buildername):
+    for each_line in main_content_lines:
+        if each_line.startswith("import main_" + buildername):
             log.info("remove this line: %s" % each_line)
             flag = 1
-        elif each_line.strip().startswith("c = master_" + buildername + ".update_params_dict(c)"):
+        elif each_line.strip().startswith("c = main_" + buildername + ".update_params_dict(c)"):
             log.info("remove this line: %s" % each_line)
             flag = 1
         else:
             new_line_list.append(each_line)
     if flag:
-        log.info("create new master conf file")
+        log.info("create new main conf file")
         ###############################     the line below need to use saltstack     ###################################
-        fp = open(old_master, "w")
+        fp = open(old_main, "w")
         for each_line in new_line_list:
             fp.write(each_line)
         fp.close()
-        log.info("remove builderer %s conf from master conf file" % buildername)
+        log.info("remove builderer %s conf from main conf file" % buildername)
         
 
 def delete(request, params):
     if request.session.has_key("username"):
         build_info = Build_Info.objects.get(id=params)
-        masterip = build_info.masterip
+        mainip = build_info.mainip
         build_steps = Build_Steps.objects.filter(build_info_id=params)
         #build_steps.delete()
         #build_info.delete()
         #delete_files(factory_path)
-        #delete_files(master_path)
+        #delete_files(main_path)
         build_info.flag = 2
         build_info.save()
-        masterip = build_info.masterip
+        mainip = build_info.mainip
         buildername = build_info.buildername
         ###############################     the line below need to use saltstack     ###################################
-        update_master(masterip,buildername)
+        update_main(mainip,buildername)
         return HttpResponseRedirect("/display_all_records/")
     else:
         return HttpResponse("<body style = 'background-color:#77ac98'><a href = '/login/'>请先登录</a></body>")

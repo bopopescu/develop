@@ -22,9 +22,9 @@ urlpatterns = patterns('publish.views',
     url(r"^forbidden/$", "forbidden", name = "forbidden_name"),
 
     url(r"^api/v1/update/pre_imagename/$", "update_pre_imagename", name = "update_pre_imagename"),
-    url(r"^api/v1/update/master_imagename/$", "update_master_imagename", name = "update_master_imagename"),
+    url(r"^api/v1/update/main_imagename/$", "update_main_imagename", name = "update_main_imagename"),
     url(r"^api/v1/update/pub_flag/$", "update_pub_flag", name = "update_pub_flag"),
-    url(r"^api/v1/get/master_imagename/$", "get_master_imagename", name = "get_master_imagename"),
+    url(r"^api/v1/get/main_imagename/$", "get_main_imagename", name = "get_main_imagename"),
     #url(r'^publish/', include('publish.urls')),
     # Examples:
     # url(r'^$', 'code_publish.views.home', name='home'),

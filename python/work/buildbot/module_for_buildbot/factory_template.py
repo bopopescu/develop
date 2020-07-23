@@ -12,7 +12,7 @@ import MySQLdb
 DB_NAME = "auto_create_build"
 TB_NAME = "create_build_build_steps"
 build_info_id = "var_build_info_id"
-SLAVE_PLATFORM = "var_slave_platform"
+SLAVE_PLATFORM = "var_subordinate_platform"
 
 
 class Factory(): 
@@ -29,7 +29,7 @@ class Factory():
             print str(e)   
         else:
             cursor = conn.cursor()
-            select_sql = 'select slave_script_file,work_dir,description from %s where build_info_id = "%s"' % (TB_NAME, build_info_id)
+            select_sql = 'select subordinate_script_file,work_dir,description from %s where build_info_id = "%s"' % (TB_NAME, build_info_id)
             cursor.execute(select_sql)
             res = cursor.fetchall()
             conn.commit()

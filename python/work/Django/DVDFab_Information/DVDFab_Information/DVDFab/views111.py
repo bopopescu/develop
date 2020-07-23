@@ -147,7 +147,7 @@ def git_push(filename_list, filepath):
     log("stdout: " + stdout)
     log("stderr: " + stderr)
     log("git push 333333")
-    git_push_cmd = "git push origin master"
+    git_push_cmd = "git push origin main"
     p3 = subprocess.Popen(git_push_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = filepath, shell = True)
     log("file path is " + filepath)
     log("git push 444444")

@@ -83,8 +83,8 @@ class WinDVDFabFactoryTs():
         #build_rebuild = self.get_build_rebuild()
 
         #run get_datat.py to write svn info to svninfo.log
-        #step_write_svninfo = ShellCommand(command="python d:/buildbot_DVDFab/master/DVDFab_dev/get_data_201.py",
-        #                      workdir = "d:/buildbot_DVDFab/master/DVDFab_dev/")
+        #step_write_svninfo = ShellCommand(command="python d:/buildbot_DVDFab/main/DVDFab_dev/get_data_201.py",
+        #                      workdir = "d:/buildbot_DVDFab/main/DVDFab_dev/")
         #f1.addStep(step_write_svninfo)       
         
         #****************************************update************************************************************

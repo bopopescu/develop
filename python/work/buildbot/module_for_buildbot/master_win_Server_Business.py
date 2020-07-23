@@ -10,7 +10,7 @@ from buildbot.config import BuilderConfig
 from buildbot import locks
 from buildbot.steps import source,shell
 from buildbot.process import factory
-from buildbot.buildslave import BuildSlave
+from buildbot.buildsubordinate import BuildSubordinate
 from buildbot.status import html
 from buildbot.status.web import auth, authz
 from buildbot.status.mail import MailNotifier
@@ -27,7 +27,7 @@ SLAVEIP = "10.10.2.73"
 ####################################GitPoller#################################
 #cs_gitpoller = GitPoller(#project = "win_Server_Business",
 #                         repourl="git_project_path_win_Server_Business",
-#                         #branches = ["master"],
+#                         #branches = ["main"],
 #                         branches = ['branches'],
 #						 pollInterval = 60,
 #						 gitbin = "/usr/bin/git")
@@ -96,9 +96,9 @@ db_lock = get_lock(locks.build_lock_dict)
 win_Server_Business_build_dir = "build_win_Server_Business_dir"
 b_win_Server_Business = {
 		'name' : 'win_Server_Business',
-		'slavename' : 'Win_Server_Business',
+		'subordinatename' : 'Win_Server_Business',
 		'builddir' : win_Server_Business_build_dir,
-                'slavebuilddir' : win_Server_Business_build_dir,
+                'subordinatebuilddir' : win_Server_Business_build_dir,
 	        'locks' : [db_lock.access("exclusive")],
 		'factory' : f_win_Server_Business}
 
@@ -109,7 +109,7 @@ authz_cfg=authz.Authz(
     # options
 	auth=auth.BasicAuth([('admin', 'admin_123456')]),
     gracefulShutdown = False,
-    forceBuild = 'auth', # use this to test your slave once it is set up
+    forceBuild = 'auth', # use this to test your subordinate once it is set up
     forceAllBuilds = False,
     pingBuilder = False,
     stopBuild = 'auth',
@@ -133,7 +133,7 @@ win_Server_Business_mail = MailNotifier(
 
 
 def update_params_dict(c):
-    c['slaves'].append(BuildSlave("Win_Server_Business", "123456"))
+    c['subordinates'].append(BuildSubordinate("Win_Server_Business", "123456"))
     #c['change_source'].append(cs_gitpoller)	
     c['schedulers'].append(scheduler_win_Server_Business_build)
     c['schedulers'].append(Win_Server_Business_time)

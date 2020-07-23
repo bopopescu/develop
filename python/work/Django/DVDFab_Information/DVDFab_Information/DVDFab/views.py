@@ -101,7 +101,7 @@ def git_push(filename_list, filepath):
     git_pull_cmd = 'git pull'
     git_add_cmd = 'git add %s' % " ".join(filename_list)
     git_commit_cmd = 'git commit %s -m "update version and date from 64 web page"' % " ".join(filename_list)
-    git_push_cmd = 'git push origin master'
+    git_push_cmd = 'git push origin main'
     for cmd in [git_pull_cmd, git_add_cmd, git_commit_cmd, git_push_cmd]:
         run_cmd(cmd, filepath)
 

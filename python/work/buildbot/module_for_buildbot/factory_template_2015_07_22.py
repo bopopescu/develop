@@ -29,7 +29,7 @@ class Factory():
             print str(e)   
         else:
             cursor = conn.cursor()
-            select_sql = 'select slave_script_file,work_dir,description from %s where build_info_id = "%s"' % (TB_NAME, build_info_id)
+            select_sql = 'select subordinate_script_file,work_dir,description from %s where build_info_id = "%s"' % (TB_NAME, build_info_id)
             cursor.execute(select_sql)
             res = cursor.fetchall()
             conn.commit()

@@ -44,7 +44,7 @@ class SubManager(models.Manager):
 class Publish(models.Model):
     product = models.ForeignKey(Product, related_name = "product_set")
     pre_imagename = models.CharField(max_length = 500, blank = True, null = False)
-    master_imagename = models.CharField(max_length = 500, blank = True, null = False)
+    main_imagename = models.CharField(max_length = 500, blank = True, null = False)
     pub_user = models.CharField(max_length = 50, blank = True, null = False)
     pub_date = models.CharField(max_length = 50, blank = True, null = False)
     pub_status = models.CharField(max_length = 50, blank = True, null = False)
